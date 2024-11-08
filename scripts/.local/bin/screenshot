@@ -1,0 +1,22 @@
+#!/bin/sh
+
+mode="$1"
+
+case $mode in
+    "region")
+        if [ $XDG_SESSION_TYPE = 'wayland' ]; then
+            grim -g "$(slurp)" - | swappy -f -
+        else
+            maim -su "$HOME/Downloads/Screenshot_$(date +%Y-%m-%d_%H.%M.%S).png"
+        fi
+        ;;
+    "all")
+        if [ $XDG_SESSION_TYPE = 'wayland' ]; then
+            grim - | swappy -f -
+        else
+            maim -u "$HOME/Downloads/Screenshot_$(date +%Y-%m-%d_%H.%M.%S).png"
+        fi
+        ;;
+esac
+
+exit 0

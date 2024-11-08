@@ -1,0 +1,62 @@
+;; -*-gitconfig-*-
+;; vim: set filetype=gitconfig
+
+[core]
+	excludesfile = ~/.gitignore_global
+
+[alias]
+	alias = ! "git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /"
+	graph = log --graph
+	amend = commit -a --amend
+	sync = !git fetch --all && git rebase --interactive origin/main
+	patch = add -p
+	prune = fetch --prune origin
+	staged = diff --cached --ignore-submodules=dirty
+	pop = stash pop
+	unstash = stash branch
+	rewind = checkout HEAD --
+	reword = commit --amend --only -v --
+	uncommit = "!f() { git reset @~"$@" && git commit --amend --no-edit; }; f"
+	abbrev = "!f() { git rev-parse --short "${1-`echo HEAD`}"; }; f"
+	root = rev-parse --show-toplevel
+	gone = ! "git fetch -p && git branch -vv | grep ': gone]' | grep -v '\\*' | awk '{ print $1 }' | xargs -r git branch -D"
+	filediff = diff --name-only
+	files = "!f() { git log --name-only --diff-filter=A --pretty=format: | sort -u; }; f"
+	open = "!f() { git files | fzf --query="$1" | xargs -I{} "$EDITOR $(git root)/"{}; }; f"
+	fixup = ! "git log --oneline --decorate @{u} | fzf | awk '{ print $1 }' | xargs -I{} git commit --fixup={}"
+	trash = reset --hard HEAD
+	release = "!f() { \
+		LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo '0.0.0'); \
+		read -p \"New release [$LAST_TAG]: \" NEW_TAG; \
+		NEW_TAG=${NEW_TAG:-$LAST_TAG}; \
+		if [ \"$NEW_TAG\" != \"$LAST_TAG\" ]; then \
+			git tag -a \"$NEW_TAG\" -m \"Release $NEW_TAG\"; \
+			echo \"Created tag: $NEW_TAG\"; \
+		else \
+			echo \"No new tag created (same as previous)\"; \
+		fi; \
+	}; f"
+
+[sendemail]
+	smtpEncryption = tls
+	sendMailCmd = "/usr/bin/msmtp"
+	smtpServerOption = "--read-envelope-from"
+	confirm = always
+
+[color]
+	ui = true
+
+[diff]
+	colorMoved = default
+
+[rerere]
+	enabled = true
+
+[merge]
+	conflictstyle = diff3
+
+[push]
+	autoSetupRemote = true
+
+[mergetool]
+	prompt = false

@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+
+_change_worktree() {
+    root="$(git rev-parse --show-toplevel)"
+
+    new_root=$(
+        git worktree list \
+            | fzf --height=10 --reverse --prompt="Worktree> " --with-nth='3' --query="$*" -1 \
+            | awk '{ print $1}'
+    )
+
+    if [ "$new_root" = "" ]; then 
+        exit 1
+    fi
+
+    new_path="$(echo "$PWD" | sed "s#$root#$new_root#g")"
+
+    echo "$new_path"
+}
+
+_change_worktree "$*"

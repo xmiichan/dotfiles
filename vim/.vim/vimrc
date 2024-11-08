@@ -1,0 +1,334 @@
+" BASIC CONFIG
+if &compatible
+  set nocompatible
+endif
+
+set backspace=2         " backspace in insert mode works like normal editor
+syntax on               " syntax highlighting
+filetype indent on      " activates indenting for files
+set autoindent          " auto indenting
+set smartindent         " smart indenting
+set ignorecase          " case-insensitive search
+set smartcase           " ... unless you're explicit
+set smarttab            " smart tabbing and deleting indentation
+set wrap                " line wrap
+set number              " line numbers
+set nobackup            " get rid of anoying ~files
+set autoread            " automatically reload files that have been changed
+set hlsearch            " highlight search results
+set ruler               " show current position
+set showmatch           " show matching parens etc.
+set encoding=utf8       " set unicode as standard encoding
+set autochdir           " cwd follows file
+set shiftwidth=4        " indent by 4 spaces
+set tabstop=4           " tab = 4 spaces
+set laststatus=2        " mode line
+set colorcolumn=80      " line at 80 ch width
+set splitbelow          " new split obens below
+set splitright          " new split obens right
+set cursorline          " cursor line
+set wildmenu            " menu autocomplete
+set mouse=a             " mouse support
+set relativenumber      " relative line numbers
+set re=0                " don't use old regex engine
+set scrolloff=8         " keep 8 lines while scrolling
+set updatetime=50       " update every 50ms
+set ttimeoutlen=50      " quicker exit insert mode with ESC
+
+" saving options in session and view files causes more problems than it solves
+set sessionoptions-=options
+set viewoptions-=options
+
+" undercurl support
+let &t_Cs = "\e[4:3m"
+let &t_Ce = "\e[4:0m"
+
+" bar cursor in insert mode
+let &t_SI = "\e[6 q"
+let &t_EI = "\e[2 q"
+
+" undo
+if has('persistent_undo')
+    set undofile undodir=$HOME/.cache/vim/undo
+    call mkdir(&undodir, "p", 0700)
+    set undolevels=1000
+    set undoreload=10000
+endif
+
+" swap
+set swapfile directory=$HOME/.cache/vim/swapfiles//
+call mkdir(&directory, "p", 0700)
+
+" use space as leader
+let mapleader = " "
+let maplocalleader = ","
+
+" remember last cursor pos in file
+augroup rememberfilepos
+    autocmd!
+    autocmd BufReadPost * silent! normal! g`"zv'
+augroup END
+
+" tab completion
+set omnifunc=syntaxcomplete#Complete
+set completeopt+=menuone
+
+set wildcharm=<C-z>
+cnoremap <expr><Tab>   getcmdtype() =~ '[\/?]' ? "<C-g>" : "<C-z>"
+cnoremap <expr><S-Tab> getcmdtype() =~ '[\/?]' ? "<C-t>" : "<S-Tab>"
+
+" file exploration menu settings
+let g:netrw_banner = 1        " remove directions at top of file listing
+let g:netrw_liststyle=3       " tree style listing
+let g:netrw_browse_split = 3  " split horizontal
+let g:netrw_preview = 1
+
+" KEYMAPS
+" C-l clears search highlight
+nnoremap <C-l> :noh<CR><C-l>
+
+" x does not yank
+noremap x "_x
+noremap X "_X
+" paste without yanking selection
+xnoremap <Leader>p "_dP
+
+" Y works liks C/D
+noremap Y y$
+
+" yank/paste from system clipboard
+nnoremap <Leader>y "+y
+nnoremap <Leader>Y "+Y
+nnoremap <Leader>p "+p
+nnoremap <Leader>P "+P
+vnoremap <Leader>y "+y
+vnoremap <Leader>Y "+Y
+vnoremap <Leader>p "+p
+vnoremap <Leader>P "+P
+
+" resource vimrc
+nnoremap <Leader>x :source $MYVIMRC<CR>
+
+" quick bol/eol
+noremap H ^
+noremap L $
+
+" wrap current paragraph
+noremap <silent> <C-q> gqip
+
+" netrw
+nnoremap <silent> - :Ex<CR>
+
+" quick-edit all like this (budget multicursor)
+nnoremap <C-s> :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
+
+" quick macro
+nnoremap Q @q
+
+" dot repeat / macro on a visually select lines
+xmap . :norm .<CR>
+xmap Q :norm @q<CR>
+
+" move lines in visual
+vnoremap J :m '>+1<CR>gv=gv
+vnoremap K :m '<-2<CR>gv=gv
+
+noremap <silent> <Leader>wv :vsplit<CR>
+noremap <silent> <Leader>wh :split<CR>
+noremap <silent> <Leader>wc :close<CR>
+
+noremap <silent> <Leader><Leader> :b#<CR>
+noremap <silent> <Leader>bb :buffers<CR>
+noremap <silent> <Leader>bn :bnext<CR>
+noremap <silent> <Leader>bc :bdelete<CR>
+
+noremap <silent> <Leader>tt :tabnew<CR>
+noremap <silent> <Leader>tn :tabnext<CR>
+noremap <silent> <Leader>tp :tabprevious<CR>
+noremap <silent> <Leader>tc :tabclose<CR>
+
+" regex-based alignment
+command! -nargs=? -range Align <line1>,<line2>call AlignSection('<args>')
+function! AlignSection(regex) range
+	let extra = 1
+	let sep = empty(a:regex) ? '=' : a:regex
+	let maxpos = 0
+	let section = getline(a:firstline, a:lastline)
+	for line in section
+		let pos = match(line, ' *'.sep)
+		if maxpos < pos
+			let maxpos = pos
+		endif
+	endfor
+	call map(section, 'AlignLine(v:val, sep, maxpos, extra)')
+	call setline(a:firstline, section)
+endfunction
+
+function! AlignLine(line, sep, maxpos, extra)
+	let m = matchlist(a:line, '\(.\{-}\) \{-}\('.a:sep.'.*\)')
+	if empty(m)
+		return a:line
+	endif
+	let spaces = repeat(' ', a:maxpos - strlen(m[1]) + a:extra)
+	return m[1] . spaces . m[2]
+endfunction
+
+vnoremap <silent> <Leader>a :Align<CR>
+
+" split style
+set fillchars+=vert:│
+
+" color scheme
+set bg=dark
+
+function! s:set_colors() abort 
+    hi Normal ctermbg=NONE
+    hi VertSplit ctermbg=NONE    
+    hi LspErrorText ctermfg=Red
+    hi link LspErrorVirtualText LspErrorText
+    hi LspErrorHighlight cterm=undercurl ctermul=Red
+    hi LspWarningText ctermfg=Yellow
+    hi link LspWarningVirtualText LspWarningText
+    hi LspWarningHighlight cterm=undercurl ctermul=Yellow
+    hi LspInformationText ctermfg=Blue
+    hi link LspInformationVirtualText LspInformationText
+    hi LspInformationHighlight cterm=undercurl ctermul=Blue
+    hi LspHintText ctermfg=White
+    hi link LspHintVirtualText LspHintText
+    hi LspHintHighlight cterm=undercurl ctermul=White
+endfunction
+
+augroup colorscheme_change
+    autocmd!
+    autocmd ColorScheme * call s:set_colors()
+augroup END
+
+colorscheme lunaperche
+
+" Statusline
+function! LspStatuslineIcon()
+    let lsp_status = execute('LspStatus')
+    return empty(lsp_status) ? '' : '*'
+endfunction
+
+set statusline=
+set statusline+=%(%{&filetype!='help'?'\ \ '.bufnr('%'):''}\ %)
+set statusline+=%1*\ ‹‹\ %f
+set statusline+=%r%m\ ››\ %2*\ 
+set statusline+=%=
+set statusline+=%{toupper(&ft)}
+set statusline+=%{LspStatuslineIcon()}
+set statusline+=\ \ \ %*\ \ 
+set statusline+=%2p%%
+set statusline+=\ 
+set statusline+=%4l:%02v
+set statusline+=\ 
+
+" Plugins
+let data_dir = '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+    silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin()
+" tpope stuff
+Plug 'tpope/vim-sensible'
+Plug 'tpope/vim-rsi'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-sleuth'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-repeat'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-fugitive'
+" other useful stuff
+Plug 'vim-scripts/ReplaceWithRegister'
+Plug 'machakann/vim-highlightedyank'
+Plug 'justinmk/vim-sneak'
+Plug 'andymass/vim-matchup'
+Plug 'mattn/emmet-vim'
+" fzf
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+" LSP stuff
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+call plug#end()
+
+let g:highlightedyank_highlight_duration = 200
+let g:matchup_matchparen_offscreen = {'method': 'popup'}
+
+function! s:is_git_repo()
+    silent! let l:is_git_repo = system('git rev-parse --is-inside-work-tree')
+    return trim(l:is_git_repo) ==# 'true'
+endfunction
+
+function FilesOrGitFiles() abort
+    let l:cmd = s:is_git_repo() ? 'GFiles' : 'Files'
+    execute l:cmd
+endfunction
+command! FilesOrGitFiles call FilesOrGitFiles()
+
+nnoremap <silent><Leader>ff :FilesOrGitFiles<CR>
+nnoremap <silent><Leader>fF :Files<CR>
+nnoremap <silent><Leader>fb :Buffers<CR>
+nnoremap <silent><Leader>fc :Changes<CR>
+nnoremap <silent><Leader>fm :Marks<CR>
+nnoremap <silent><Leader>s  :Rg<CR>
+nnoremap <silent><Leader>/  :BLines<CR>
+nnoremap <silent><Leader>gg :tab Git<CR>
+nnoremap <silent><Leader>gb :Git blame<CR>
+nnoremap <silent><Leader>gc :Commits<CR>
+nnoremap <silent><Leader>gC :BCommits<CR>
+
+let g:asyncomplete_auto_completeopt = 0
+set completeopt=menuone,noinsert,noselect,preview
+augroup completion
+    autocmd!
+    autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
+augroup END
+inoremap <expr><Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+
+let g:lsp_settings_filetype_vue = ['vtsls', 'volar-server']
+let g:lsp_settings_filetype_typescript = ['vtsls']
+
+function! s:on_lsp_buffer_enabled() abort
+    setlocal omnifunc=lsp#complete
+    setlocal signcolumn=yes
+    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
+    nmap <buffer> fs <Plug>(lsp-document-symbol-search)
+    nmap <buffer> fS <Plug>(lsp-workspace-symbol-search)
+    nmap <buffer> gd <Plug>(lsp-definition)
+    nmap <buffer> gu <Plug>(lsp-references)
+    nmap <buffer> gi <Plug>(lsp-implementation)
+    nmap <buffer> gt <Plug>(lsp-type-definition)
+    nmap <buffer> <Leader>a <Plug>(lsp-code-action)
+    nmap <buffer> <Leader>r <Plug>(lsp-rename)
+    nmap <buffer> <Leader>= <Plug>(lsp-document-format)
+    nmap <buffer> [d <Plug>(lsp-previous-diagnostic)
+    nmap <buffer> ]d <Plug>(lsp-next-diagnostic)
+    nmap <buffer> K  <Plug>(lsp-hover)
+    inoremap <expr><buffer> <C-d> popup_list()->empty() ? "\<C-d>" : lsp#scroll(+4)
+    inoremap <expr><buffer> <C-u> popup_list()->empty() ? "\<C-u>" : lsp#scroll(-4)
+
+    let g:lsp_format_sync_timeout = 1000
+endfunction
+
+augroup lsp_install
+    autocmd!
+    " call s:on_lsp_buffer_enabled for languages with active servers
+    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
+    let g:lsp_diagnostics_echo_cursor = 1
+    let g:lsp_diagnostics_float_cursor = 1
+    let g:lsp_diagnostics_virtual_text_prefix = " ■ "
+    let g:lsp_diagnostics_virtual_text_align = "right"
+    let g:lsp_diagnostics_signs_error = {'text': 'E'}
+    let g:lsp_diagnostics_signs_warning = {'text': '!'}
+    let g:lsp_diagnostics_signs_information = {'text': 'i'}
+    let g:lsp_diagnostics_signs_hint = {'text': 'H'}
+    let g:lsp_document_code_action_signs_hint = {'text': '*'}
+augroup END

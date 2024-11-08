@@ -1,0 +1,164 @@
+#!/usr/bin/env zsh
+
+# Basics
+bindkey -e
+DISABLE_AUTO_TITLE="true"
+export EDITOR=vi
+
+# When using macOS (brew) add the right paths so completion works as expected
+if (( $+commands[brew] )); then
+    export fpath=(
+        ${HOMEBREW_PREFIX}/share/zsh/site-functions
+        ${HOMEBREW_PREFIX}/share/zsh-completions
+        $fpath
+    )
+    export SHELL_COMPLETIONS_DIR="${HOMEBREW_PREFIX}/share/zsh-completions"
+fi
+
+# Utility functions
+_have() { type "$1" &>/dev/null; }
+_source_if() { [[ -r "$1" ]] && source "$1" || return 0; }
+
+# Plugins
+Z_PLUGIN_DIR="$HOME/.local/share/zsh"
+
+if [[ ! -e "$Z_PLUGIN_DIR/zsh-completions" ]]; then
+    git clone https://github.com/zsh-users/zsh-completions \
+        "$Z_PLUGIN_DIR/zsh-completions"
+fi
+
+if [[ ! -e "$Z_PLUGIN_DIR/zsh-autosuggestions" ]]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions \
+        "$Z_PLUGIN_DIR/zsh-autosuggestions"
+fi
+
+fpath+="$Z_PLUGIN_DIR/zsh-completions/src"
+
+# zsh cache
+ZSH_COMPDUMP="$HOME/.cache/zsh/zcompcache"
+
+# Modules and autoloads
+zmodload -i zsh/complist
+autoload -Uz compinit && compinit -u
+autoload -Uz vcs_info
+autoload -Uz add-zsh-hook
+autoload -U select-word-style
+autoload -z edit-command-line
+## quick command editing
+zle -N edit-command-line
+bindkey "^X^E" edit-command-line
+autoload -Uz run-help
+## M-? to run-help on current line
+bindkey '^[?' run-help
+autoload -Uz url-quote-magic bracketed-paste-magic
+## auto-escape stuff in URLs
+zle -N self-insert url-quote-magic
+zle -N bracketed-paste bracketed-paste-magic
+## incremental history search
+history-incremental-search-{back,for}ward() zle .$WIDGET -- $BUFFER
+zle -N history-incremental-search-backward
+zle -N history-incremental-search-forward
+bindkey "^R" history-incremental-pattern-search-backward
+bindkey '^[r' history-incremental-pattern-search-forward
+
+select-word-style bash
+
+# Don't eat space after TAB followed by & or |
+ZLE_SPACE_SUFFIX_CHARS=$'&|'
+
+# Eat space after TAB followed by ), etc.
+ZLE_REMOVE_SUFFIX_CHARS=$' \t\n;)'
+
+# History config
+HISTSIZE=5000
+HISTFILE=~/.cache/zsh/history
+SAVEHIST=5000
+HISTDUP=erase
+
+# Options
+unsetopt listbeep
+setopt extended_glob
+setopt prompt_subst
+setopt transient_rprompt
+setopt appendhistory
+setopt sharehistory
+setopt incappendhistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_ignore_dups
+setopt hist_save_no_dups
+setopt hist_find_no_dups
+setopt auto_pushd
+setopt interactive_comments
+
+add-zsh-hook precmd vcs_info
+
+# Create the parent directory if it doesn't exist
+[[ -d $ZSH_COMPDUMP ]] || mkdir -p $ZSH_COMPDUMP
+
+_comp_files=($ZSH_COMPDUMP/zcompdump(#qN.mh+24))
+
+if (( $#_comp_files )); then
+    autoload -Uz compinit -C -d "$ZSH_COMPDUMP/.zcompdump-${ZSH_VERSION}"
+else
+    autoload -Uz compinit -d "$ZSH_COMPDUMP/.zcompdump-${ZSH_VERSION}"
+fi
+
+export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+[[ -d "$ZSH_CACHE_DIR" ]] || mkdir -p "$ZSH_CACHE_DIR"
+[[ -d "$ZSH_CACHE_DIR/completions" ]] || mkdir -p "$ZSH_CACHE_DIR/completions"
+
+# Set style options
+## version control info
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' unstagedstr '*'
+zstyle ':vcs_info:*' stagedstr '+'
+zstyle ':vcs_info:git:*' formats '%F{green} %b%F{red}%c%u%f'
+zstyle ':vcs_info:git:*' actionformats '%B%F{yellow}(%a)%f %B%F{green} %b%F{red}%c%u%f'
+## disable sort when completing `git checkout`
+zstyle ':completion:*:git-checkout:*' sort false
+## set descriptions format to enable group support
+zstyle ':completion:*:descriptions' format '[%d]'
+## enable tab completion menus
+zstyle ':completion:*' menu select
+## enable ls colors in completion
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+## fuzzy completion
+zstyle ':completion:*' matcher-list '' \
+    'm:{a-z\-}={A-Z\_}' \
+    'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+    'r:|?=** m:{a-z\-}={A-Z\_}'
+
+# Prompt
+PROMPT="%F{blue}%(4~|.../%2~|%~) %B%(#.%F{red}root%(?.%F{green}.%F{red})#.%(?.%F{green}.%F{red})$)%f%b "
+RPROMPT="\${vcs_info_msg_0_}"
+
+# Aliases
+alias myip="curl http://ipecho.net/plain; echo"
+alias reload="exec zsh"
+alias clean="stty sane"
+alias xc="if [ $XDG_SESSION_TYPE = 'wayland' ]; then wl-copy; else xclip -selection c; fi"
+alias xp="if [ $XDG_SESSION_TYPE = 'wayland' ]; then wl-paste; else xclip -o; fi"
+alias ls="ls --color -F"
+alias la="ls -a"
+alias ll="ls -hla"
+alias ducks="du -cksh *"
+alias untar='tar -xvf'
+alias h="history"
+
+_have xdg-open && alias open="xdg-open"
+_have tmux && alias ta="tmux attach"
+_have fdfind && alias fd=fdfind
+_have fastfetch && alias ff=fastfetch
+_have vim && alias vi=vim && export EDITOR=vim
+_have nvim && alias vi=nvim && export EDITOR=nvim
+
+_have direnv && eval "$(direnv hook zsh)"
+_have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
+
+_source_if "$HOME/.cargo/env"
+_source_if "$EAT_SHELL_INTEGRATION_DIR/zsh"
+
+# Source plugins
+_source_if "$Z_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"

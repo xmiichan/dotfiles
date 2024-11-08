@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+
+if ! command -v aws &> /dev/null; then
+    echo "aws-cli not found"
+    exit 1
+fi
+
+while getopts ":c:s:x:r:" opt; do
+  case $opt in
+    c) cluster="$OPTARG"
+       ;;
+    s) service="$OPTARG"
+       ;;
+    x) cmd="$OPTARG"
+       ;;
+    r) region="$OPTARG"
+       ;;
+    \?) echo "Invalid option -$OPTARG" >&2
+        exit 1
+        ;;
+  esac
+
+  case $OPTARG in
+    -*) echo "Option $opt needs a valid argument"
+        exit 1
+        ;;
+  esac
+done
+
+taskdef="$(aws ecs list-tasks --cluster $cluster --service-name $service | awk '{split($2,arr,"/")} {print arr[3]}' | head -n1)"
+
+if [ -z "${taskdef}" ]; then
+   echo 'No taskdef found!'
+   exit 1
+fi
+
+aws ecs execute-command --region "${region:-eu-central-1}" --cluster "$cluster" --task "$taskdef" --command "${cmd:-/bin/sh}" --interactive

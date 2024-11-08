@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+items="$(echo -e "Suspend\nHibernate\nShutdown\nReboot\nLogout\nCancel" |\
+	fzfmenu --no-sort --border=top --border-label=\"Power Menu\")"
+
+case $items in
+	Suspend) 
+		systemctl suspend
+		;;
+    Hibernate) 
+		systemctl hibernate
+		;;
+    Shutdown) 
+		systemctl shutdown
+        ;;
+    Reboot)
+		systemctl reboot
+        ;;
+    Logout)
+		swaynag -t warning -m 'Kill session?' -B 'Yes' 'swaymsg exit'
+        ;;
+    *)
+        ;;
+esac

@@ -1,0 +1,20 @@
+#!/bin/sh
+
+alias clip="xclip -selection c -filter"
+
+tempfile=$(mktemp -t qr-XXXXXX)
+maim -soBu --color=0.8,0.8,0.8,0.6 "$tempfile"
+
+if [ $? -eq 0 ]; then
+    scanresult=$(zbarimg --quiet --raw "$tempfile" | tr -d '\n')
+
+    if [ -z "$scanresult" ]; then
+        notify-send "QR Scan" "No scan data found!"
+    else
+        echo "$scanresult" | clip
+        convert $tempfile -resize 96x96 "$tempfile"
+        notify-send -i "$tempfile" "QR Scan" "$scanresult\nCopied to clipboard."
+    fi
+fi
+
+rm "$tempfile";

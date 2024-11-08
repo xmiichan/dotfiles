@@ -1,0 +1,4 @@
+#!/usr/bin/env sh
+
+ln -sf "$PWD/$1" "$HOME/.swaybg"
+swaymsg reload
