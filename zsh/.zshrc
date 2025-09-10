@@ -146,6 +146,8 @@ alias ll="ls -hla"
 alias ducks="du -cksh *"
 alias untar='tar -xvf'
 alias h="history"
+alias e="$EDITOR"
+alias se="sudo $EDITOR"
 
 _have xdg-open && alias open="xdg-open"
 _have tmux && alias ta="tmux attach"
@@ -154,8 +156,8 @@ _have fastfetch && alias ff=fastfetch
 _have vim && alias vi=vim && export EDITOR=vim
 _have nvim && alias vi=nvim && export EDITOR=nvim
 
-_have direnv && eval "$(direnv hook zsh)"
 _have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
+_have mise && eval "$(mise activate zsh)" && export MISE_ENV_FILE=.env
 
 _source_if "$HOME/.cargo/env"
 _source_if "$EAT_SHELL_INTEGRATION_DIR/zsh"

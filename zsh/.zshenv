@@ -43,9 +43,7 @@ for p (
         "$HOME/.local/bin"
         "$HOME/.cargo/bin"
         "$HOME/.roswell/bin"
-        "$HOME/.asdf/shims"
         "$PERLDIR/bin"
-        "$DOTFILES/scripts"
     ); do
     if [ -d "$p" ]; then
         path+=("$p")
