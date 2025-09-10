@@ -32,8 +32,8 @@ set mouse=a             " mouse support
 set relativenumber      " relative line numbers
 set re=0                " don't use old regex engine
 set scrolloff=8         " keep 8 lines while scrolling
-set updatetime=50       " update every 50ms
-set ttimeoutlen=50      " quicker exit insert mode with ESC
+set updatetime=100      " update every 100ms
+set ttimeoutlen=50      " quicker exit insert mode with esc
 
 " saving options in session and view files causes more problems than it solves
 set sessionoptions-=options
@@ -83,13 +83,14 @@ let g:netrw_liststyle=3       " tree style listing
 let g:netrw_browse_split = 3  " split horizontal
 let g:netrw_preview = 1
 
-" KEYMAPS
+" -- keymaps ---
 " C-l clears search highlight
 nnoremap <C-l> :noh<CR><C-l>
 
 " x does not yank
 noremap x "_x
 noremap X "_X
+
 " paste without yanking selection
 xnoremap <Leader>p "_dP
 
@@ -198,14 +199,14 @@ colorscheme lunaperche
 
 " Statusline
 function! LspStatuslineIcon()
-    let lsp_status = execute('LspStatus')
-    return empty(lsp_status) ? '' : '*'
+    let l:lsp_status = execute('LspStatus')
+    return empty(l:lsp_status) ? '' : '/L'
 endfunction
 
 set statusline=
 set statusline+=%(%{&filetype!='help'?'\ \ '.bufnr('%'):''}\ %)
 set statusline+=%1*\ ‹‹\ %f
-set statusline+=%r%m\ ››\ %2*\ 
+set statusline+=%r%m\ ››%2*\ 
 set statusline+=%=
 set statusline+=%{toupper(&ft)}
 set statusline+=%{LspStatuslineIcon()}
@@ -242,11 +243,11 @@ Plug 'markonm/traces.vim'              " regexp highlighting during ex commands
 Plug 'romainl/vim-qf'                  " quickfix list improvements
 Plug 'romainl/vim-cool'                " autoclear search highlights
 Plug 'andymass/vim-matchup'            " navigate and operate on matching text
-Plug 'remihb/sparkup'                  " HTML/XML quick inserts
+Plug 'remihb/sparkup'                  " html/xml quick inserts
 " fzf
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-" LSP stuff
+" lsp stuff
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
 " completion that ingerates wth vim-lsp
