@@ -1,0 +1,16 @@
+theme = "iTerm2 Pastel Dark Background"
+
+window-padding-x = 5,5
+window-padding-balance = true
+
+font-family = "Sarasa Term J Nerd Font"
+font-thicken = true
+font-size = 16
+font-feature = -calt
+font-feature = -dlig
+
+cursor-style = block
+cursor-style-blink = false
+shell-integration-features = no-cursor
+macos-option-as-alt = left
+macos-titlebar-style = tabs
