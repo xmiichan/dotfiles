@@ -1,6 +1,6 @@
 " BASIC CONFIG
 if &compatible
-  set nocompatible
+    set nocompatible
 endif
 
 set backspace=2         " backspace in insert mode works like normal editor
@@ -133,46 +133,37 @@ xmap Q :norm @q<CR>
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
 
-noremap <silent> <Leader>wv :vsplit<CR>
-noremap <silent> <Leader>wh :split<CR>
-noremap <silent> <Leader>wc :close<CR>
+" preserve cursor position when joining lines
+nnoremap J mzJ`z
 
+" quick buffer switching
 noremap <silent> <Leader><Leader> :b#<CR>
-noremap <silent> <Leader>bb :buffers<CR>
-noremap <silent> <Leader>bn :bnext<CR>
-noremap <silent> <Leader>bc :bdelete<CR>
-
-noremap <silent> <Leader>tt :tabnew<CR>
-noremap <silent> <Leader>tn :tabnext<CR>
-noremap <silent> <Leader>tp :tabprevious<CR>
-noremap <silent> <Leader>tc :tabclose<CR>
 
 " regex-based alignment
 command! -nargs=? -range Align <line1>,<line2>call AlignSection('<args>')
 function! AlignSection(regex) range
-	let extra = 1
-	let sep = empty(a:regex) ? '=' : a:regex
-	let maxpos = 0
-	let section = getline(a:firstline, a:lastline)
-	for line in section
-		let pos = match(line, ' *'.sep)
-		if maxpos < pos
-			let maxpos = pos
-		endif
-	endfor
-	call map(section, 'AlignLine(v:val, sep, maxpos, extra)')
-	call setline(a:firstline, section)
+    let extra = 1
+    let sep = empty(a:regex) ? '=' : a:regex
+    let maxpos = 0
+    let section = getline(a:firstline, a:lastline)
+    for line in section
+	let pos = match(line, ' *'.sep)
+	if maxpos < pos
+	    let maxpos = pos
+	endif
+    endfor
+    call map(section, 'AlignLine(v:val, sep, maxpos, extra)')
+    call setline(a:firstline, section)
 endfunction
 
 function! AlignLine(line, sep, maxpos, extra)
-	let m = matchlist(a:line, '\(.\{-}\) \{-}\('.a:sep.'.*\)')
-	if empty(m)
-		return a:line
-	endif
-	let spaces = repeat(' ', a:maxpos - strlen(m[1]) + a:extra)
-	return m[1] . spaces . m[2]
+    let m = matchlist(a:line, '\(.\{-}\) \{-}\('.a:sep.'.*\)')
+    if empty(m)
+	return a:line
+    endif
+    let spaces = repeat(' ', a:maxpos - strlen(m[1]) + a:extra)
+    return m[1] . spaces . m[2]
 endfunction
-
 vnoremap <silent> <Leader>a :Align<CR>
 
 " split style
@@ -224,6 +215,9 @@ set statusline+=\
 set statusline+=%4l:%02v
 set statusline+=\ 
 
+" prepend mise shims to PATH
+let $PATH = $HOME . '/.local/share/mise/shims:' . $PATH
+
 " Plugins
 let data_dir = '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
@@ -232,29 +226,30 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
 endif
 
 call plug#begin()
-" tpope stuff
-Plug 'tpope/vim-sensible'
-Plug 'tpope/vim-rsi'
-Plug 'tpope/vim-surround'
-Plug 'tpope/vim-commentary'
-Plug 'tpope/vim-sleuth'
-Plug 'tpope/vim-unimpaired'
-Plug 'tpope/vim-endwise'
-Plug 'tpope/vim-repeat'
-Plug 'tpope/vim-vinegar'
-Plug 'tpope/vim-fugitive'
-" other useful stuff
-Plug 'vim-scripts/ReplaceWithRegister'
-Plug 'machakann/vim-highlightedyank'
-Plug 'justinmk/vim-sneak'
-Plug 'andymass/vim-matchup'
-Plug 'mattn/emmet-vim'
+Plug 'tpope/vim-sensible'              " sensible default settings
+Plug 'tpope/vim-rsi'                   " emacs motions in insert mode
+Plug 'tpope/vim-surround'              " motion for surrounding text
+Plug 'tpope/vim-commentary'            " motion to quickly comment stuff
+Plug 'tpope/vim-sleuth'                " auto-detect indentation from file
+Plug 'tpope/vim-unimpaired'            " useful [ and ] bindings
+Plug 'tpope/vim-endwise'               " auto-close if/then/else etc.
+Plug 'tpope/vim-repeat'                " dot mappings for more things
+Plug 'tpope/vim-vinegar'               " netrw improvements
+Plug 'tpope/vim-fugitive'              " git client
+Plug 'vim-scripts/ReplaceWithRegister' " replace motion that doesn't yank
+Plug 'machakann/vim-highlightedyank'   " highlight yanked area
+Plug 'markonm/traces.vim'              " regexp highlighting during ex commands
+Plug 'romainl/vim-qf'                  " quickfix list improvements
+Plug 'romainl/vim-cool'                " autoclear search highlights
+Plug 'andymass/vim-matchup'            " navigate and operate on matching text
+Plug 'remihb/sparkup'                  " HTML/XML quick inserts
 " fzf
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 " LSP stuff
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
+" completion that ingerates wth vim-lsp
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 call plug#end()
@@ -267,23 +262,21 @@ function! s:is_git_repo()
     return trim(l:is_git_repo) ==# 'true'
 endfunction
 
-function FilesOrGitFiles() abort
+function! FilesOrGitFiles() abort
     let l:cmd = s:is_git_repo() ? 'GFiles' : 'Files'
     execute l:cmd
 endfunction
 command! FilesOrGitFiles call FilesOrGitFiles()
 
-nnoremap <silent><Leader>ff :FilesOrGitFiles<CR>
-nnoremap <silent><Leader>fF :Files<CR>
-nnoremap <silent><Leader>fb :Buffers<CR>
-nnoremap <silent><Leader>fc :Changes<CR>
-nnoremap <silent><Leader>fm :Marks<CR>
+nnoremap <silent><Leader>f  :FilesOrGitFiles<CR>
+nnoremap <silent><Leader>F  :Files<CR>
 nnoremap <silent><Leader>s  :Rg<CR>
 nnoremap <silent><Leader>/  :BLines<CR>
 nnoremap <silent><Leader>gg :tab Git<CR>
 nnoremap <silent><Leader>gb :Git blame<CR>
 nnoremap <silent><Leader>gc :Commits<CR>
 nnoremap <silent><Leader>gC :BCommits<CR>
+nnoremap <silent><Leader>gf :GFiles?<CR>
 
 let g:asyncomplete_auto_completeopt = 0
 set completeopt=menuone,noinsert,noselect,preview
