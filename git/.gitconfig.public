@@ -39,7 +39,7 @@
 
 [sendemail]
 	smtpEncryption = tls
-	sendMailCmd = "/usr/bin/msmtp"
+	sendMailCmd = msmtp
 	smtpServerOption = "--read-envelope-from"
 	confirm = always
 
