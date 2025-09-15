@@ -63,6 +63,12 @@ call mkdir(&directory, "p", 0700)
 let mapleader = " "
 let maplocalleader = ","
 
+" use ripgrep instead of grep if available
+if executable('rg')
+    set grepprg=rg\ --vimgrep\ --smart-case\ --no-heading
+    set grepformat=%f:%l:%c:%m
+endif
+
 " remember last cursor pos in file
 augroup rememberfilepos
     autocmd!
