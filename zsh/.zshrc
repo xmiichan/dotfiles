@@ -90,6 +90,7 @@ setopt hist_save_no_dups
 setopt hist_find_no_dups
 setopt auto_pushd
 setopt interactive_comments
+setopt correct
 
 add-zsh-hook precmd vcs_info
 
