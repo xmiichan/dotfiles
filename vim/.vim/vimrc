@@ -78,7 +78,7 @@ augroup END
 
 " tab completion
 set omnifunc=syntaxcomplete#Complete
-set completeopt+=menuone
+set completeopt+=menuone,fuzzy
 
 set wildcharm=<C-z>
 cnoremap <expr><Tab>   getcmdtype() =~ '[\/?]' ? "<C-g>" : "<C-z>"
@@ -227,7 +227,6 @@ if empty(glob(data_dir . '/autoload/plug.vim'))
 endif
 
 call plug#begin()
-Plug 'tpope/vim-sensible'              " sensible default settings
 Plug 'tpope/vim-rsi'                   " emacs motions in insert mode
 Plug 'tpope/vim-surround'              " motion for surrounding text
 Plug 'tpope/vim-commentary'            " motion to quickly comment stuff
@@ -239,12 +238,9 @@ Plug 'tpope/vim-vinegar'               " netrw improvements
 Plug 'tpope/vim-fugitive'              " git client
 Plug 'vim-scripts/ReplaceWithRegister' " replace motion that doesn't yank
 Plug 'machakann/vim-highlightedyank'   " highlight yanked area
-Plug 'markonm/traces.vim'              " regexp highlighting during ex commands
-Plug 'romainl/vim-qf'                  " quickfix list improvements
-Plug 'romainl/vim-cool'                " autoclear search highlights
 Plug 'andymass/vim-matchup'            " navigate and operate on matching text
-Plug 'remihb/sparkup'                  " html/xml quick inserts
-" fzf
+Plug 'mattn/emmet-vim'                 " html/xml quick inserts
+" fuzzy finder
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 " fancy lsp stuff on modern vim versions
@@ -291,7 +287,7 @@ let lsp_servers = [#{
 	    \    path: 'vim-language-server',
 	    \    args: ['--stdio']
 	    \},#{
-	    \    name: 'tsserver',
+	    \   name: 'tsserver',
 	    \   filetype: ['javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'vue'],
 	    \   path: 'typescript-language-server',
 	    \   args: ['--stdio'],
@@ -305,7 +301,13 @@ let lsp_servers = [#{
 	    \           hybridMode: v:false
 	    \       }
 	    \    }
+	    \},#{
+	    \   name: 'biome',
+	    \   filetype: ['javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'json', 'css', 'graphql', 'jsonc'],
+	    \   path: 'biome',
+	    \   args: ['lsp-proxy'],
 	    \}]
+
 let lsp_options = #{
 	    \   diagSignErrorText: ' ',
 	    \   diagSignHintText: ' ',
