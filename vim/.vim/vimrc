@@ -12,6 +12,7 @@ set ignorecase          " case-insensitive search
 set smartcase           " ... unless you're explicit
 set smarttab            " smart tabbing and deleting indentation
 set wrap                " line wrap
+set hidden              " allow hiding unsaved buffers
 set number              " line numbers
 set nobackup            " get rid of anoying ~files
 set autoread            " automatically reload files that have been changed
@@ -85,36 +86,35 @@ cnoremap <expr><S-Tab> getcmdtype() =~ '[\/?]' ? "<C-t>" : "<S-Tab>"
 
 " file exploration menu settings
 let g:netrw_banner = 1        " remove directions at top of file listing
-let g:netrw_liststyle=3       " tree style listing
+let g:netrw_liststyle = 3     " tree style listing
 let g:netrw_browse_split = 3  " split horizontal
-let g:netrw_preview = 1
+let g:netrw_preview = 1       " preview in vertical split
 
 " -- keymaps ---
-" C-l clears search highlight
-nnoremap <C-l> :noh<CR><C-l>
+" C-l clears search highlight nnoremap <C-l> :noh<cr><C-l>
 
 " x does not yank
 noremap x "_x
 noremap X "_X
 
 " paste without yanking selection
-xnoremap <Leader>p "_dP
+xnoremap <leader>p "_dP
 
 " Y works liks C/D
 noremap Y y$
 
 " yank/paste from system clipboard
-nnoremap <Leader>y "+y
-nnoremap <Leader>Y "+Y
-nnoremap <Leader>p "+p
-nnoremap <Leader>P "+P
-vnoremap <Leader>y "+y
-vnoremap <Leader>Y "+Y
-vnoremap <Leader>p "+p
-vnoremap <Leader>P "+P
+nnoremap <leader>y "+y
+nnoremap <leader>Y "+Y
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
+vnoremap <leader>y "+y
+vnoremap <leader>Y "+Y
+vnoremap <leader>p "+p
+vnoremap <leader>P "+P
 
 " resource vimrc
-nnoremap <Leader>x :source $MYVIMRC<CR>
+nnoremap <leader>x :source $MYVIMRC<cr>
 
 " quick bol/eol
 noremap H ^
@@ -124,27 +124,27 @@ noremap L $
 noremap <silent> <C-q> gqip
 
 " netrw
-nnoremap <silent> - :Ex<CR>
+nnoremap <silent> - :Ex<cr>
 
 " quick-edit all like this (budget multicursor)
-nnoremap <C-s> :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>
+nnoremap <C-s> :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<left><left><left>
 
 " quick macro
 nnoremap Q @q
 
 " dot repeat / macro on a visually select lines
-xmap . :norm .<CR>
-xmap Q :norm @q<CR>
+xmap . :norm .<cr>
+xmap Q :norm @q<cr>
 
 " move lines in visual
-vnoremap J :m '>+1<CR>gv=gv
-vnoremap K :m '<-2<CR>gv=gv
+vnoremap J :m '>+1<cr>gv=gv
+vnoremap K :m '<-2<cr>gv=gv
 
 " preserve cursor position when joining lines
 nnoremap J mzJ`z
 
 " quick buffer switching
-noremap <silent> <Leader><Leader> :b#<CR>
+noremap <silent> <leader><leader> :b#<cr>
 
 " regex-based alignment
 command! -nargs=? -range Align <line1>,<line2>call AlignSection('<args>')
@@ -171,7 +171,7 @@ function! AlignLine(line, sep, maxpos, extra)
     let spaces = repeat(' ', a:maxpos - strlen(m[1]) + a:extra)
     return m[1] . spaces . m[2]
 endfunction
-vnoremap <silent> <Leader>a :Align<CR>
+vnoremap <silent> <leader>a :Align<CR>
 
 " split style
 set fillchars+=vert:│
@@ -204,18 +204,12 @@ augroup END
 colorscheme lunaperche
 
 " Statusline
-function! LspStatuslineIcon()
-    let l:lsp_status = execute('LspStatus')
-    return empty(l:lsp_status) ? '' : '/L'
-endfunction
-
 set statusline=
 set statusline+=%(%{&filetype!='help'?'\ \ '.bufnr('%'):''}\ %)
 set statusline+=%1*\ ‹‹\ %f
 set statusline+=%r%m\ ››%2*\ 
 set statusline+=%=
 set statusline+=%{toupper(&ft)}
-set statusline+=%{LspStatuslineIcon()}
 set statusline+=\ \ \ %*\ \ 
 set statusline+=%2p%%
 set statusline+=\ 
@@ -225,11 +219,11 @@ set statusline+=\
 " prepend mise shims to PATH
 let $PATH = $HOME . '/.local/share/mise/shims:' . $PATH
 
-" Plugins
+" plugins
 let data_dir = '~/.vim'
 if empty(glob(data_dir . '/autoload/plug.vim'))
     silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-    autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+    autocmd VimEnter * plugInstall --sync | source $MYVIMRC
 endif
 
 call plug#begin()
@@ -253,12 +247,10 @@ Plug 'remihb/sparkup'                  " html/xml quick inserts
 " fzf
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
-" lsp stuff
-Plug 'prabirshrestha/vim-lsp'
-Plug 'mattn/vim-lsp-settings'
-" completion that ingerates wth vim-lsp
-Plug 'prabirshrestha/asyncomplete.vim'
-Plug 'prabirshrestha/asyncomplete-lsp.vim'
+" fancy lsp stuff on modern vim versions
+if v:version >= 900
+    Plug 'yegappan/lsp'
+endif
 call plug#end()
 
 let g:highlightedyank_highlight_duration = 200
@@ -275,60 +267,78 @@ function! FilesOrGitFiles() abort
 endfunction
 command! FilesOrGitFiles call FilesOrGitFiles()
 
-nnoremap <silent><Leader>f  :FilesOrGitFiles<CR>
-nnoremap <silent><Leader>F  :Files<CR>
-nnoremap <silent><Leader>s  :Rg<CR>
-nnoremap <silent><Leader>/  :BLines<CR>
-nnoremap <silent><Leader>gg :tab Git<CR>
-nnoremap <silent><Leader>gb :Git blame<CR>
-nnoremap <silent><Leader>gc :Commits<CR>
-nnoremap <silent><Leader>gC :BCommits<CR>
-nnoremap <silent><Leader>gf :GFiles?<CR>
+nnoremap <silent><leader>f  :FilesOrGitFiles<cr>
+nnoremap <silent><leader>F  :Files<cr>
+nnoremap <silent><leader>b  :Buffers<cr>
+nnoremap <silent><leader>m  :Marks<cr>
+nnoremap <silent><leader>j  :Jumps<cr>
+nnoremap <silent><leader>l  :BLines<cr>
+nnoremap <silent><leader>L  :Lines<cr>
+nnoremap <silent><leader>/  :Rg<cr>
+nnoremap <silent><leader>gg :tab Git<cr>
+nnoremap <silent><leader>gb :Git blame<cr>
+nnoremap <silent><leader>gc :Commits<cr>
+nnoremap <silent><leader>gC :BCommits<cr>
+nnoremap <silent><leader>gf :GFiles?<cr>
 
-let g:asyncomplete_auto_completeopt = 0
-set completeopt=menuone,noinsert,noselect,preview
-augroup completion
-    autocmd!
-    autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
-augroup END
-inoremap <expr><Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+" stop here unless we're on vim9, all lsp stuff comes after
+if v:version < 900 | finish | endif
 
-let g:lsp_settings_filetype_vue = ['vtsls', 'volar-server']
-let g:lsp_settings_filetype_typescript = ['vtsls']
+let g:node_path = empty(executable('npm')) ? '' : trim(system('npm root -g'))
+let lsp_servers = [#{ 
+	    \    name: 'vimls',
+	    \    filetype: 'vim',
+	    \    path: 'vim-language-server',
+	    \    args: ['--stdio']
+	    \},#{
+	    \    name: 'tsserver',
+	    \   filetype: ['javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'vue'],
+	    \   path: 'typescript-language-server',
+	    \   args: ['--stdio'],
+	    \   initializationOptions: #{
+	    \       plugins: [#{
+	    \		name: '@vue/typescript-plugin',
+	    \		location: g:node_path . '/@vue/language-server/node_modules/@vue/typescript-plugin',
+	    \		languages: ['vue'],
+	    \       }],
+	    \       vue: #{
+	    \           hybridMode: v:false
+	    \       }
+	    \    }
+	    \}]
+let lsp_options = #{
+	    \   diagSignErrorText: ' ',
+	    \   diagSignHintText: ' ',
+	    \   diagSignInfoText: ' ',
+	    \   diagSignWarningText: ' ',
+	    \   showDiagWithVirtualText: v:true,
+	    \   diagVirtualTextAlign: 'after',
+	    \}
 
-function! s:on_lsp_buffer_enabled() abort
-    setlocal omnifunc=lsp#complete
-    setlocal signcolumn=yes
-    if exists('+tagfunc') | setlocal tagfunc=lsp#tagfunc | endif
-    nmap <buffer> fs <Plug>(lsp-document-symbol-search)
-    nmap <buffer> fS <Plug>(lsp-workspace-symbol-search)
-    nmap <buffer> gd <Plug>(lsp-definition)
-    nmap <buffer> gu <Plug>(lsp-references)
-    nmap <buffer> gi <Plug>(lsp-implementation)
-    nmap <buffer> gt <Plug>(lsp-type-definition)
-    nmap <buffer> <Leader>a <Plug>(lsp-code-action)
-    nmap <buffer> <Leader>r <Plug>(lsp-rename)
-    nmap <buffer> <Leader>= <Plug>(lsp-document-format)
-    nmap <buffer> [d <Plug>(lsp-previous-diagnostic)
-    nmap <buffer> ]d <Plug>(lsp-next-diagnostic)
-    nmap <buffer> K  <Plug>(lsp-hover)
-    inoremap <expr><buffer> <C-d> popup_list()->empty() ? "\<C-d>" : lsp#scroll(+4)
-    inoremap <expr><buffer> <C-u> popup_list()->empty() ? "\<C-u>" : lsp#scroll(-4)
+function! s:set_lsp_keys() abort
+    nmap <silent><buffer> <leader>s :LspSymbolSearch<cr>
+    nmap <silent><buffer> gd :LspGotoDefinition<cr>
+    nmap <silent><buffer> gi :LspGotoImpl<cr>
+    nmap <silent><buffer> gt :LspGotoTypeDef<cr>
+    nmap <silent><buffer> <leader>a :LspCodeAction<cr>
+    nmap <silent><buffer> <leader>r :LspRename<cr>
+    nmap <silent><buffer> <leader>= :LspFormat<cr>
+    nmap <silent><buffer> <leader>d :LspDiagShow<cr>
+    nmap <silent><buffer> [d :LspDiagPrev<cr>
+    nmap <silent><buffer> ]d :LspDiagNext<cr>
+    nmap <silent><buffer> K  :LspHover<cr>
 
-    let g:lsp_format_sync_timeout = 1000
+    :LspServer show status
 endfunction
 
-augroup lsp_install
+augroup add_lsp_servers
     autocmd!
-    " call s:on_lsp_buffer_enabled for languages with active servers
-    autocmd User lsp_buffer_enabled call s:on_lsp_buffer_enabled()
-    let g:lsp_diagnostics_echo_cursor = 1
-    let g:lsp_diagnostics_float_cursor = 1
-    let g:lsp_diagnostics_virtual_text_prefix = " ■ "
-    let g:lsp_diagnostics_virtual_text_align = "right"
-    let g:lsp_diagnostics_signs_error = {'text': 'E'}
-    let g:lsp_diagnostics_signs_warning = {'text': '!'}
-    let g:lsp_diagnostics_signs_information = {'text': 'i'}
-    let g:lsp_diagnostics_signs_hint = {'text': 'H'}
-    let g:lsp_document_code_action_signs_hint = {'text': '*'}
+    autocmd User LspSetup call LspAddServer(lsp_servers)
+    autocmd User LspSetup call LspOptionsSet(lsp_options)
 augroup END
+
+augroup lsp_keymaps
+    autocmd!
+    autocmd User LspAttached call s:set_lsp_keys()
+augroup END
+
