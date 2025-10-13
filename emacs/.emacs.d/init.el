@@ -119,13 +119,6 @@
   (setq interprogram-cut-function 'wl-copy)
   (setq interprogram-paste-function 'wl-paste))
 
-;; Scheduled tasks
-(use-package timer
-  :config
-  (when (executable-find "khal")
-    (with-eval-after-load 'khalel
-      (run-at-time nil (* 60 15) #'khalel-import-events))))
-
 ;; GPG integration
 (use-package epg
   :config
@@ -166,25 +159,10 @@
   (when (daemonp)
     (add-hook 'server-after-make-frame-hook #'exec-path-from-shell-initialize)))
 
-(use-package asdf
-  :load-path "modules"
-  :config
-  (asdf-enable))
-
-(use-package direnv
+(use-package mise
   :ensure t
-  :config
-  (defun direnv-edit ()
-    "Edit the .envrc associated with the current directory."
-    (interactive)
-    (require 'with-editor)
-    (let ((display-buffer-alist
-           (cons (cons "\\*Async Shell Command\\*.*" (cons #'display-buffer-no-window nil))
-                 display-buffer-alist)))
-      (with-editor-async-shell-command "direnv edit" nil nil))
-    (direnv-update-environment))
-
-  (direnv-mode +1))
+  :hook
+  ((after-init . global-mise-mode)))
 
 ;; Enable region-binding mode early so other packages can use it.
 (use-package region-bindings-mode
@@ -436,9 +414,10 @@ This is useful, e.g., for use with `visual-line-mode'."
 (defvar nerd-font
   (font-spec :family "IosevkaTerm Nerd Font" :weight 'regular))
 
-(defun my/setup-fonts ()
-  "Configure font on first run. Intended for `after-make-frame-functions'."
+(defun my/after-make-frame ()
+  "Setup for new frames. Intended for `after-make-frame-functions'."
   (when (display-graphic-p)
+    ;; Setup fonts.
     (set-frame-font default-font t t)
     (set-face-attribute 'fixed-pitch nil :font default-font)
     (set-face-attribute 'fixed-pitch-serif nil :font fixed-serif-font)
@@ -448,16 +427,17 @@ This is useful, e.g., for use with `visual-line-mode'."
     (set-fontset-font t 'unicode nerd-font nil 'append)
     (set-fontset-font t 'unicode "Symbola" nil 'append)
     (set-fontset-font t 'unicode emoji-font nil 'append))
-
   ;; Use unicode encodings.
-  (prefer-coding-system 'utf-8))
+  (prefer-coding-system 'utf-8)
+  (menu-bar-mode -1))
+
 (set-default-coding-systems 'utf-8)
 (set-terminal-coding-system 'utf-8)
 (set-keyboard-coding-system 'utf-8)
 
 (if (daemonp)
-    (add-hook 'server-after-make-frame-hook #'my/setup-fonts)
-  (my/setup-fonts))
+    (add-hook 'server-after-make-frame-hook #'my/after-make-frame)
+  (my/after-make-frame))
 
 ;; Theme and color stuff.
 (require-theme 'modus-themes)
@@ -466,6 +446,17 @@ This is useful, e.g., for use with `visual-line-mode'."
         (border-mode-line-inactive unspecified)
         ,@modus-themes-preset-overrides-faint))
 (load-theme 'modus-vivendi :no-confirm)
+
+(defun my/use-term-bg-for-frame (frame)
+  "If FRAME is a terminal (tty) frame, remove theme background."
+  (message "hi!")
+  (with-selected-frame frame
+    (unless (display-graphic-p frame)
+      (set-face-attribute 'default frame :background 'unspecified)
+      (redraw-frame frame)
+      )))
+
+; (add-hook 'after-make-frame-functions #'my/use-term-bg-for-frame)
 
 ;; Call dired with some useful switches.
 (use-package dired
@@ -555,8 +546,6 @@ This is useful, e.g., for use with `visual-line-mode'."
   :bind
   (("C-c ]" . tab-next)
    ("C-c [" . tab-previous)
-   ("M-]"   . tab-next)
-   ("M-["   . tab-previous)
    (:repeat-map my/tab-repeat-map
                 (("]" . tab-next)
                  ("[" . tab-previous)))))

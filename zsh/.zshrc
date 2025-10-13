@@ -157,6 +157,9 @@ _have fastfetch && alias ff=fastfetch
 _have vim && alias vi=vim && export EDITOR=vim
 _have nvim && alias vi=nvim && export EDITOR=nvim
 
+_have emacsclient && export EDITOR="emacsclient -t -a ''"
+_have emacsclient && alias em="emacsclient -t -a ''"
+
 _have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
 _have mise && eval "$(mise activate zsh)" && export MISE_ENV_FILE=.env
 
@@ -165,3 +168,4 @@ _source_if "$EAT_SHELL_INTEGRATION_DIR/zsh"
 
 # Source plugins
 _source_if "$Z_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
