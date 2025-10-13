@@ -44,6 +44,7 @@ for p (
         "$HOME/.cargo/bin"
         "$HOME/.roswell/bin"
         "$PERLDIR/bin"
+        "/Library/TeX/texbin"
     ); do
     if [ -d "$p" ]; then
         path+=("$p")
