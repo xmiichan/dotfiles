@@ -1,21 +1,21 @@
 -- basic config
-vim.o.ignorecase = true      -- case-insensitive search
-vim.o.smartcase = true       -- ... unless you're explicit
-vim.o.number = true          -- line numbers
-vim.o.relativenumber = true  -- relative line numbers
-vim.o.colorcolumn = "80"     -- line at 80 ch width
-vim.o.cursorline = true      -- cursor line
-vim.o.scrolloff = 8          -- keep 8 lines while scrolling
-vim.o.updatetime = 100       -- update every 100ms
-vim.o.autochdir = true       -- cwd follows file
-vim.o.shiftwidth = 4         -- indent by 4 spaces
-vim.o.tabstop = 4            -- tab = 4 spaces
-vim.o.smarttab = true        -- indent smartly
-vim.o.expandtab = true       -- tab expands into spaces
-vim.o.splitbelow = true      -- new splits open below
-vim.o.splitright = true      -- new splits open right
-vim.o.winborder = "rounded"  -- rounded border
-vim.o.winblend = 10          -- translucent floating windows
+vim.o.ignorecase = true     -- case-insensitive search
+vim.o.smartcase = true      -- ... unless you're explicit
+vim.o.number = true         -- line numbers
+vim.o.relativenumber = true -- relative line numbers
+vim.o.colorcolumn = "80"    -- line at 80 ch width
+vim.o.cursorline = true     -- cursor line
+vim.o.scrolloff = 8         -- keep 8 lines while scrolling
+vim.o.updatetime = 100      -- update every 100ms
+vim.o.autochdir = true      -- cwd follows file
+vim.o.shiftwidth = 4        -- indent by 4 spaces
+vim.o.tabstop = 4           -- tab = 4 spaces
+vim.o.smarttab = true       -- indent smartly
+vim.o.expandtab = true      -- tab expands into spaces
+vim.o.splitbelow = true     -- new splits open below
+vim.o.splitright = true     -- new splits open right
+vim.o.winborder = "rounded" -- rounded border
+vim.o.winblend = 10         -- translucent floating windows
 
 -- theme
 vim.o.termguicolors = true
@@ -82,9 +82,9 @@ vim.o.pumheight = 12
 
 -- netrw improvements
 vim.g.netrw_banner = 0
-vim.g.netrw_liststyle = 3 -- tree style listing
+vim.g.netrw_liststyle = 3    -- tree style listing
 vim.g.netrw_browse_split = 3 -- split horizontal
-vim.g.netrw_preview = 1 -- preview in vertical split
+vim.g.netrw_preview = 1      -- preview in vertical split
 
 -- keymaps
 -- x does not yank
@@ -133,6 +133,18 @@ vim.keymap.set("n", "J", "mzJ`z")
 -- quick buffer switching
 vim.keymap.set("n", "<leader><leader>", ":b#<cr>", { silent = true })
 
+-- readline style motions in insert mode
+vim.keymap.set({ "i", "c" }, "<C-b>", "<Left>")
+vim.keymap.set({ "i", "c" }, "<C-f>", "<Right>")
+vim.keymap.set({ "i", "c" }, "<C-a>", "<Home>")
+vim.keymap.set({ "i", "c" }, "<C-e>", "<End>")
+vim.keymap.set({ "i", "c" }, "<C-p>", "<Up>")
+vim.keymap.set({ "i", "c" }, "<C-n>", "<Down>")
+vim.keymap.set({ "i", "c" }, "<M-b>", "<C-Left>")
+vim.keymap.set({ "i", "c" }, "<M-f>", "<C-Right>")
+vim.keymap.set({ "i", "c" }, "<M-p>", "<C-p>")
+vim.keymap.set({ "i", "c" }, "<M-n>", "<C-n>")
+
 -- regex-based alignment
 local function align_section(line1, line2, regex)
     local extra = 1
@@ -162,8 +174,8 @@ vim.api.nvim_create_user_command("Align", function(opts)
     align_section(opts.line1, opts.line2, opts.args or "")
 end, { nargs = "?", range = true })
 
-vim.keymap.set("v", "<leader>a", ":Align ")
-vim.keymap.set("v", "<leader>A", ":Align<cr>")
+vim.keymap.set("x", "<leader>a", ":Align ")
+vim.keymap.set("x", "<leader>A", ":Align<cr>")
 
 -- highlight yanked areas
 vim.api.nvim_create_augroup("highlight_yanked", { clear = true })
@@ -188,33 +200,60 @@ vim.o.statusline = table.concat({
 
 -- plugins
 vim.pack.add({
-    "https://github.com/tpope/vim-rsi",                   -- emacs motions in insert mode
-    "https://github.com/tpope/vim-sleuth",                -- auto-detect indentation from file
-    "https://github.com/tpope/vim-fugitive",              -- git client
-    "https://github.com/ibhagwan/fzf-lua",                -- fuzzy finder
-    "https://github.com/mattn/emmet-vim",                 -- html/xml quick inserts
-    "https://github.com/kylechui/nvim-surround",          -- motion for surrounding text
-    "https://github.com/gbprod/substitute.nvim",          -- motion to replace text
-    "https://github.com/neovim/nvim-lspconfig",           -- lsp config data
-    "https://github.com/mason-org/mason.nvim",            -- lsp server install helper
-    "https://github.com/mason-org/mason-lspconfig.nvim",  -- ...with config data
+    "https://github.com/kylechui/nvim-surround",         -- motion for surrounding text
+    "https://github.com/gbprod/substitute.nvim",         -- motion to replace text
+    "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
+    "https://github.com/tpope/vim-fugitive",             -- git client
+    "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
+    "https://github.com/mattn/emmet-vim",                -- html/xml quick inserts
+    "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
+    "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
+    "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
 })
+
 vim.api.nvim_create_user_command("PackUpdate", function()
     vim.pack.update()
 end, {})
 
 -- some plugins need enabling
 require("nvim-surround").setup()
+require("substitute").setup()
 
--- subsitute bindings
-local substitute = require("substitute")
-substitute.setup()
-vim.keymap.set("n", "s", substitute.operator)
-vim.keymap.set("n", "ss", substitute.line)
-vim.keymap.set("n", "S", substitute.eol)
-vim.keymap.set("x", "s", substitute.visual)
+vim.keymap.set("n", "s", require("substitute").operator)
+vim.keymap.set("n", "ss", require("substitute").line)
+vim.keymap.set("n", "S", require("substitute").eol)
+vim.keymap.set("x", "s", require("substitute").visual)
 
--- lsp setup and bindings
+local is_git_repo = function()
+    local ok, res = pcall(vim.fn.system, "git rev-parse --is-inside-work-tree")
+    if not ok then return false end
+    return vim.trim(res) == "true"
+end
+
+local files_or_git_files = function()
+    if is_git_repo() then
+        require("fzf-lua").git_files()
+    else
+        require("fzf-lua").files()
+    end
+end
+
+vim.keymap.set("n", "<leader>f", files_or_git_files, { silent = true })
+vim.keymap.set("n", "<leader>F", require("fzf-lua").files, { silent = true })
+vim.keymap.set("n", "<leader>b", require("fzf-lua").buffers, { silent = true })
+vim.keymap.set("n", "<leader>m", require("fzf-lua").marks, { silent = true })
+vim.keymap.set("n", "<leader>j", require("fzf-lua").jumps, { silent = true })
+vim.keymap.set("n", "<leader>l", require("fzf-lua").blines, { silent = true })
+vim.keymap.set("n", "<leader>/", require("fzf-lua").live_grep_native, { silent = true })
+vim.keymap.set("v", "<leader>/", require("fzf-lua").grep_visual, { silent = true })
+
+-- git bindings
+vim.keymap.set("n", "<leader>gg", ":tab Git<cr>", { silent = true })
+vim.keymap.set("n", "<leader>gb", ":Git blame<cr>", { silent = true })
+vim.keymap.set("n", "<leader>gc", require("fzf-lua").git_commits, { silent = true })
+vim.keymap.set("n", "<leader>gC", require("fzf-lua").git_bcommits, { silent = true })
+vim.keymap.set("n", "<leader>gf", require("fzf-lua").git_diff, { silent = true })
+
 require("mason").setup()
 require("mason-lspconfig").setup()
 
@@ -229,57 +268,32 @@ vim.lsp.config("lua_ls", {
     },
 })
 
-vim.keymap.set("n", "gr=", vim.lsp.buf.format, { silent = true })
+local vue_ls_path = vim.fn.expand(
+    '$MASON/packages/vue-language-server/node_modules/@vue/language-server'
+)
 
--- fzf setup and bindings
-local fzf = require("fzf-lua")
-local is_git_repo = function()
-    local ok, res = pcall(vim.fn.system, "git rev-parse --is-inside-work-tree")
-    if not ok then
-        return false
-    end
-    return vim.trim(res) == "true"
-end
-
-local files_or_git_files = function()
-    if is_git_repo() then
-        fzf.git_files()
-    else
-        fzf.files()
-    end
-end
-
-vim.keymap.set("n", "<leader>f", files_or_git_files, { silent = true })
-vim.keymap.set("n", "<leader>F", fzf.files, { silent = true })
-vim.keymap.set("n", "<leader>b", fzf.buffers, { silent = true })
-vim.keymap.set("n", "<leader>m", fzf.marks, { silent = true })
-vim.keymap.set("n", "<leader>j", fzf.jumps, { silent = true })
-vim.keymap.set("n", "<leader>l", fzf.blines, { silent = true })
-vim.keymap.set("n", "<leader>L", fzf.lines, { silent = true })
-vim.keymap.set("n", "<leader>/", fzf.live_grep_native, { silent = true })
-vim.keymap.set("v", "<leader>/", fzf.grep_visual, { silent = true })
-
--- git bindings
-vim.keymap.set("n", "<leader>gg", ":tab Git<cr>", { silent = true })
-vim.keymap.set("n", "<leader>gb", ":Git blame<cr>", { silent = true })
-vim.keymap.set("n", "<leader>gc", fzf.git_commits, { silent = true })
-vim.keymap.set("n", "<leader>gf", fzf.git_diff, { silent = true })
+local vue_plugin = {
+    name = "@vue/typescript-plugin",
+    languages = { "vue" },
+    configNamespace = "typescript",
+    location = vue_ls_path
+}
 
 vim.lsp.config("vtsls", {
-    filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+    filetypes = {
+        "typescript",
+        "javascript",
+        "javascriptreact",
+        "typescriptreact",
+        "vue",
+    },
     settings = {
         vtsls = {
             tsserver = {
-                globalPlugins = {
-                    {
-                        name = "@vue/typescript-plugin",
-                        languages = { "vue" },
-                        configNamespace = "typescript",
-                        location = vim.fn.stdpath("data")
-                            .. "/mason/-ackages/vue-language-server/node_modules/@vue/language-server",
-                    },
-                },
+                globalPlugins = { vue_plugin },
             },
         },
     },
 })
+
+vim.keymap.set("n", "gr=", vim.lsp.buf.format, { silent = true })
