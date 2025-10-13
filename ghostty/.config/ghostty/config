@@ -3,7 +3,8 @@ theme = "Builtin Pastel Dark"
 window-padding-x = 5,5
 window-padding-balance = true
 
-font-family = "Sarasa Term J Nerd Font"
+font-family = "Sarasa Term J"
+font-family = "IosevkaTerm Nerd Font"
 font-thicken = true
 font-size = 16
 font-feature = -calt
