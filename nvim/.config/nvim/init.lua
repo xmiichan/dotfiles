@@ -130,6 +130,10 @@ vim.keymap.set("v", "K", ":m '<-2<cr>gv=gv")
 -- preserve cursor position when joining lines
 vim.keymap.set("n", "J", "mzJ`z")
 
+-- swap ' and ` for jumping marks
+vim.keymap.set({ "n", "x" }, "'", "`")
+vim.keymap.set({ "n", "x" }, "`", "'")
+
 -- quick buffer switching
 vim.keymap.set("n", "<leader><leader>", ":b#<cr>", { silent = true })
 
