@@ -8,6 +8,7 @@ vim.o.cursorline = true     -- cursor line
 vim.o.scrolloff = 8         -- keep 8 lines while scrolling
 vim.o.updatetime = 100      -- update every 100ms
 vim.o.autochdir = true      -- cwd follows file
+vim.o.selectmode = "mouse"  -- mouse selection goes into select mode
 vim.o.shiftwidth = 4        -- indent by 4 spaces
 vim.o.tabstop = 4           -- tab = 4 spaces
 vim.o.smarttab = true       -- indent smartly
@@ -94,13 +95,17 @@ vim.keymap.set({ "n", "v" }, "X", '"_X')
 -- Y works like C/D
 vim.keymap.set("n", "Y", "y$")
 
+-- yank and comment in one go
+vim.keymap.set("n", "yc", "yygccp", { remap = true })
+vim.keymap.set("v", "Y", "ygvgc`>p", { remap = true })
+
 -- yank/paste from system clipboard
 vim.keymap.set({ "n", "v" }, "<leader>y", '"+y')
-vim.keymap.set({ "n", "v" }, "<leader>Y", '"+Y')
+vim.keymap.set({ "n", "v" }, "<leader>Y", '"+Y', { remap = true })
 vim.keymap.set({ "n", "v" }, "<leader>p", '"+p')
 vim.keymap.set({ "n", "v" }, "<leader>P", '"+P')
 
--- resource config
+-- re-source config
 vim.keymap.set("n", "<leader>x", ":Update<cr> :source<cr>")
 
 -- quick bol/eol
@@ -124,8 +129,8 @@ vim.keymap.set("x", ".", ":norm .<cr>")
 vim.keymap.set("x", "Q", ":norm @q<cr>")
 
 -- move lines in visual
-vim.keymap.set("v", "J", ":m '>+1<cr>gv=gv")
-vim.keymap.set("v", "K", ":m '<-2<cr>gv=gv")
+vim.keymap.set("x", "<C-n>", ":m '>+1<cr>gv=gv")
+vim.keymap.set("x", "<C-p>", ":m '<-2<cr>gv=gv")
 
 -- preserve cursor position when joining lines
 vim.keymap.set("n", "J", "mzJ`z")
