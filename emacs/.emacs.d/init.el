@@ -99,26 +99,37 @@
   (bind-key "M-c" #'kill-ring-save)
   (bind-key "s-c" #'capitalize-word))
 
-;; Copy/paste on Wayland.
-(exec-path-from-shell-copy-env "WAYLAND_DISPLAY")
-(when (getenv "WAYLAND_DISPLAY")
-  (setq wl-copy-process nil)
-  (defun wl-copy (text)
-    (setq wl-copy-process
-          (make-process
-           :name "wl-copy"
-           :buffer nil
-           :command '("wl-copy" "-f" "-n")
-           :connection-type 'pipe
-           :noquery t))
-    (process-send-string wl-copy-process text)
-    (process-send-eof wl-copy-process))
-  (defun wl-paste ()
-    (if (and wl-copy-process (process-live-p wl-copy-process))
-        nil                 ; should return nil if we're the current paste owner
-      (shell-command-to-string "wl-paste -n | tr -d \r")))
-  (setq interprogram-cut-function 'wl-copy)
-  (setq interprogram-paste-function 'wl-paste))
+;; Emacs on Mac OS messes up PATH. Let's fix that.
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (setq exec-path-from-shell-arguments nil)
+
+  (when (memq window-system '(mac ns x))
+    (exec-path-from-shell-initialize))
+  (when (daemonp)
+    (add-hook 'server-after-make-frame-hook #'exec-path-from-shell-initialize))
+
+  ;; Copy/paste on Wayland.
+  (exec-path-from-shell-copy-env "WAYLAND_DISPLAY")
+  (when (getenv "WAYLAND_DISPLAY")
+    (setq wl-copy-process nil)
+    (defun wl-copy (text)
+      (setq wl-copy-process
+            (make-process
+             :name "wl-copy"
+             :buffer nil
+             :command '("wl-copy" "-f" "-n")
+             :connection-type 'pipe
+             :noquery t))
+      (process-send-string wl-copy-process text)
+      (process-send-eof wl-copy-process))
+    (defun wl-paste ()
+      (if (and wl-copy-process (process-live-p wl-copy-process))
+          nil                 ; should return nil if we're the current paste owner
+    (shell-command-to-string "wl-paste -n | tr -d \r")))
+    (setq interprogram-cut-function 'wl-copy)
+    (setq interprogram-paste-function 'wl-paste)))
 
 ;; GPG integration
 (use-package epg
@@ -147,18 +158,6 @@
   :if (executable-find "keychain")
   :config
   (keychain-refresh-environment))
-
-;; Emacs on Mac OS messes up PATH. Let's fix that.
-(use-package exec-path-from-shell
-  :ensure t
-  :config
-  (setq exec-path-from-shell-arguments nil)
-
-  (when (memq window-system '(mac ns x))
-    (exec-path-from-shell-initialize))
-
-  (when (daemonp)
-    (add-hook 'server-after-make-frame-hook #'exec-path-from-shell-initialize)))
 
 (use-package mise
   :ensure t
@@ -792,8 +791,8 @@ prompter."
          `(orderless-regexp . ,(concat "^" (regexp-quote word)))))
 
   (orderless-define-completion-style orderless-fast
-    (orderless-style-dispatchers '(orderless-fast-dispatch orderless-affix-dispatch))
-    (orderless-matching-styles '(orderless-literal orderless-prefixes orderless-initialism)))
+                     (orderless-style-dispatchers '(orderless-fast-dispatch orderless-affix-dispatch))
+                     (orderless-matching-styles '(orderless-literal orderless-prefixes orderless-initialism)))
 
   :custom
   (completion-styles '(orderless-fast substring basic))
@@ -1189,7 +1188,11 @@ This somehow does not work with `:bind', so here we are."
    (org-mode  . jinx-mode))
   :bind
   ((:map jinx-mode-map
+<<<<<<< HEAD
          (("C-x ,"  . jinx-correct)
+=======
+         (("C-x ," . jinx-correct)
+>>>>>>> e89e47a (put env commands after initializing exec-path-from-shell)
           ("C-,"    . jinx-correct)
           ("M-n"    . jinx-next)
           ("M-p"    . jinx-previous)))))
@@ -1547,10 +1550,6 @@ If `emmet-mode' is active, it can expand e+ expressions too."
   (setq emmet-move-cursor-between-quotes t)
   (require 'bind-key)
   (unbind-key "C-c C-c" emmet-mode-keymap))
-
-;; Rest Client
-(use-package restclient
-  :ensure t)
 
 ;; XML
 (use-package nxml-mode
