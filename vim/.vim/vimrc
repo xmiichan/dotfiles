@@ -171,7 +171,8 @@ function! AlignLine(line, sep, maxpos, extra)
     let spaces = repeat(' ', a:maxpos - strlen(m[1]) + a:extra)
     return m[1] . spaces . m[2]
 endfunction
-vnoremap <silent> <leader>a :Align<CR>
+vnoremap <silent> <leader>a :Align 
+vnoremap <silent> <leader>A :Align<CR>
 
 " split style
 set fillchars+=vert:│
@@ -211,7 +212,7 @@ set statusline+=%r%m\ ››%2*\
 set statusline+=%=
 set statusline+=%{toupper(&ft)}
 set statusline+=\ \ \ %*\ \ 
-set statusline+=%2p%%
+set statusline+=%2P
 set statusline+=\ 
 set statusline+=%4l:%02v
 set statusline+=\ 
@@ -275,6 +276,16 @@ nnoremap <silent><leader>gg :tab Git<cr>
 nnoremap <silent><leader>gb :Git blame<cr>
 nnoremap <silent><leader>gc :Commits<cr>
 nnoremap <silent><leader>gC :BCommits<cr>
+function! s:is_git_repo()
+    silent! let l:is_git_repo = system('git rev-parse --is-inside-work-tree')
+    return trim(l:is_git_repo) ==# 'true'
+endfunction
+
+function! FilesOrGitFiles() abort
+    let l:cmd = s:is_git_repo() ? 'GFiles' : 'Files'
+    execute l:cmd
+endfunction
+command! FilesOrGitFiles call FilesOrGitFiles()
 nnoremap <silent><leader>gf :GFiles?<cr>
 
 " stop here unless we're on vim9, all lsp stuff comes after
@@ -318,19 +329,17 @@ let lsp_options = #{
 	    \}
 
 function! s:set_lsp_keys() abort
-    nmap <silent><buffer> <leader>s :LspSymbolSearch<cr>
-    nmap <silent><buffer> gd :LspGotoDefinition<cr>
-    nmap <silent><buffer> gi :LspGotoImpl<cr>
-    nmap <silent><buffer> gt :LspGotoTypeDef<cr>
-    nmap <silent><buffer> <leader>a :LspCodeAction<cr>
-    nmap <silent><buffer> <leader>r :LspRename<cr>
-    nmap <silent><buffer> <leader>= :LspFormat<cr>
-    nmap <silent><buffer> <leader>d :LspDiagShow<cr>
+    nmap <silent><buffer> gO  :LspSymbolSearch<cr>
+    nmap <silent><buffer> grd :LspGotoDefinition<cr>
+    nmap <silent><buffer> gri :LspGotoImpl<cr>
+    nmap <silent><buffer> grt :LspGotoTypeDef<cr>
+    nmap <silent><buffer> gra :LspCodeAction<cr>
+    nmap <silent><buffer> grn :LspRename<cr>
+    nmap <silent><buffer> gr= :LspFormat<cr>
+    nmap <silent><buffer> grd :LspDiagShow<cr>
     nmap <silent><buffer> [d :LspDiagPrev<cr>
     nmap <silent><buffer> ]d :LspDiagNext<cr>
     nmap <silent><buffer> K  :LspHover<cr>
-
-    :LspServer show status
 endfunction
 
 augroup add_lsp_servers
