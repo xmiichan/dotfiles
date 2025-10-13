@@ -1188,11 +1188,7 @@ This somehow does not work with `:bind', so here we are."
    (org-mode  . jinx-mode))
   :bind
   ((:map jinx-mode-map
-<<<<<<< HEAD
          (("C-x ,"  . jinx-correct)
-=======
-         (("C-x ," . jinx-correct)
->>>>>>> e89e47a (put env commands after initializing exec-path-from-shell)
           ("C-,"    . jinx-correct)
           ("M-n"    . jinx-next)
           ("M-p"    . jinx-previous)))))
@@ -1294,6 +1290,7 @@ This somehow does not work with `:bind', so here we are."
         sideline-display-backend-name nil))
 
 (use-package sideline-flymake
+  :ensure t
   :after (flymake sideline)
   :hook (flymake-mode . sideline-mode)
   :init
@@ -1324,8 +1321,7 @@ This somehow does not work with `:bind', so here we are."
   :demand t
   :config
   (setq magit-display-buffer-function #'magit-display-buffer-same-window-except-diff-v1)
-  (setq ediff-window-setup-function 'ediff-setup-windows-plain)
-  (add-hook 'magit-mode-hook #'turn-on-font-lock))
+  (setq ediff-window-setup-function 'ediff-setup-windows-plain))
 
 ;; Git status in the fringe.
 (use-package diff-hl
@@ -1679,6 +1675,12 @@ If `emmet-mode' is active, it can expand e+ expressions too."
   :hook
   ((org-mode . olivetti-mode)))
 
+(use-package org-contrib
+  :after org
+  :config
+  (require 'ox-extra)
+  (ox-extras-activate '(latex-header-blocks ignore-headlines)))
+
 (use-package org-modern
   :after org
   :ensure t
@@ -1766,7 +1768,15 @@ If `emmet-mode' is active, it can expand e+ expressions too."
   (org-alert-enable))
 
 (use-package ox-koma-letter
-  :after (org ox))
+  :after (org ox)
+  :config
+  (add-to-list 'org-latex-classes
+               '("my-letter"
+                 "\\documentclass\{scrlttr2\}
+     \[DEFAULT-PACKAGES]
+     \[PACKAGES]
+     \[EXTRA]"))
+  (setq org-koma-letter-default-class "my-letter"))
 
 (use-package ox-pandoc
   :after org
