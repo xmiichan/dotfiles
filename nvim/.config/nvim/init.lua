@@ -20,7 +20,7 @@ vim.o.winblend = 10         -- translucent floating windows
 -- theme
 vim.o.termguicolors = true
 vim.o.background = "dark"
-vim.cmd.colorscheme("lunaperche")
+vim.cmd.colorscheme("default")
 local set_colors = function()
     vim.cmd([[
     hi Normal       guibg=NONE ctermbg=NONE
@@ -28,8 +28,8 @@ local set_colors = function()
     hi NormalFloat  guibg=NONE ctermbg=NONE
     hi VertSplit    guibg=NONE ctermbg=NONE
     hi FloatBorder  ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi StatusLine   gui=nocombine cterm=nocombine
-    hi User1        gui=bold,reverse cterm=bold,reverse
+    hi User1        gui=bold cterm=bold
+    hi User2        gui=reverse cterm=reverse
     ]])
 end
 set_colors()
@@ -130,10 +130,6 @@ vim.keymap.set("v", "K", ":m '<-2<cr>gv=gv")
 -- preserve cursor position when joining lines
 vim.keymap.set("n", "J", "mzJ`z")
 
--- swap ' and ` for jumping marks
-vim.keymap.set({ "n", "x" }, "'", "`")
-vim.keymap.set({ "n", "x" }, "`", "'")
-
 -- quick buffer switching
 vim.keymap.set("n", "<leader><leader>", ":b#<cr>", { silent = true })
 
@@ -194,7 +190,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.o.statusline = table.concat({
     "%1*",
     "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",
-    "%*",
+    "%2*",
     " ‹‹ %f%r%m ›› ",
     "%=",
     "   %{toupper(&ft)}   ",
@@ -204,11 +200,11 @@ vim.o.statusline = table.concat({
 
 -- plugins
 vim.pack.add({
-    "https://github.com/kylechui/nvim-surround",         -- motion for surrounding text
-    "https://github.com/gbprod/substitute.nvim",         -- motion to replace text
     "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
     "https://github.com/tpope/vim-fugitive",             -- git client
+    "https://github.com/vim-scripts/regreplop.vim",      -- replace operator
     "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
+    "https://github.com/kylechui/nvim-surround",         -- motion for surrounding text
     "https://github.com/mattn/emmet-vim",                -- html/xml quick inserts
     "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
@@ -220,13 +216,12 @@ vim.api.nvim_create_user_command("PackUpdate", function()
 end, {})
 
 -- some plugins need enabling
-require("nvim-surround").setup()
-require("substitute").setup()
+vim.keymap.set("n", "s", "<Plug>ReplaceMotion", { silent = true })
+vim.keymap.set("n", "ss", "<Plug>ReplaceLine", { silent = true })
+vim.keymap.set("n", "S", "s$", { remap = true, silent = true })
+vim.keymap.set("x", "s", "<Plug>ReplaceVisual", { silent = true })
 
-vim.keymap.set("n", "s", require("substitute").operator)
-vim.keymap.set("n", "ss", require("substitute").line)
-vim.keymap.set("n", "S", require("substitute").eol)
-vim.keymap.set("x", "s", require("substitute").visual)
+require("nvim-surround").setup()
 
 local is_git_repo = function()
     local ok, res = pcall(vim.fn.system, "git rev-parse --is-inside-work-tree")
