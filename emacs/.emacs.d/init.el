@@ -92,8 +92,9 @@
 ;; Right Alt is used for symbols, left Cmd becomes an additional Meta.
 (when (eq system-type 'darwin)
   (setq ns-right-option-modifier nil)
-  (setq ns-option-modifier 'super)
+  (setq ns-option-modifier 'meta)
   (setq ns-command-modifier 'meta)
+  (setq ns-right-command-modifier 'super)
   ;; Allow for CUA copying so integration with other apps works better.
   (bind-key "M-c" #'kill-ring-save)
   (bind-key "s-c" #'capitalize-word))
@@ -447,17 +448,6 @@ This is useful, e.g., for use with `visual-line-mode'."
         ,@modus-themes-preset-overrides-faint))
 (load-theme 'modus-vivendi :no-confirm)
 
-(defun my/use-term-bg-for-frame (frame)
-  "If FRAME is a terminal (tty) frame, remove theme background."
-  (message "hi!")
-  (with-selected-frame frame
-    (unless (display-graphic-p frame)
-      (set-face-attribute 'default frame :background 'unspecified)
-      (redraw-frame frame)
-      )))
-
-; (add-hook 'after-make-frame-functions #'my/use-term-bg-for-frame)
-
 ;; Call dired with some useful switches.
 (use-package dired
   :config
@@ -769,8 +759,8 @@ prompter."
       (ignore embark-indicators)
       (apply fn args)))
 
-(advice-add #'embark-completing-read-prompter
-            :around #'embark-hide-which-key-indicator)
+  (advice-add #'embark-completing-read-prompter
+              :around #'embark-hide-which-key-indicator)
 
   ;; Hide the mode line of the Embark live/completions buffers
   (add-to-list 'display-buffer-alist
@@ -1199,7 +1189,7 @@ This somehow does not work with `:bind', so here we are."
    (org-mode  . jinx-mode))
   :bind
   ((:map jinx-mode-map
-          (("C-x ," . jinx-correct)
+         (("C-x ,"  . jinx-correct)
           ("C-,"    . jinx-correct)
           ("M-n"    . jinx-next)
           ("M-p"    . jinx-previous)))))
@@ -1234,41 +1224,49 @@ This somehow does not work with `:bind', so here we are."
         (call-interactively #'eglot-format)
       (call-interactively #'eglot-format-buffer)))
 
-  (defun my/vue-eglot-init-options ()
-    (let ((tsdk-path (expand-file-name
-                      "lib"
-                      (shell-command-to-string
-                       "npm list --global --parseable typescript | head -n1 | tr -d \"\n\""))))
-      `( :typescript (:tsdk ,tsdk-path)
-         :vue (:hybridMode :json-false)
-         :languageFeatures ( :references t
-                             :implementation t
-                             :definition t
-                             :typeDefinition t
-                             :callHierarchy t
-                             :hover t
-                             :rename t
-                             :renameFileRefactoring t
-                             :signatureHelp t
-                             :codeAction t
-                             :workspaceSymbol t
-                             :completion ( :defaultTagNameCase "both"
-                                           :defaultAttrNameCase "kebabCase"
-                                           :getDocumentNameCasesRequest nil
-                                           :getDocumentSelectionRequest nil)
-                             :diagnostics (:getDocumentVersionRequest nil))
-         :documentFeatures ( :documentFormatting ( :defaultPrintWidth 80
-                                                   :getDocumentPrintWidthRequest nil)
-                             :selectionRange t
-                             :foldingRange t
-                             :linkedEditingRange t
-                             :documentSymbol t
-                             :documentColor t
-                             :documentColor t))))
+  (defun my/get-vue-language-server-path ()
+    "Find the @vue/language-server location."
+    (let* ((vue-ls-local-dir (locate-dominating-file default-directory "node_modules"))
+           (vue-ls-local (when vue-ls-local-dir
+                           (expand-file-name "node_modules/@vue/language-server" vue-ls-local-dir)))
+           ;; Build PATH from exec-path for the shell command
+           (path-env (mapconcat 'identity exec-path ":"))
+           (vue-ls-global (let ((npm-root (string-trim
+                                           (shell-command-to-string
+                                            (format "PATH='%s' npm root -g 2>/dev/null" path-env)))))
+                            (when (and npm-root
+                                       (not (string-empty-p npm-root))
+                                       (file-directory-p npm-root))
+                              (expand-file-name "@vue/language-server" npm-root))))
+           (path (cond
+                  ((and vue-ls-local (file-directory-p vue-ls-local))
+                   (message "Using local Vue language server: %s" vue-ls-local)
+                   vue-ls-local)
+                  ((and vue-ls-global (file-directory-p vue-ls-global))
+                   (message "Using global Vue language server: %s" vue-ls-global)
+                   vue-ls-global)
+                  (t
+                   (message "WARNING: Could not find @vue/language-server!")
+                   nil))))
+      path))
 
-  (add-to-list
-   'eglot-server-programs
-   `(vue-mode "vue-language-server" "--stdio" :initializationOptions ,(my/vue-eglot-init-options)))
+  (defun my/vue-eglot-init-options-tsls (&optional server)
+    "Return initialization options for typescript-language-server with Vue plugin."
+    (let ((plugin-path (my/get-vue-language-server-path)))
+      (if plugin-path
+          (let ((init-opts `(:plugins
+                             [(:name "@vue/typescript-plugin"
+                                     :location ,plugin-path
+                                     :languages ["vue"])])))
+            (message "Eglot init options: %S" init-opts)
+            init-opts)
+        (message "ERROR: Cannot initialize without @vue/language-server path!")
+        nil)))
+
+  ;; Try typescript-language-server instead
+  (add-to-list 'eglot-server-programs
+               `(vue-mode "typescript-language-server" "--stdio"
+                          :initializationOptions my/vue-eglot-init-options-tsls))
   (put 'vue-mode 'eglot-language-id "vue"))
 
 (use-package eglot-booster
@@ -1279,6 +1277,25 @@ This somehow does not work with `:bind', so here we are."
      '(eglot-booster . (:url "https://github.com/jdtsmith/eglot-booster" :branch "main"))))
   :config
   (eglot-booster-mode +1))
+
+(use-package sideline
+  :ensure t
+  :init
+  (setq sideline-backends-left-skip-current-line t
+        sideline-backends-right-skip-current-line t
+        sideline-order-left 'down
+        sideline-order-right 'up
+        sideline-format-left "%s   "
+        sideline-format-right "   %s"
+        sideline-priority 100
+        sideline-display-backend-name nil))
+
+(use-package sideline-flymake
+  :after (flymake sideline)
+  :hook (flymake-mode . sideline-mode)
+  :init
+  (setq sideline-flymake-display-mode 'line)
+  (setq sideline-backends-right '(sideline-flymake)))
 
 (use-package eldoc
   :config
@@ -1296,7 +1313,7 @@ This somehow does not work with `:bind', so here we are."
           ("M-g M-p" . flymake-goto-prev-error))))
   :custom
   (flymake-mode-line-lighter nil)
-  (flymake-show-diagnostics-at-end-of-line t))
+  (flymake-show-diagnostics-at-end-of-line nil))
 
 ;; The best git client you've ever seen.
 (use-package magit
