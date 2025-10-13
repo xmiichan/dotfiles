@@ -155,9 +155,8 @@ _have tmux && alias ta="tmux attach"
 _have fdfind && alias fd=fdfind
 _have fastfetch && alias ff=fastfetch
 _have vim && alias vi=vim && export EDITOR=vim
-_have nvim && alias vi=nvim && export EDITOR=nvim
+_have zile && export EDITOR=zile
 
-_have emacsclient && export EDITOR="emacsclient -t -a ''"
 _have emacsclient && alias em="emacsclient -t -a ''"
 
 _have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
