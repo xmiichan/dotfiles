@@ -21,7 +21,7 @@ vim.o.winblend = 10         -- translucent floating windows
 -- theme
 vim.o.termguicolors = true
 vim.o.background = "dark"
-vim.cmd.colorscheme("default")
+-- vim.cmd.colorscheme("default")
 local set_colors = function()
     vim.cmd([[
     hi Normal       guibg=NONE ctermbg=NONE
@@ -205,9 +205,11 @@ vim.o.statusline = table.concat({
 
 -- plugins
 vim.pack.add({
+    "https://github.com/jaredgorski/fogbell.vim",        -- cool colorscheme
     "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
+    "https://github.com/airblade/vim-rooter",            -- auto-detect pwd
     "https://github.com/tpope/vim-fugitive",             -- git client
-    "https://github.com/vim-scripts/regreplop.vim",      -- replace operator
+    "https://github.com/vim-scripts/regreplop.vim",      -- replace operator on <s>
     "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
     "https://github.com/kylechui/nvim-surround",         -- motion for surrounding text
     "https://github.com/mattn/emmet-vim",                -- html/xml quick inserts
@@ -219,6 +221,9 @@ vim.pack.add({
 vim.api.nvim_create_user_command("PackUpdate", function()
     vim.pack.update()
 end, {})
+
+vim.cmd.colorscheme("fogbell")
+vim.g.rooter_resolve_links = 1
 
 -- some plugins need enabling
 vim.keymap.set("n", "s", "<Plug>ReplaceMotion", { silent = true })
@@ -248,7 +253,7 @@ vim.keymap.set("n", "<leader>b", require("fzf-lua").buffers, { silent = true })
 vim.keymap.set("n", "<leader>m", require("fzf-lua").marks, { silent = true })
 vim.keymap.set("n", "<leader>j", require("fzf-lua").jumps, { silent = true })
 vim.keymap.set("n", "<leader>l", require("fzf-lua").blines, { silent = true })
-vim.keymap.set("n", "<leader>/", require("fzf-lua").live_grep_native, { silent = true })
+vim.keymap.set("n", "<leader>/", require("fzf-lua").live_grep, { silent = true })
 vim.keymap.set("v", "<leader>/", require("fzf-lua").grep_visual, { silent = true })
 
 -- git bindings
