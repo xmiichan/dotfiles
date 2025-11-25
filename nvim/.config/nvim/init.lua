@@ -8,7 +8,6 @@ vim.o.cursorline = true     -- cursor line
 vim.o.scrolloff = 8         -- keep 8 lines while scrolling
 vim.o.updatetime = 100      -- update every 100ms
 vim.o.autochdir = true      -- cwd follows file
-vim.o.selectmode = "mouse"  -- mouse selection goes into select mode
 vim.o.shiftwidth = 4        -- indent by 4 spaces
 vim.o.tabstop = 4           -- tab = 4 spaces
 vim.o.smarttab = true       -- indent smartly
@@ -16,7 +15,9 @@ vim.o.expandtab = true      -- tab expands into spaces
 vim.o.splitbelow = true     -- new splits open below
 vim.o.splitright = true     -- new splits open right
 vim.o.winborder = "rounded" -- rounded border
+vim.o.pumborder = "rounded" -- ... also for popups
 vim.o.winblend = 10         -- translucent floating windows
+vim.o.pumblend = 10         -- ... and popups
 
 -- theme
 vim.o.termguicolors = true
@@ -24,13 +25,16 @@ vim.o.background = "dark"
 -- vim.cmd.colorscheme("default")
 local set_colors = function()
     vim.cmd([[
-    hi Normal       guibg=NONE ctermbg=NONE
-    hi NonText      guibg=NONE ctermbg=NONE
-    hi NormalFloat  guibg=NONE ctermbg=NONE
-    hi VertSplit    guibg=NONE ctermbg=NONE
-    hi FloatBorder  ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi User1        gui=bold cterm=bold
-    hi User2        gui=reverse cterm=reverse
+    hi Normal        guibg=NONE ctermbg=NONE
+    hi NonText       guibg=NONE ctermbg=NONE
+    hi NormalFloat   guibg=NONE ctermbg=NONE
+    hi VertSplit     guibg=NONE ctermbg=NONE
+    hi PMenu         guibg=NONE ctermbg=NONE
+    hi PmenuSel      guifg=gray guibg=white gui=reverse cterm=reverse
+    hi PmenuMatchSel guifg=gray guibg=white gui=reverse cterm=reverse
+    hi FloatBorder   ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi User1         gui=bold cterm=bold
+    hi User2         gui=reverse cterm=reverse
     ]])
 end
 set_colors()
@@ -205,7 +209,6 @@ vim.o.statusline = table.concat({
 
 -- plugins
 vim.pack.add({
-    "https://github.com/jaredgorski/fogbell.vim",        -- cool colorscheme
     "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
     "https://github.com/airblade/vim-rooter",            -- auto-detect pwd
     "https://github.com/tpope/vim-fugitive",             -- git client
@@ -216,13 +219,16 @@ vim.pack.add({
     "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
+    "https://github.com/nvim-lua/plenary.nvim",
+    "https://github.com/nvim-treesitter/nvim-treesitter",
+    "https://github.com/github/copilot.vim",
 })
 
 vim.api.nvim_create_user_command("PackUpdate", function()
     vim.pack.update()
 end, {})
 
-vim.cmd.colorscheme("fogbell")
+vim.cmd.colorscheme("default")
 vim.g.rooter_resolve_links = 1
 
 -- some plugins need enabling
