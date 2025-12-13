@@ -149,6 +149,7 @@ alias untar='tar -xvf'
 alias h="history"
 alias e="$EDITOR"
 alias se="sudo $EDITOR"
+alias ggr='[ -d .git ] && cd "$(git rev-parse --show-toplevel)" || echo "Not in a git repository"'
 
 _have xdg-open && alias open="xdg-open"
 _have tmux && alias ta="tmux attach"
