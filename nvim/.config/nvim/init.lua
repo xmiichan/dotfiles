@@ -142,6 +142,9 @@ vim.keymap.set("n", "J", "mzJ`z")
 -- quick buffer switching
 vim.keymap.set("n", "<leader><leader>", ":b#<cr>", { silent = true })
 
+-- open diagnostic window
+vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { silent = true })
+
 -- readline style motions in insert mode
 vim.keymap.set({ "i", "c" }, "<C-b>", "<Left>")
 vim.keymap.set({ "i", "c" }, "<C-f>", "<Right>")
@@ -219,9 +222,6 @@ vim.pack.add({
     "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
-    "https://github.com/nvim-lua/plenary.nvim",
-    "https://github.com/nvim-treesitter/nvim-treesitter",
-    "https://github.com/github/copilot.vim",
 })
 
 vim.api.nvim_create_user_command("PackUpdate", function()
