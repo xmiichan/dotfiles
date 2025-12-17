@@ -204,6 +204,7 @@ vim.o.statusline = table.concat({
     "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",
     "%2*",
     " ‹‹ %f%r%m ›› ",
+    "%{FugitiveStatusline()}",
     "%=",
     "   %{toupper(&ft)}   ",
     "%1*",
