@@ -35,6 +35,10 @@ set re=0                " don't use old regex engine
 set scrolloff=8         " keep 8 lines while scrolling
 set updatetime=100      " update every 100ms
 set ttimeoutlen=50      " quicker exit insert mode with esc
+set expandtab           " tab expands into spaces
+set termguicolors       " true color support
+set wildmode=longest:full,full " command-line completion
+set pumheight=12        " max popup menu height
 
 " saving options in session and view files causes more problems than it solves
 set sessionoptions-=options
@@ -78,30 +82,32 @@ augroup END
 
 " tab completion
 set omnifunc=syntaxcomplete#Complete
-set completeopt+=menuone,fuzzy
+set completeopt+=menuone,fuzzy,noinsert
 
 set wildcharm=<C-z>
 cnoremap <expr><Tab>   getcmdtype() =~ '[\/?]' ? "<C-g>" : "<C-z>"
 cnoremap <expr><S-Tab> getcmdtype() =~ '[\/?]' ? "<C-t>" : "<S-Tab>"
 
 " file exploration menu settings
-let g:netrw_banner = 1        " remove directions at top of file listing
+let g:netrw_banner = 0        " remove directions at top of file listing
 let g:netrw_liststyle = 3     " tree style listing
 let g:netrw_browse_split = 3  " split horizontal
 let g:netrw_preview = 1       " preview in vertical split
 
 " -- keymaps ---
-" C-l clears search highlight nnoremap <C-l> :noh<cr><C-l>
+" C-l clears search highlight
+nnoremap <C-l> :noh<cr><C-l>
 
 " x does not yank
 noremap x "_x
 noremap X "_X
 
-" paste without yanking selection
-xnoremap <leader>p "_dP
-
-" Y works liks C/D
+" Y works like C/D
 noremap Y y$
+
+" yank and comment in one go
+nmap yc yygccp
+xmap Y ygvgc`>p
 
 " yank/paste from system clipboard
 nnoremap <leader>y "+y
@@ -113,8 +119,8 @@ vnoremap <leader>Y "+Y
 vnoremap <leader>p "+p
 vnoremap <leader>P "+P
 
-" resource vimrc
-nnoremap <leader>x :source $MYVIMRC<cr>
+" re-source vimrc
+nnoremap <leader>x :update<cr>:source $MYVIMRC<cr>
 
 " quick bol/eol
 noremap H ^
@@ -137,8 +143,8 @@ xmap . :norm .<cr>
 xmap Q :norm @q<cr>
 
 " move lines in visual
-vnoremap J :m '>+1<cr>gv=gv
-vnoremap K :m '<-2<cr>gv=gv
+xnoremap <C-n> :m '>+1<cr>gv=gv
+xnoremap <C-p> :m '<-2<cr>gv=gv
 
 " preserve cursor position when joining lines
 nnoremap J mzJ`z
@@ -180,21 +186,11 @@ set fillchars+=vert:│
 " color scheme
 set bg=dark
 
-function! s:set_colors() abort 
+function! s:set_colors() abort
     hi Normal ctermbg=NONE
-    hi VertSplit ctermbg=NONE    
-    hi LspErrorText ctermfg=Red
-    hi link LspErrorVirtualText LspErrorText
-    hi LspErrorHighlight cterm=undercurl ctermul=Red
-    hi LspWarningText ctermfg=Yellow
-    hi link LspWarningVirtualText LspWarningText
-    hi LspWarningHighlight cterm=undercurl ctermul=Yellow
-    hi LspInformationText ctermfg=Blue
-    hi link LspInformationVirtualText LspInformationText
-    hi LspInformationHighlight cterm=undercurl ctermul=Blue
-    hi LspHintText ctermfg=White
-    hi link LspHintVirtualText LspHintText
-    hi LspHintHighlight cterm=undercurl ctermul=White
+    hi VertSplit ctermbg=NONE
+    hi User1 cterm=bold,reverse gui=bold,reverse
+    hi link User2 Normal
 endfunction
 
 augroup colorscheme_change
@@ -206,150 +202,70 @@ colorscheme lunaperche
 
 " Statusline
 set statusline=
+set statusline+=%1*
 set statusline+=%(%{&filetype!='help'?'\ \ '.bufnr('%'):''}\ %)
-set statusline+=%1*\ ‹‹\ %f
-set statusline+=%r%m\ ››%2*\ 
+set statusline+=%*\ ‹‹\ %f
+set statusline+=%r%m\ ››\ 
 set statusline+=%=
 set statusline+=%{toupper(&ft)}
-set statusline+=\ \ \ %*\ \ 
+set statusline+=\ \ \ %1*\ \ 
 set statusline+=%2P
 set statusline+=\ 
 set statusline+=%4l:%02v
 set statusline+=\ 
 
-" prepend mise shims to PATH
-let $PATH = $HOME . '/.local/share/mise/shims:' . $PATH
+" readline keys in insert mode
+inoremap <C-a> <Home>
+inoremap <C-e> <End>
+inoremap <C-b> <Left>
+inoremap <C-f> <Right>
+inoremap <C-d> <Del>
+inoremap <C-k> <C-o>D
+inoremap <M-b> <C-Left>
+inoremap <M-f> <C-Right>
+cnoremap <C-a> <Home>
+cnoremap <C-e> <End>
+cnoremap <C-b> <Left>
+cnoremap <C-f> <Right>
+cnoremap <C-d> <Del>
+cnoremap <M-b> <C-Left>
+cnoremap <M-f> <C-Right>
 
-" plugins
-let data_dir = '~/.vim'
-if empty(glob(data_dir . '/autoload/plug.vim'))
-    silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-    autocmd VimEnter * plugInstall --sync | source $MYVIMRC
-endif
-
-call plug#begin()
-Plug 'tpope/vim-rsi'                   " emacs motions in insert mode
-Plug 'tpope/vim-surround'              " motion for surrounding text
-Plug 'tpope/vim-commentary'            " motion to quickly comment stuff
-Plug 'tpope/vim-sleuth'                " auto-detect indentation from file
-Plug 'tpope/vim-unimpaired'            " useful [ and ] bindings
-Plug 'tpope/vim-endwise'               " auto-close if/then/else etc.
-Plug 'tpope/vim-repeat'                " dot mappings for more things
-Plug 'tpope/vim-vinegar'               " netrw improvements
-Plug 'tpope/vim-fugitive'              " git client
-Plug 'vim-scripts/ReplaceWithRegister' " replace motion that doesn't yank
-Plug 'machakann/vim-highlightedyank'   " highlight yanked area
-Plug 'andymass/vim-matchup'            " navigate and operate on matching text
-Plug 'mattn/emmet-vim'                 " html/xml quick inserts
-" fuzzy finder
-Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
-Plug 'junegunn/fzf.vim'
-" fancy lsp stuff on modern vim versions
-if v:version >= 900
-    Plug 'yegappan/lsp'
-endif
-call plug#end()
-
-let g:highlightedyank_highlight_duration = 200
-let g:matchup_matchparen_offscreen = {'method': 'popup'}
-
-function! s:is_git_repo()
-    silent! let l:is_git_repo = system('git rev-parse --is-inside-work-tree')
-    return trim(l:is_git_repo) ==# 'true'
-endfunction
-
-function! FilesOrGitFiles() abort
-    let l:cmd = s:is_git_repo() ? 'GFiles' : 'Files'
-    execute l:cmd
-endfunction
-command! FilesOrGitFiles call FilesOrGitFiles()
-
-nnoremap <silent><leader>f  :FilesOrGitFiles<cr>
-nnoremap <silent><leader>F  :Files<cr>
-nnoremap <silent><leader>b  :Buffers<cr>
-nnoremap <silent><leader>m  :Marks<cr>
-nnoremap <silent><leader>j  :Jumps<cr>
-nnoremap <silent><leader>l  :BLines<cr>
-nnoremap <silent><leader>L  :Lines<cr>
-nnoremap <silent><leader>/  :Rg<cr>
-nnoremap <silent><leader>gg :tab Git<cr>
-nnoremap <silent><leader>gb :Git blame<cr>
-nnoremap <silent><leader>gc :Commits<cr>
-nnoremap <silent><leader>gC :BCommits<cr>
-function! s:is_git_repo()
-    silent! let l:is_git_repo = system('git rev-parse --is-inside-work-tree')
-    return trim(l:is_git_repo) ==# 'true'
-endfunction
-
-function! FilesOrGitFiles() abort
-    let l:cmd = s:is_git_repo() ? 'GFiles' : 'Files'
-    execute l:cmd
-endfunction
-command! FilesOrGitFiles call FilesOrGitFiles()
-nnoremap <silent><leader>gf :GFiles?<cr>
-
-" stop here unless we're on vim9, all lsp stuff comes after
-if v:version < 900 | finish | endif
-
-let g:node_path = empty(executable('npm')) ? '' : trim(system('npm root -g'))
-let lsp_servers = [#{ 
-	    \    name: 'vimls',
-	    \    filetype: 'vim',
-	    \    path: 'vim-language-server',
-	    \    args: ['--stdio']
-	    \},#{
-	    \   name: 'tsserver',
-	    \   filetype: ['javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'vue'],
-	    \   path: 'typescript-language-server',
-	    \   args: ['--stdio'],
-	    \   initializationOptions: #{
-	    \       plugins: [#{
-	    \		name: '@vue/typescript-plugin',
-	    \		location: g:node_path . '/@vue/language-server/node_modules/@vue/typescript-plugin',
-	    \		languages: ['vue'],
-	    \       }],
-	    \       vue: #{
-	    \           hybridMode: v:false
-	    \       }
-	    \    }
-	    \},#{
-	    \   name: 'biome',
-	    \   filetype: ['javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'json', 'css', 'graphql', 'jsonc'],
-	    \   path: 'biome',
-	    \   args: ['lsp-proxy'],
-	    \}]
-
-let lsp_options = #{
-	    \   diagSignErrorText: ' ',
-	    \   diagSignHintText: ' ',
-	    \   diagSignInfoText: ' ',
-	    \   diagSignWarningText: ' ',
-	    \   showDiagWithVirtualText: v:true,
-	    \   diagVirtualTextAlign: 'after',
-	    \}
-
-function! s:set_lsp_keys() abort
-    nmap <silent><buffer> gO  :LspSymbolSearch<cr>
-    nmap <silent><buffer> grd :LspGotoDefinition<cr>
-    nmap <silent><buffer> gri :LspGotoImpl<cr>
-    nmap <silent><buffer> grt :LspGotoTypeDef<cr>
-    nmap <silent><buffer> gra :LspCodeAction<cr>
-    nmap <silent><buffer> grn :LspRename<cr>
-    nmap <silent><buffer> gr= :LspFormat<cr>
-    nmap <silent><buffer> grd :LspDiagShow<cr>
-    nmap <silent><buffer> [d :LspDiagPrev<cr>
-    nmap <silent><buffer> ]d :LspDiagNext<cr>
-    nmap <silent><buffer> K  :LspHover<cr>
-endfunction
-
-augroup add_lsp_servers
+" highlight yanked text
+augroup highlight_yank
     autocmd!
-    autocmd User LspSetup call LspAddServer(lsp_servers)
-    autocmd User LspSetup call LspOptionsSet(lsp_options)
+    autocmd TextYankPost * call s:HighlightYank()
 augroup END
+function! s:HighlightYank()
+    let l:start = getpos("'[")
+    let l:end = getpos("']")
+    if l:start[1] == l:end[1]
+        let l:match = matchaddpos('IncSearch', [[l:start[1], l:start[2], l:end[2] - l:start[2] + 1]])
+    else
+        let l:lines = []
+        for l:lnum in range(l:start[1], l:end[1])
+            call add(l:lines, [l:lnum])
+        endfor
+        let l:match = matchaddpos('IncSearch', l:lines)
+    endif
+    call timer_start(200, {-> matchdelete(l:match)})
+endfunction
 
-augroup lsp_keymaps
-    autocmd!
-    autocmd User LspAttached call s:set_lsp_keys()
-augroup END
+" replace operator (s to replace without yanking)
+function! s:Replace(type, ...) abort
+    let l:sel_save = &selection
+    let &selection = 'inclusive'
+    if a:0
+        silent exe 'normal! gv"_c' . getreg('"')
+    elseif a:type == 'line'
+        silent exe "normal! '[V']\"_c" . getreg('"')
+    else
+        silent exe 'normal! `[v`]"_c' . getreg('"')
+    endif
+    let &selection = l:sel_save
+endfunction
 
+nmap <silent> s :set opfunc=<SID>Replace<cr>g@
+nmap <silent> ss :set opfunc=<SID>Replace<cr>g@_
+nmap <silent> S s$
+xmap <silent> s :<C-u>call <SID>Replace(visualmode(), 1)<cr>
