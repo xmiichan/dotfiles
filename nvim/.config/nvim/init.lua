@@ -33,8 +33,7 @@ local set_colors = function()
     hi PmenuSel      guifg=gray guibg=white gui=reverse cterm=reverse
     hi PmenuMatchSel guifg=gray guibg=white gui=reverse cterm=reverse
     hi FloatBorder   ctermfg=NONE ctermbg=NONE cterm=NONE
-    hi User1         gui=bold cterm=bold
-    hi User2         gui=reverse cterm=reverse
+    hi User1         gui=bold,reverse cterm=bold,reverse
     ]])
 end
 set_colors()
@@ -202,7 +201,7 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 vim.o.statusline = table.concat({
     "%1*",
     "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",
-    "%2*",
+    "%*",
     " ‹‹ %f%r%m ›› ",
     "%{FugitiveStatusline()}",
     "%=",
