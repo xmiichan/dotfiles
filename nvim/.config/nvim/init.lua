@@ -84,6 +84,10 @@ vim.o.completeopt = "fuzzy,menuone,noselect"
 vim.o.autocomplete = true
 vim.o.pumheight = 12
 
+vim.keymap.set("i", "<Tab>", function()
+    return vim.fn.pumvisible() == 1 and "<C-n>" or "<Tab>"
+end, { expr = true })
+
 -- netrw improvements
 vim.g.netrw_banner = 0
 vim.g.netrw_liststyle = 3    -- tree style listing
@@ -203,7 +207,7 @@ vim.o.statusline = table.concat({
     "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",
     "%*",
     " ‹‹ %f%r%m ›› ",
-    "%{FugitiveStatusline()}",
+    "%{exists('*FugitiveStatusline')?FugitiveStatusline():''}",
     "%=",
     "   %{toupper(&ft)}   ",
     "%1*",
@@ -259,8 +263,15 @@ vim.keymap.set("n", "<leader>b", require("fzf-lua").buffers, { silent = true })
 vim.keymap.set("n", "<leader>m", require("fzf-lua").marks, { silent = true })
 vim.keymap.set("n", "<leader>j", require("fzf-lua").jumps, { silent = true })
 vim.keymap.set("n", "<leader>l", require("fzf-lua").blines, { silent = true })
-vim.keymap.set("n", "<leader>/", require("fzf-lua").live_grep, { silent = true })
-vim.keymap.set("v", "<leader>/", require("fzf-lua").grep_visual, { silent = true })
+
+local rg_opts = "--hidden --column --line-number --no-heading"
+    .. " --color=always --smart-case -g '!.git/'"
+vim.keymap.set("n", "<leader>/", function()
+    require("fzf-lua").live_grep({ rg_opts = rg_opts })
+end, { silent = true })
+vim.keymap.set("v", "<leader>/", function()
+    require("fzf-lua").grep_visual({ rg_opts = rg_opts })
+end, { silent = true })
 
 -- git bindings
 vim.keymap.set("n", "<leader>gg", ":tab Git<cr>", { silent = true })
