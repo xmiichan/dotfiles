@@ -22,7 +22,7 @@ vim.o.pumblend = 10         -- ... and popups
 -- theme
 vim.o.termguicolors = true
 vim.o.background = "dark"
--- vim.cmd.colorscheme("default")
+
 local set_colors = function()
     vim.cmd([[
     hi Normal        guibg=NONE ctermbg=NONE
@@ -36,7 +36,6 @@ local set_colors = function()
     hi User1         gui=bold,reverse cterm=bold,reverse
     ]])
 end
-set_colors()
 
 vim.api.nvim_create_augroup("colorscheme_change", { clear = true })
 vim.api.nvim_create_autocmd("ColorScheme", {
@@ -215,6 +214,7 @@ vim.o.statusline = table.concat({
 })
 
 -- plugins
+
 vim.pack.add({
     "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
     "https://github.com/airblade/vim-rooter",            -- auto-detect pwd
@@ -226,13 +226,33 @@ vim.pack.add({
     "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
+    "https://github.com/catppuccin/nvim"                 -- colorscheme
 })
 
 vim.api.nvim_create_user_command("PackUpdate", function()
     vim.pack.update()
 end, {})
 
-vim.cmd.colorscheme("default")
+require("catppuccin").setup({
+    transparent_background = true,
+    integrations = {
+        mason = true,
+    },
+    styles = {
+        keywords = { "bold" },
+        conditionals = { "bold" },
+    },
+    custom_highlights = function()
+        return {
+            NormalFloat = { bg = "NONE" },
+            FloatBorder = { bg = "NONE" },
+            FloatTitle = { bg = "NONE" },
+            Pmenu = { bg = "NONE" },
+        }
+    end,
+})
+vim.cmd.colorscheme "catppuccin"
+
 vim.g.rooter_resolve_links = 1
 
 -- some plugins need enabling
@@ -240,7 +260,6 @@ vim.keymap.set("n", "s", "<Plug>ReplaceMotion", { silent = true })
 vim.keymap.set("n", "ss", "<Plug>ReplaceLine", { silent = true })
 vim.keymap.set("n", "S", "s$", { remap = true, silent = true })
 vim.keymap.set("x", "s", "<Plug>ReplaceVisual", { silent = true })
-
 
 require("nvim-surround").setup()
 
@@ -290,34 +309,6 @@ vim.lsp.config("lua_ls", {
             -- tell lsp where the vim runtime lives
             workspace = {
                 library = vim.api.nvim_get_runtime_file("", true),
-            },
-        },
-    },
-})
-
-local vue_ls_path = vim.fn.expand(
-    '$MASON/packages/vue-language-server/node_modules/@vue/language-server'
-)
-
-local vue_plugin = {
-    name = "@vue/typescript-plugin",
-    languages = { "vue" },
-    configNamespace = "typescript",
-    location = vue_ls_path
-}
-
-vim.lsp.config("vtsls", {
-    filetypes = {
-        "typescript",
-        "javascript",
-        "javascriptreact",
-        "typescriptreact",
-        "vue",
-    },
-    settings = {
-        vtsls = {
-            tsserver = {
-                globalPlugins = { vue_plugin },
             },
         },
     },
