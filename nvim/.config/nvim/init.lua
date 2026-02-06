@@ -226,6 +226,7 @@ vim.pack.add({
     "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
+    "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
     "https://github.com/catppuccin/nvim"                 -- colorscheme
 })
 
@@ -262,6 +263,47 @@ vim.keymap.set("n", "S", "s$", { remap = true, silent = true })
 vim.keymap.set("x", "s", "<Plug>ReplaceVisual", { silent = true })
 
 require("nvim-surround").setup()
+
+require("tmux").setup({
+    navigation = {
+        enable_default_keybindings = false,
+    },
+    resize = {
+        enable_default_keybindings = false,
+        resize_step_x = 5,
+    },
+    swap = {
+        enable_default_keybindings = false,
+    },
+})
+
+local tmux = require("tmux")
+vim.keymap.set("n", "<M-h>", tmux.move_left)
+vim.keymap.set("n", "<M-j>", tmux.move_bottom)
+vim.keymap.set("n", "<M-k>", tmux.move_top)
+vim.keymap.set("n", "<M-l>", tmux.move_right)
+vim.keymap.set("n", "<M-Left>", tmux.move_left)
+vim.keymap.set("n", "<M-Down>", tmux.move_bottom)
+vim.keymap.set("n", "<M-Up>", tmux.move_top)
+vim.keymap.set("n", "<M-Right>", tmux.move_right)
+
+vim.keymap.set("n", "<M-H>", tmux.resize_left)
+vim.keymap.set("n", "<M-J>", tmux.resize_bottom)
+vim.keymap.set("n", "<M-K>", tmux.resize_top)
+vim.keymap.set("n", "<M-L>", tmux.resize_right)
+vim.keymap.set("n", "<M-S-Left>", tmux.resize_left)
+vim.keymap.set("n", "<M-S-Down>", tmux.resize_bottom)
+vim.keymap.set("n", "<M-S-Up>", tmux.resize_top)
+vim.keymap.set("n", "<M-S-Right>", tmux.resize_right)
+
+vim.keymap.set("n", "<C-M-h>", tmux.swap_left)
+vim.keymap.set("n", "<C-M-j>", tmux.swap_bottom)
+vim.keymap.set("n", "<C-M-k>", tmux.swap_top)
+vim.keymap.set("n", "<C-M-l>", tmux.swap_right)
+vim.keymap.set("n", "<C-M-Left>", tmux.swap_left)
+vim.keymap.set("n", "<C-M-Down>", tmux.swap_bottom)
+vim.keymap.set("n", "<C-M-Up>", tmux.swap_top)
+vim.keymap.set("n", "<C-M-Right>", tmux.swap_right)
 
 local is_git_repo = function()
     local ok, res = pcall(vim.fn.system, "git rev-parse --is-inside-work-tree")
@@ -321,4 +363,5 @@ local local_config = vim.fn.stdpath("config") .. "/init.local.lua"
 if vim.fn.filereadable(local_config) == 1 then
     dofile(local_config)
 end
+
 
