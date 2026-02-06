@@ -241,6 +241,7 @@ vim.keymap.set("n", "ss", "<Plug>ReplaceLine", { silent = true })
 vim.keymap.set("n", "S", "s$", { remap = true, silent = true })
 vim.keymap.set("x", "s", "<Plug>ReplaceVisual", { silent = true })
 
+
 require("nvim-surround").setup()
 
 local is_git_repo = function()
@@ -323,3 +324,10 @@ vim.lsp.config("vtsls", {
 })
 
 vim.keymap.set("n", "gr=", vim.lsp.buf.format, { silent = true })
+
+-- local settings
+local local_config = vim.fn.stdpath("config") .. "/init.local.lua"
+if vim.fn.filereadable(local_config) == 1 then
+    dofile(local_config)
+end
+
