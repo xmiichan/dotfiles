@@ -12,6 +12,10 @@ vim.o.shiftwidth = 4        -- indent by 4 spaces
 vim.o.tabstop = 4           -- tab = 4 spaces
 vim.o.smarttab = true       -- indent smartly
 vim.o.expandtab = true      -- tab expands into spaces
+vim.o.linebreak = true      -- wrap at word boundaries
+vim.o.breakindent = true    -- wrapped lines keep indent
+vim.o.confirm = true        -- prompt to save on :q/:e
+vim.o.virtualedit = "block" -- select past EOL in block mode
 vim.o.splitbelow = true     -- new splits open below
 vim.o.splitright = true     -- new splits open right
 vim.o.winborder = "rounded" -- rounded border
@@ -72,7 +76,6 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 vim.o.wildmode = "longest:full,full"
 
 -- diagnostics
-vim.diagnostic.enable = true
 vim.diagnostic.config({
     virtual_lines = { current_line = true },
 })
@@ -122,7 +125,7 @@ vim.keymap.set({ "n", "v" }, "L", "$")
 vim.keymap.set("n", "<C-q>", "gqip", { silent = true })
 
 -- quick netrw
-vim.keymap.set("n", "-", ":Ex<cr>", { silent = true })
+vim.keymap.set("n", "-", ":Texplore<cr>", { silent = true })
 
 -- quick-edit all like this (budget multicursor)
 vim.keymap.set("n", "<C-s>", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<left><left><left>")
@@ -201,6 +204,13 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- statusline
+function _G.jumplist_pos()
+    local result = vim.fn.getjumplist()
+    local jl, idx = result[1], result[2]
+    if #jl == 0 then return "" end
+    return string.format(" %d/%d ", idx + 1, #jl)
+end
+
 vim.o.statusline = table.concat({
     "%1*",
     "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",
@@ -209,6 +219,7 @@ vim.o.statusline = table.concat({
     "%{exists('*FugitiveStatusline')?FugitiveStatusline():''}",
     "%=",
     "   %{toupper(&ft)}   ",
+    "%{v:lua.jumplist_pos()} ",
     "%1*",
     "  %2P %4l:%02v ",
 })
@@ -242,6 +253,15 @@ require("catppuccin").setup({
     styles = {
         keywords = { "bold" },
         conditionals = { "bold" },
+    },
+    lsp_styles = {
+        underlines = {
+            errors = { "undercurl" },
+            hints = { "undercurl" },
+            warnings = { "undercurl" },
+            information = { "undercurl" },
+            ok = { "undercurl" },
+        },
     },
     custom_highlights = function()
         return {
