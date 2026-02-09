@@ -150,6 +150,12 @@ vim.keymap.set("n", "<leader><leader>", ":b#<cr>", { silent = true })
 -- open diagnostic window
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { silent = true })
 
+-- fix Home/End under tmux-256color terminfo
+vim.keymap.set("", "<Find>", "<Home>")
+vim.keymap.set("", "<Select>", "<End>")
+vim.keymap.set("!", "<Find>", "<Home>")
+vim.keymap.set("!", "<Select>", "<End>")
+
 -- readline style motions in insert mode
 vim.keymap.set({ "i", "c" }, "<C-b>", "<Left>")
 vim.keymap.set({ "i", "c" }, "<C-f>", "<Right>")
@@ -355,9 +361,33 @@ vim.keymap.set("v", "<leader>/", function()
     require("fzf-lua").grep_visual({ rg_opts = rg_opts })
 end, { silent = true })
 
+-- point Fugitive to the git repo behind a symlink
+local function fugitive_resolve()
+    local real = vim.fn.resolve(vim.fn.expand("%:p"))
+    local dir = vim.fn.fnamemodify(real, ":h")
+    local handle = io.popen(
+        "git -C " .. vim.fn.shellescape(dir)
+            .. " rev-parse --git-dir 2>/dev/null"
+    )
+    if not handle then return end
+    local result = vim.trim(handle:read("*a"))
+    handle:close()
+    if result == "" then return end
+    if not result:match("^/") then
+        result = dir .. "/" .. result
+    end
+    vim.b.git_dir = result
+end
+
 -- git bindings
-vim.keymap.set("n", "<leader>gg", ":tab Git<cr>", { silent = true })
-vim.keymap.set("n", "<leader>gb", ":Git blame<cr>", { silent = true })
+vim.keymap.set("n", "<leader>gg", function()
+    fugitive_resolve()
+    vim.cmd("tab Git")
+end, { silent = true })
+vim.keymap.set("n", "<leader>gb", function()
+    fugitive_resolve()
+    vim.cmd("Git blame")
+end, { silent = true })
 vim.keymap.set("n", "<leader>gc", require("fzf-lua").git_commits, { silent = true })
 vim.keymap.set("n", "<leader>gC", require("fzf-lua").git_bcommits, { silent = true })
 vim.keymap.set("n", "<leader>gf", require("fzf-lua").git_diff, { silent = true })
