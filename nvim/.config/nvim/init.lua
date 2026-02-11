@@ -122,10 +122,10 @@ vim.keymap.set({ "n", "v" }, "H", "^")
 vim.keymap.set({ "n", "v" }, "L", "$")
 
 -- wrap current paragraph
-vim.keymap.set("n", "<C-q>", "gqip", { silent = true })
+vim.keymap.set("n", "<C-q>", "mzgqip`z", { silent = true })
 
 -- quick netrw
-vim.keymap.set("n", "-", ":Texplore<cr>", { silent = true })
+vim.keymap.set("n", "-", ":Ex<cr>", { silent = true })
 
 -- quick-edit all like this (budget multicursor)
 vim.keymap.set("n", "<C-s>", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<left><left><left>")
@@ -137,12 +137,17 @@ vim.keymap.set("n", "Q", "@q")
 vim.keymap.set("x", ".", ":norm .<cr>")
 vim.keymap.set("x", "Q", ":norm @q<cr>")
 
+-- quick splits
+vim.keymap.set("n", "<leader>ss", ":split<cr>")
+vim.keymap.set("n", "<leader>sv", ":vsplit<cr>")
+
 -- move lines in visual
 vim.keymap.set("x", "<C-n>", ":m '>+1<cr>gv=gv")
 vim.keymap.set("x", "<C-p>", ":m '<-2<cr>gv=gv")
 
 -- preserve cursor position when joining lines
 vim.keymap.set("n", "J", "mzJ`z")
+vim.keymap.set("n", "gJ", "mzkJ`z")
 
 -- quick buffer switching
 vim.keymap.set("n", "<leader><leader>", ":b#<cr>", { silent = true })
@@ -382,7 +387,7 @@ end
 -- git bindings
 vim.keymap.set("n", "<leader>gg", function()
     fugitive_resolve()
-    vim.cmd("tab Git")
+    vim.cmd("Git")
 end, { silent = true })
 vim.keymap.set("n", "<leader>gb", function()
     fugitive_resolve()
@@ -413,5 +418,3 @@ local local_config = vim.fn.stdpath("config") .. "/init.local.lua"
 if vim.fn.filereadable(local_config) == 1 then
     dofile(local_config)
 end
-
-
