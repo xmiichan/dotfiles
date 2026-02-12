@@ -18,6 +18,7 @@ vim.o.confirm = true        -- prompt to save on :q/:e
 vim.o.virtualedit = "block" -- select past EOL in block mode
 vim.o.splitbelow = true     -- new splits open below
 vim.o.splitright = true     -- new splits open right
+vim.o.title = true          -- set terminal title
 vim.o.winborder = "rounded" -- rounded border
 vim.o.pumborder = "rounded" -- ... also for popups
 vim.o.winblend = 10         -- translucent floating windows

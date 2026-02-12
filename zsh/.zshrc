@@ -94,6 +94,7 @@ setopt correct
 
 add-zsh-hook precmd vcs_info
 
+
 # Create the parent directory if it doesn't exist
 [[ -d $ZSH_COMPDUMP ]] || mkdir -p $ZSH_COMPDUMP
 
@@ -135,6 +136,12 @@ zstyle ':completion:*' matcher-list '' \
 PROMPT="%F{blue}%(4~|.../%2~|%~) %B%(#.%F{red}root%(?.%F{green}.%F{red})#.%(?.%F{green}.%F{red})$)%f%b "
 RPROMPT="\${vcs_info_msg_0_}"
 
+# Set terminal title to cwd or running command
+_set_title_cwd() { echo -ne "\033]2;${PWD/#$HOME/~}\007" }
+_set_title_cmd() { echo -ne "\033]2;${1%% *}\007" }
+precmd_functions+=(_set_title_cwd)
+preexec_functions+=(_set_title_cmd)
+
 # Aliases
 alias myip="curl http://ipecho.net/plain; echo"
 alias reload="exec zsh"
@@ -169,3 +176,4 @@ _source_if "$EAT_SHELL_INTEGRATION_DIR/zsh"
 # Source plugins
 _source_if "$Z_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+
