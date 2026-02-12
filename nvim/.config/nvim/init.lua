@@ -237,24 +237,47 @@ vim.o.statusline = table.concat({
 })
 
 -- plugins
-
-vim.pack.add({
+local plugins = {
     "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
     "https://github.com/airblade/vim-rooter",            -- auto-detect pwd
     "https://github.com/tpope/vim-fugitive",             -- git client
     "https://github.com/vim-scripts/regreplop.vim",      -- replace operator on <s>
     "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
     "https://github.com/kylechui/nvim-surround",         -- motion for surrounding text
+    "https://github.com/windwp/nvim-autopairs",          -- auto-close brackets
+    "https://github.com/tpope/vim-endwise",              -- ... and keywords
     "https://github.com/mattn/emmet-vim",                -- html/xml quick inserts
     "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
     "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
-    "https://github.com/catppuccin/nvim"                 -- colorscheme
-})
+    "https://github.com/catppuccin/nvim",                -- colorscheme
+}
+
+vim.pack.add(plugins)
 
 vim.api.nvim_create_user_command("PackUpdate", function()
     vim.pack.update()
+end, {})
+
+vim.api.nvim_create_user_command("PackClean", function()
+    local wanted = {}
+    for _, url in ipairs(plugins) do
+        wanted[url:match("([^/]+)$")] = true
+    end
+    local to_remove = {}
+    for _, plug in ipairs(vim.pack.get()) do
+        local name = plug.spec.name
+        if not wanted[name] and not plug.active then
+            table.insert(to_remove, name)
+        end
+    end
+    if #to_remove > 0 then
+        vim.pack.del(to_remove)
+        for _, name in ipairs(to_remove) do
+            print("Removed: " .. name)
+        end
+    end
 end, {})
 
 require("catppuccin").setup({
@@ -295,8 +318,10 @@ vim.keymap.set("n", "S", "s$", { remap = true, silent = true })
 vim.keymap.set("x", "s", "<Plug>ReplaceVisual", { silent = true })
 
 require("nvim-surround").setup()
+require("nvim-autopairs").setup()
 
-require("tmux").setup({
+local tmux = require("tmux")
+tmux.setup({
     navigation = {
         enable_default_keybindings = false,
     },
@@ -309,7 +334,6 @@ require("tmux").setup({
     },
 })
 
-local tmux = require("tmux")
 vim.keymap.set("n", "<M-h>", tmux.move_left)
 vim.keymap.set("n", "<M-j>", tmux.move_bottom)
 vim.keymap.set("n", "<M-k>", tmux.move_top)
