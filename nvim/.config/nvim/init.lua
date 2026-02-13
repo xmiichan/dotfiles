@@ -241,6 +241,7 @@ local plugins = {
     "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
     "https://github.com/airblade/vim-rooter",            -- auto-detect pwd
     "https://github.com/tpope/vim-fugitive",             -- git client
+    "https://github.com/lewis6991/gitsigns.nvim",        -- git gutter
     "https://github.com/vim-scripts/regreplop.vim",      -- replace operator on <s>
     "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
     "https://github.com/kylechui/nvim-surround",         -- motion for surrounding text
