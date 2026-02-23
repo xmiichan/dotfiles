@@ -6,8 +6,6 @@
 ;;; Code:
 
 ;;;; Basic config
-(require 'cl-lib)
-
 ;; Start server if it's not already running.
 (require 'server)
 (unless (server-running-p)
@@ -65,22 +63,17 @@
                (recentf-expand-file-name no-littering-etc-directory)))
 
 ;; Optimized garbage collection.
-(if (>= emacs-major-version 27)
-    (add-function :after after-focus-change-function #'garbage-collect)
-  (with-no-warnings
-    (add-hook 'focus-out-hook #'garbage-collect)))
+(add-function :after after-focus-change-function #'garbage-collect)
 
 ;; Inhibit async native-comp warnings.
-(when (and (>= emacs-major-version 28)
-           (native-comp-available-p))
+(when (native-comp-available-p)
   (setq native-comp-async-report-warnings-errors nil))
 
 ;; Add lexical binding to scratch buffer.
 (setq initial-scratch-message ";; -*- lexical-binding: t -*-\n\n")
 
 ;; Hide commands in M-x that do not apply to the current mode.
-(when (>= emacs-major-version 28)
-  (setq read-extended-command-predicate #'command-completion-default-include-p))
+(setq read-extended-command-predicate #'command-completion-default-include-p)
 
 ;; Confirm kill
 (setq confirm-kill-emacs #'y-or-n-p)
@@ -326,7 +319,7 @@ This is useful, e.g., for use with `visual-line-mode'."
 (add-hook 'prog-mode-hook #'display-line-numbers-mode)
 
 ;; Shorter confirm commands.
-(fset #'yes-or-no-p #'y-or-n-p)
+(setq use-short-answers t)
 
 (defun my/save-buffers-kill-terminal ()
   "Like `save-buffers-kill-terminal' but ask first."
@@ -339,6 +332,7 @@ This is useful, e.g., for use with `visual-line-mode'."
   (global-set-key (kbd "C-x C-c") #'my/save-buffers-kill-terminal))
 
 ;; Frame title should the file name.
+(setq xterm-set-window-title t)
 (setq frame-title-format
       '((:eval (if (buffer-file-name)
                    (abbreviate-file-name (buffer-file-name))
@@ -892,6 +886,19 @@ prompter."
   :config
   (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
+;; Completion-at-point extensions
+(use-package cape
+  :ensure t
+  :init
+  (add-hook 'completion-at-point-functions #'cape-dabbrev)
+  (add-hook 'completion-at-point-functions #'cape-file)
+  :bind
+  (("C-c p p" . completion-at-point)
+   ("C-c p d" . cape-dabbrev)
+   ("C-c p f" . cape-file)
+   ("C-c p h" . cape-history)
+   ("C-c p w" . cape-dict)))
+
 (use-package nerd-icons-ibuffer
   :ensure t
   :hook
@@ -1277,6 +1284,13 @@ This somehow does not work with `:bind', so here we are."
   :config
   (eglot-booster-mode +1))
 
+(use-package consult-eglot
+  :ensure t
+  :after (consult eglot)
+  :bind
+  ((:map eglot-mode-map
+         ("M-g s" . consult-eglot-symbols))))
+
 (use-package sideline
   :ensure t
   :init
@@ -1336,7 +1350,6 @@ This somehow does not work with `:bind', so here we are."
 
 ;; Tree-sitter languages
 (use-package treesit-auto
-  :if (>= emacs-major-version 29)
   :ensure t
   :custom
   (treesit-auto-install 'prompt)
@@ -1345,24 +1358,20 @@ This somehow does not work with `:bind', so here we are."
   (global-treesit-auto-mode +1))
 
 (use-package typescript-ts-mode
-  :if (>= emacs-major-version 29)
   :mode ("\\.tsx?\\'")
   :custom
   (typescript-ts-mode-indent-offset 4))
 
 (use-package json-ts-mode
-  :if (>= emacs-major-version 29)
   :custom
   (json-ts-mode-indent-offset 4))
 
 (use-package yaml-ts-mode
-  :if (>= emacs-major-version 29)
   :custom
   (yaml-ts-mode-indent-offset 2)
   (yaml-indent-offset 2))
 
 (use-package c-ts-mode
-  :if (>= emacs-major-version 29)
   :config
   (setq-default c-basic-offset 4)
   :custom
@@ -1796,19 +1805,33 @@ If `emmet-mode' is active, it can expand e+ expressions too."
                  ("\\cvsection{%s}" . "\\cvsection*{%s}"))))
 
 ;; Mode-line
-(use-package telephone-line
-  :ensure t
-  :config
-  (setq telephone-line-evil-use-short-tag t)
-  (setq telephone-line-rhs
-        '((nil telephone-line-flymake-segment telephone-line-misc-info-segment)
-          (nil telephone-line-major-mode-segment)
-          (accent telephone-line-airline-position-segment)))
-  (setq telephone-line-primary-left-separator 'telephone-line-nil)
-  (setq telephone-line-primary-right-separator 'telephone-line-nil)
-  (setq telephone-line-secondary-left-separator 'telephone-line-nil)
-  (setq telephone-line-secondary-right-separator 'telephone-line-nil)
-  (telephone-line-mode +1))
+(defvar my/mode-line-flymake
+  '(:eval (when (bound-and-true-p flymake-mode)
+            flymake-mode-line-counters))
+  "Flymake counters for mode-line.")
+
+(defun my/mode-line-vc ()
+  "Return vc branch for mode-line."
+  (when-let ((branch (and vc-mode (substring-no-properties vc-mode 5))))
+    (propertize (concat "  " branch) 'face 'success)))
+
+(defun my/mode-line-buffer-status ()
+  "Return buffer modification/readonly status."
+  (cond
+   (buffer-read-only (propertize " RO" 'face 'warning))
+   ((buffer-modified-p) (propertize " +" 'face 'error))
+   (t "")))
+
+(when (>= emacs-major-version 30)
+  (setq-default mode-line-format
+                '(" "
+                  (:propertize "%b" face mode-line-buffer-id)
+                  (:eval (my/mode-line-buffer-status))
+                  (:eval (my/mode-line-vc))
+                  " "
+                  mode-line-format-right-align
+                  my/mode-line-flymake
+                  "  %m  %l:%c ")))
 
 ;; Local Variables: **
 ;; byte-compile-warnings: (not free-vars noruntime unresolved) **
