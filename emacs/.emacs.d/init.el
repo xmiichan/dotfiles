@@ -86,11 +86,7 @@
 (when (eq system-type 'darwin)
   (setq ns-right-option-modifier nil)
   (setq ns-option-modifier 'meta)
-  (setq ns-command-modifier 'meta)
-  (setq ns-right-command-modifier 'super)
-  ;; Allow for CUA copying so integration with other apps works better.
-  (bind-key "M-c" #'kill-ring-save)
-  (bind-key "s-c" #'capitalize-word))
+  (setq ns-command-modifier 'super))
 
 ;; Emacs on Mac OS messes up PATH. Let's fix that.
 (use-package exec-path-from-shell
@@ -245,6 +241,13 @@ This is useful, e.g., for use with `visual-line-mode'."
   (save-place-mode +1)
   :config
   (setq-default save-place t))
+
+;; Save and restore buffers across daemon restarts.
+(use-package desktop
+  :init
+  (desktop-save-mode +1)
+  :config
+  (setq desktop-auto-save-timeout 30))
 
 ;; Remember history between sessions.
 (use-package savehist
@@ -842,6 +845,10 @@ prompter."
 
   :bind
   (:map corfu-map
+        ("TAB" . corfu-next)
+        ([tab] . corfu-next)
+        ("S-TAB" . corfu-previous)
+        ([backtab] . corfu-previous)
         ("C-SPC" . corfu-insert-separator)))
 
 (use-package corfu-terminal
@@ -1822,6 +1829,12 @@ If `emmet-mode' is active, it can expand e+ expressions too."
    ((buffer-modified-p) (propertize " +" 'face 'error))
    (t "")))
 
+(defun my/mode-line-eglot ()
+  "Return eglot status for mode-line."
+  (if (and (fboundp 'eglot-managed-p) (eglot-managed-p))
+      (propertize " LSP" 'face 'success)
+    ""))
+
 (when (>= emacs-major-version 30)
   (setq-default mode-line-format
                 '(" "
@@ -1831,7 +1844,10 @@ If `emmet-mode' is active, it can expand e+ expressions too."
                   " "
                   mode-line-format-right-align
                   my/mode-line-flymake
-                  "  %m  %l:%c ")))
+                  (:eval mode-name)
+                  (:eval (my/mode-line-eglot))
+                  "  %l:%c "
+                  " ")))
 
 ;; Local Variables: **
 ;; byte-compile-warnings: (not free-vars noruntime unresolved) **
