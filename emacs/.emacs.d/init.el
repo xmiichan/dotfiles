@@ -120,6 +120,11 @@
     (setq interprogram-cut-function 'wl-copy)
     (setq interprogram-paste-function 'wl-paste)))
 
+;; Clipboard
+(use-package clipetty
+  :ensure t
+  :hook (after-init . global-clipetty-mode))
+
 ;; GPG integration
 (use-package epg
   :config
