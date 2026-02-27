@@ -325,11 +325,13 @@ This is useful, e.g., for use with `visual-line-mode'."
 (setq use-short-answers t)
 
 (defun my/save-buffers-kill-terminal ()
-  "Like `save-buffers-kill-terminal' but ask first."
+  "Use `server-edit' for server buffers, otherwise ask before closing."
   (interactive)
-  (if (y-or-n-p (format "Are you sure you want to close this frame? "))
-      (save-buffers-kill-terminal)
-    (message "Frame not closed. :)")))
+  (if server-buffer-clients
+      (server-edit)
+    (if (y-or-n-p "Are you sure you want to close this frame? ")
+        (save-buffers-kill-terminal)
+      (message "Frame not closed. :)"))))
 
 (when (daemonp)
   (global-set-key (kbd "C-x C-c") #'my/save-buffers-kill-terminal))
@@ -1220,6 +1222,8 @@ This somehow does not work with `:bind', so here we are."
 
 ;;; Development
 (use-package eglot
+  :hook
+  ((prog-mode . eglot-ensure))
   :bind
   ((:map eglot-mode-map
          (("C-c C-a" . eglot-code-actions)
@@ -1235,52 +1239,7 @@ This somehow does not work with `:bind', so here we are."
     (interactive)
     (if (region-active-p)
         (call-interactively #'eglot-format)
-      (call-interactively #'eglot-format-buffer)))
-
-  (defun my/get-vue-language-server-path ()
-    "Find the @vue/language-server location."
-    (let* ((vue-ls-local-dir (locate-dominating-file default-directory "node_modules"))
-           (vue-ls-local (when vue-ls-local-dir
-                           (expand-file-name "node_modules/@vue/language-server" vue-ls-local-dir)))
-           ;; Build PATH from exec-path for the shell command
-           (path-env (mapconcat 'identity exec-path ":"))
-           (vue-ls-global (let ((npm-root (string-trim
-                                           (shell-command-to-string
-                                            (format "PATH='%s' npm root -g 2>/dev/null" path-env)))))
-                            (when (and npm-root
-                                       (not (string-empty-p npm-root))
-                                       (file-directory-p npm-root))
-                              (expand-file-name "@vue/language-server" npm-root))))
-           (path (cond
-                  ((and vue-ls-local (file-directory-p vue-ls-local))
-                   (message "Using local Vue language server: %s" vue-ls-local)
-                   vue-ls-local)
-                  ((and vue-ls-global (file-directory-p vue-ls-global))
-                   (message "Using global Vue language server: %s" vue-ls-global)
-                   vue-ls-global)
-                  (t
-                   (message "WARNING: Could not find @vue/language-server!")
-                   nil))))
-      path))
-
-  (defun my/vue-eglot-init-options-tsls (&optional server)
-    "Return initialization options for typescript-language-server with Vue plugin."
-    (let ((plugin-path (my/get-vue-language-server-path)))
-      (if plugin-path
-          (let ((init-opts `(:plugins
-                             [(:name "@vue/typescript-plugin"
-                                     :location ,plugin-path
-                                     :languages ["vue"])])))
-            (message "Eglot init options: %S" init-opts)
-            init-opts)
-        (message "ERROR: Cannot initialize without @vue/language-server path!")
-        nil)))
-
-  ;; Try typescript-language-server instead
-  (add-to-list 'eglot-server-programs
-               `(vue-mode "typescript-language-server" "--stdio"
-                          :initializationOptions my/vue-eglot-init-options-tsls))
-  (put 'vue-mode 'eglot-language-id "vue"))
+      (call-interactively #'eglot-format-buffer))))
 
 (use-package eglot-booster
   :after eglot
@@ -1838,8 +1797,10 @@ If `emmet-mode' is active, it can expand e+ expressions too."
 (when (>= emacs-major-version 30)
   (setq-default mode-line-format
                 '(" "
+                  mode-line-mule-info
+                  mode-line-modified
+                  " "
                   (:propertize "%b" face mode-line-buffer-id)
-                  (:eval (my/mode-line-buffer-status))
                   (:eval (my/mode-line-vc))
                   " "
                   mode-line-format-right-align
