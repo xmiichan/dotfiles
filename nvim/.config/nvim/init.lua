@@ -244,6 +244,8 @@ local plugins = {
     "https://github.com/lewis6991/gitsigns.nvim",        -- git gutter
     "https://github.com/vim-scripts/regreplop.vim",      -- replace operator on <s>
     "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
+    "https://github.com/stevearc/oil.nvim",              -- file browser on steroids
+    "https://github.com/folke/flash.nvim",               -- quick jump
     "https://github.com/kylechui/nvim-surround",         -- motion for surrounding text
     "https://github.com/windwp/nvim-autopairs",          -- auto-close brackets
     "https://github.com/tpope/vim-endwise",              -- ... and keywords
@@ -312,14 +314,37 @@ vim.cmd.colorscheme "catppuccin"
 
 vim.g.rooter_resolve_links = 1
 
--- some plugins need enabling
-vim.keymap.set("n", "s", "<Plug>ReplaceMotion", { silent = true })
-vim.keymap.set("n", "ss", "<Plug>ReplaceLine", { silent = true })
-vim.keymap.set("n", "S", "s$", { remap = true, silent = true })
-vim.keymap.set("x", "s", "<Plug>ReplaceVisual", { silent = true })
+-- regreplop: replace with register
+vim.keymap.set("n", "cr", "<Plug>ReplaceMotion", { silent = true })
+vim.keymap.set("n", "crr", "<Plug>ReplaceLine", { silent = true })
+vim.keymap.set("n", "cR", "cr$", { remap = true, silent = true })
+vim.keymap.set("x", "cr", "<Plug>ReplaceVisual", { silent = true })
+
+-- flash: quick jump
+require("flash").setup({
+    prompt = { enabled = false },
+    modes = {
+        search = { enabled = false },
+        char = { enabled = false },
+    },
+})
+vim.keymap.set({ "n", "x", "o" }, "s", require("flash").jump)
 
 require("nvim-surround").setup()
 require("nvim-autopairs").setup()
+
+require("oil").setup({
+    float = {
+        padding = 5,
+        max_width = 0,
+        max_height = 0,
+        border = "rounded",
+        win_options = {
+            winblend = 0,
+        },
+    },
+})
+vim.keymap.set("n", "-", require("oil").open_float)
 
 local tmux = require("tmux")
 tmux.setup({

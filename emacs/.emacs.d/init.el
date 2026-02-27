@@ -991,6 +991,46 @@ Meant to use as an advice to `keyboard-escape-quit'."
 
 (advice-add #'keyboard-escape-quit :around #'my/keybord-escape-quit-dont-close-splits)
 
+;; Quick split nav, works nicely with tmux too
+(defun my/tmux-navigate (dir)
+  "Navigate to tmux pane in DIR when inside tmux, otherwise use `windmove'."
+  (let* ((side (pcase dir ('up 'top) ('down 'bottom) (_ dir)))
+         (move-cmd (intern (concat "windmove-" (symbol-name dir))))
+         (tmux-flag (concat "-" (upcase (substring (symbol-name dir) 0 1)))))
+    (if (and (not (display-graphic-p)) (window-at-side-p nil side))
+        (unless (zerop (call-process "tmux" nil nil nil "select-pane" tmux-flag))
+          (call-interactively move-cmd))
+      (call-interactively move-cmd))))
+
+(defun my/tmux-resize (dir)
+  "Resizes tmux pane in DIR when inside tmux, otherwise use `windsize'."
+  (let* ((side (pcase dir ('up 'top) ('down 'bottom) (_ dir)))
+         (size-cmd (intern (concat "windsize-" (symbol-name dir))))
+         (tmux-flag (concat "-" (upcase (substring (symbol-name dir) 0 1)))))
+    (if (and (not (display-graphic-p)) (window-at-side-p nil side))
+        (unless (zerop (call-process "tmux" nil nil nil "resize-pane" tmux-flag "5"))
+          (call-interactively size-cmd))
+      (call-interactively size-cmd))))
+
+(use-package windmove
+  :config
+  (with-eval-after-load 'paredit
+    (define-key paredit-mode-map (kbd "M-<up>") nil)
+    (define-key paredit-mode-map (kbd "M-<down>") nil))
+  :bind
+  (("M-<left>"  . (lambda () (interactive) (my/tmux-navigate 'left)))
+   ("M-<down>"  . (lambda () (interactive) (my/tmux-navigate 'down)))
+   ("M-<up>"    . (lambda () (interactive) (my/tmux-navigate 'up)))
+   ("M-<right>" . (lambda () (interactive) (my/tmux-navigate 'right)))))
+
+(use-package windsize
+  :ensure t
+  :bind
+  (("M-S-<left>"  . (lambda () (interactive) (my/tmux-resize 'left)))
+   ("M-S-<down>"  . (lambda () (interactive) (my/tmux-resize 'down)))
+   ("M-S-<up>"    . (lambda () (interactive) (my/tmux-resize 'up)))
+   ("M-S-<right>" . (lambda () (interactive) (my/tmux-resize 'right)))))
+
 ;; Marking.
 (bind-key "C-c SPC" #'set-rectangular-region-anchor)
 (bind-key "C-c RET" #'mark-sexp)
