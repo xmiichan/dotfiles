@@ -15,4 +15,6 @@ cursor-style-blink = false
 shell-integration = detect
 shell-integration-features = no-cursor,sudo,title
 macos-option-as-alt = left
+keybind = option+right=unbind
+keybind = option+left=unbind
 macos-titlebar-style = transparent

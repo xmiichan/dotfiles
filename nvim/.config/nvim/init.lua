@@ -115,6 +115,10 @@ vim.keymap.set({ "n", "v" }, "<leader>Y", '"+Y', { remap = true })
 vim.keymap.set({ "n", "v" }, "<leader>p", '"+p')
 vim.keymap.set({ "n", "v" }, "<leader>P", '"+P')
 
+-- diff quickies
+vim.keymap.set("n", "dol", ":diffget //2<cr>", { silent = true })
+vim.keymap.set("n", "dor", ":diffget //3<cr>", { silent = true })
+
 -- re-source config
 vim.keymap.set("n", "<leader>x", ":Update<cr> :source<cr>")
 
