@@ -250,6 +250,7 @@ local plugins = {
     "https://github.com/windwp/nvim-autopairs",          -- auto-close brackets
     "https://github.com/tpope/vim-endwise",              -- ... and keywords
     "https://github.com/mattn/emmet-vim",                -- html/xml quick inserts
+    "https://github.com/hat0uma/csvview.nvim",           -- pretty csv files
     "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
@@ -332,10 +333,28 @@ vim.keymap.set({ "n", "x", "o" }, "s", require("flash").jump)
 
 require("nvim-surround").setup()
 require("nvim-autopairs").setup()
+require("csvview").setup({
+    view = {
+        display_mode = "border",
+    },
+    keymaps = {
+        textobject_field_inner = { "if", mode = { "o", "x" } },
+        textobject_field_outer = { "af", mode = { "o", "x" } },
+        jump_next_field_end = { "<Tab>", mode = { "n", "v" } },
+        jump_prev_field_end = { "<S-Tab>", mode = { "n", "v" } },
+        jump_next_row = { "<Enter>", mode = { "n", "v" } },
+        jump_prev_row = { "<S-Enter>", mode = { "n", "v" } },
+    },
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "csv",
+    command = "CsvViewEnable",
+})
 
 require("oil").setup({
     float = {
-        padding = 5,
+        padding = 10,
         max_width = 0,
         max_height = 0,
         border = "rounded",
