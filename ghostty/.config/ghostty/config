@@ -18,3 +18,7 @@ macos-option-as-alt = left
 keybind = option+right=unbind
 keybind = option+left=unbind
 macos-titlebar-style = transparent
+copy-on-select = clipboard
+clipboard-read = allow
+clipboard-write = allow
+
