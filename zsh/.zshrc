@@ -164,7 +164,6 @@ _have fdfind && alias fd=fdfind
 _have fastfetch && alias ff=fastfetch
 _have vim && alias vi=vim && export EDITOR=vim
 _have nvim && alias vi=nvim && export EDITOR=nvim
-_have emacsclient && export EDITOR=em
 
 _have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
 _have mise && eval "$(mise activate zsh)" && export MISE_ENV_FILE=.env
