@@ -1,14 +1,15 @@
 theme = "Catppuccin Mocha"
 background = #000000
 
+window-height = 32
+window-width = 102
 window-padding-x = 5,5
 window-padding-balance = true
+window-save-state = default
 
 font-family = "PlemolJP Console NF"
 font-thicken = true
 font-size = 15
-font-feature = -calt
-font-feature = -dlig
 
 cursor-style = block
 cursor-style-blink = false
