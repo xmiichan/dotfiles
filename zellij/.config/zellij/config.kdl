@@ -53,14 +53,19 @@ keybinds clear-defaults=true {
         bind "Ctrl Alt j" "Ctrl Alt Down" { MovePane "Down"; }   
         bind "Ctrl Alt k" "Ctrl Alt Up" { MovePane "Up"; }       
         bind "Ctrl Alt l" "Ctrl Alt Right" { MovePane "Right"; } 
+        bind "Ctrl Alt H" "Ctrl Alt Shift Left" { Resize "Decrease Right"; }   
+        bind "Ctrl Alt J" "Ctrl Alt Shift Down" { Resize "Decrease Up"; }   
+        bind "Ctrl Alt K" "Ctrl Alt Shift Up" { Resize "Decrease Down"; }     
+        bind "Ctrl Alt L" "Ctrl Alt Shift Right" { Resize "Decrease Left"; } 
         bind "Alt Enter" { NewPane; }
         bind "Alt Shift Enter" { NewPane "stacked"; }
         bind "Alt f" { ToggleFloatingPanes; }
         bind "Alt =" "Alt +" { Resize "Increase"; }
         bind "Alt -" { Resize "Decrease"; }
         bind "Alt t" { NewTab; }
-        bind "Alt p" { GoToPreviousTab; }
-        bind "Alt n" { GoToNextTab; }
+        bind "Alt z" { ToggleFocusFullscreen; }
+        bind "Alt PageUp" { GoToPreviousTab; }
+        bind "Alt PageDown" { GoToNextTab; }
         bind "Alt 1" { GoToTab 1; }
         bind "Alt 2" { GoToTab 2; }
         bind "Alt 3" { GoToTab 3; }
@@ -110,6 +115,8 @@ keybinds clear-defaults=true {
         bind "Ctrl b" "PageUp" "Left" "h" { PageScrollUp; }
         bind "Ctrl d" "d" "Ctrl v" { HalfPageScrollDown; }
         bind "Ctrl u" "u" "Alt v" { HalfPageScrollUp; }
+        bind "g" "Home" { ScrollToTop; }
+        bind "G" "End" { ScrollToBottom; }
     }
     search {
         bind "j" "Down" { ScrollDown; }

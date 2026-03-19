@@ -10,7 +10,7 @@ layout {
                 tooltip_enabled true
                 tooltip_delay   250
 
-                hide_frame_for_single_pane true
+                hide_frame_for_single_pane false
 
                 mode_normal  "#[bg=blue] "
                 mode_tmux    "#[bg=yellow] "
