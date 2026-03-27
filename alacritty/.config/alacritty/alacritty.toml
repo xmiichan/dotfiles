@@ -1,0 +1,17 @@
+general.import = [
+    "themes/catppuccin-mocha.toml",
+]
+
+[colors.primary]
+background = "#000000"
+
+[window]
+dimensions = { columns = 100, lines = 32 }
+padding = { x = 5, y = 5 }
+decorations = "Full"
+decorations_theme_variant = "Dark"
+option_as_alt = "OnlyLeft"
+
+[font]
+normal = { family = "PlemolJP Console NF", style = "Regular" }
+size = 16
