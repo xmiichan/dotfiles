@@ -1,0 +1,63 @@
+directory: ~/Music/Artists
+library: ~/Music/beetslibrary.blb
+original_date: yes
+per_disc_numbering: no
+
+plugins: [musicbrainz, fetchart, embedart, inline, duplicates, thumbnails, info, convert]
+
+paths:
+  default: $albumartist/${original_year} - $album/$track - $title
+  singleton: $albumartist/Singles/$title
+  comp: Compilations/${original_year} - $album/$track - $title
+
+fetchart:
+  auto: yes
+  sources: [filesystem]
+  cautious: yes
+  cover_names: [cover, folder, front, art]
+  # minwidth: 250
+  # maxwidth: 2000
+  enforce_ratio: no
+
+art_rescale: yes
+art_resizer: imagemagick
+
+embedart:
+  auto: yes
+  ifempty: no
+  clearart_on_import: yes
+  maxwidth: 500
+
+match:
+  preferred:
+    original_year: yes
+
+duplicates:
+  album: yes
+  full: yes
+
+import:
+  move: no
+  copy: yes
+  incremental: yes
+  resume: yes
+  write: yes
+  timid: no
+  log: beets-import.log
+  group_albums: yes
+  autotag: yes
+  duplicate_option: skip
+
+convert:
+  copy_album_art: yes
+  dest: "~/Downloads/out"
+  never_convert_lossy_files: yes
+  timid: yes
+  embed: yes
+  formats:
+    aac:
+      command: ffmpeg -i $source -y -vn -acodec aac -vbr 3 $dest
+      extension: m4a
+
+directory_remove_empty: yes
+clutter: [".DS_Store", "Thumbs.db", "cover.jpg", "folder.jpg"]

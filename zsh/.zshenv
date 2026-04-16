@@ -40,6 +40,7 @@ if [ -f "/opt/homebrew/bin/brew" ]; then
 fi
 
 for p (
+        "$DOTFILES/scripts"
         "$HOME/.local/bin"
         "$HOME/.cargo/bin"
         "$HOME/.roswell/bin"

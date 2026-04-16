@@ -12,6 +12,7 @@ vim/**/*.add
 vim/**/*.spl
 Session.vim
 lazy-lock.json
+nvim-pack-lock.json
 .netrwhist
 *.swp
 *.swo
@@ -20,6 +21,7 @@ lazy-lock.json
 !tmux/.config/tmux/plugins/tpm
 tmux/.config/tmux/plugins/**/*
 tmux/.config/tmux/resurrect
+beets/.config/beets/state.pickle
 
 # Emacs files
 emacs/.emacs.d/elpa/

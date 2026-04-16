@@ -10,6 +10,7 @@ if (( $+commands[brew] )); then
     export fpath=(
         ${HOMEBREW_PREFIX}/share/zsh/site-functions
         ${HOMEBREW_PREFIX}/share/zsh-completions
+        ${Z_PLUGIN_DIR}/user-completions
         $fpath
     )
     export SHELL_COMPLETIONS_DIR="${HOMEBREW_PREFIX}/share/zsh-completions"
