@@ -10,7 +10,6 @@ if (( $+commands[brew] )); then
     export fpath=(
         ${HOMEBREW_PREFIX}/share/zsh/site-functions
         ${HOMEBREW_PREFIX}/share/zsh-completions
-        ${Z_PLUGIN_DIR}/user-completions
         $fpath
     )
     export SHELL_COMPLETIONS_DIR="${HOMEBREW_PREFIX}/share/zsh-completions"
@@ -22,6 +21,9 @@ _source_if() { [[ -r "$1" ]] && source "$1" || return 0; }
 
 # Plugins
 Z_PLUGIN_DIR="$HOME/.local/share/zsh"
+
+## User completions
+fpath+=("${Z_PLUGIN_DIR}/user-completions")
 
 if [[ ! -e "$Z_PLUGIN_DIR/zsh-completions" ]]; then
     git clone https://github.com/zsh-users/zsh-completions \
