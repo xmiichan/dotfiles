@@ -115,6 +115,28 @@ vim.keymap.set({ "n", "v" }, "<leader>Y", '"+Y', { remap = true })
 vim.keymap.set({ "n", "v" }, "<leader>p", '"+p')
 vim.keymap.set({ "n", "v" }, "<leader>P", '"+P')
 
+-- launchbar support
+if vim.uv.os_uname().sysname == 'Darwin' then
+    local send_to_lb = function()
+        vim.cmd('normal! "zy')
+        local text = vim.fn.getreg('z')
+        local escaped = text:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n')
+
+        local script = [[tell application "LaunchBar"
+        set selection to "]] .. escaped .. [["
+        activate
+        end tell]]
+
+        vim.fn.system({ 'osascript', '-e', script })
+    end
+
+    vim.keymap.set("v", "<C-j>", send_to_lb)
+    vim.keymap.set("n", "<C-j>", function()
+        vim.cmd('normal! viw')
+        send_to_lb()
+    end)
+end
+
 -- diff quickies
 vim.keymap.set("n", "dol", ":diffget //2<cr>", { silent = true })
 vim.keymap.set("n", "dor", ":diffget //3<cr>", { silent = true })
@@ -446,7 +468,7 @@ local function fugitive_resolve()
     local dir = vim.fn.fnamemodify(real, ":h")
     local handle = io.popen(
         "git -C " .. vim.fn.shellescape(dir)
-            .. " rev-parse --git-dir 2>/dev/null"
+        .. " rev-parse --git-dir 2>/dev/null"
     )
     if not handle then return end
     local result = vim.trim(handle:read("*a"))
