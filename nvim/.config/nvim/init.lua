@@ -21,8 +21,6 @@ vim.o.splitright = true     -- new splits open right
 vim.o.title = true          -- set terminal title
 vim.o.winborder = "rounded" -- rounded border
 vim.o.pumborder = "rounded" -- ... also for popups
-vim.o.winblend = 10         -- translucent floating windows
-vim.o.pumblend = 10         -- ... and popups
 
 -- theme
 vim.o.termguicolors = true
@@ -30,14 +28,11 @@ vim.o.background = "dark"
 
 local set_colors = function()
     vim.cmd([[
-    hi Normal        guibg=NONE ctermbg=NONE
-    hi NonText       guibg=NONE ctermbg=NONE
-    hi NormalFloat   guibg=NONE ctermbg=NONE
-    hi VertSplit     guibg=NONE ctermbg=NONE
-    hi PMenu         guibg=NONE ctermbg=NONE
-    hi PmenuSel      guifg=gray guibg=white gui=reverse cterm=reverse
-    hi PmenuMatchSel guifg=gray guibg=white gui=reverse cterm=reverse
-    hi FloatBorder   ctermfg=NONE ctermbg=NONE cterm=NONE
+    hi PMenu         guibg=NONE ctermbg=NONE guifg=white ctermfg=white
+    hi PMenuKind     guibg=NONE ctermbg=NONE guifg=white ctermfg=white
+    hi PMenuMatch    guibg=NONE ctermbg=NONE
+    hi diffAdded     guifg=lightgreen ctermfg=lightgreen
+    hi diffRemoved   guifg=lightred ctermfg=lightred
     hi User1         gui=bold,reverse cterm=bold,reverse
     ]])
 end
@@ -47,6 +42,8 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     group = "colorscheme_change",
     callback = set_colors,
 })
+
+vim.cmd.colorscheme "quiet"
 
 -- persistent undo
 local data_dir = vim.fn.stdpath("data")
@@ -250,15 +247,15 @@ function _G.jumplist_pos()
 end
 
 vim.o.statusline = table.concat({
-    "%1*",
-    "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",
     "%*",
+    "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",
+    "%1*",
     " ‹‹ %f%r%m ›› ",
     "%{exists('*FugitiveStatusline')?FugitiveStatusline():''}",
     "%=",
     "   %{toupper(&ft)}   ",
     "%{v:lua.jumplist_pos()} ",
-    "%1*",
+    "%*",
     "  %2P %4l:%02v ",
 })
 
@@ -281,7 +278,6 @@ local plugins = {
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
     "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
-    "https://github.com/catppuccin/nvim",                -- colorscheme
 }
 
 vim.pack.add(plugins)
@@ -289,55 +285,6 @@ vim.pack.add(plugins)
 vim.api.nvim_create_user_command("PackUpdate", function()
     vim.pack.update()
 end, {})
-
-vim.api.nvim_create_user_command("PackClean", function()
-    local wanted = {}
-    for _, url in ipairs(plugins) do
-        wanted[url:match("([^/]+)$")] = true
-    end
-    local to_remove = {}
-    for _, plug in ipairs(vim.pack.get()) do
-        local name = plug.spec.name
-        if not wanted[name] and not plug.active then
-            table.insert(to_remove, name)
-        end
-    end
-    if #to_remove > 0 then
-        vim.pack.del(to_remove)
-        for _, name in ipairs(to_remove) do
-            print("Removed: " .. name)
-        end
-    end
-end, {})
-
-require("catppuccin").setup({
-    transparent_background = true,
-    integrations = {
-        mason = true,
-    },
-    styles = {
-        keywords = { "bold" },
-        conditionals = { "bold" },
-    },
-    lsp_styles = {
-        underlines = {
-            errors = { "undercurl" },
-            hints = { "undercurl" },
-            warnings = { "undercurl" },
-            information = { "undercurl" },
-            ok = { "undercurl" },
-        },
-    },
-    custom_highlights = function()
-        return {
-            NormalFloat = { bg = "NONE" },
-            FloatBorder = { bg = "NONE" },
-            FloatTitle = { bg = "NONE" },
-            Pmenu = { bg = "NONE" },
-        }
-    end,
-})
-vim.cmd.colorscheme "catppuccin"
 
 vim.g.rooter_resolve_links = 1
 
