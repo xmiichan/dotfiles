@@ -169,6 +169,18 @@ _have vim && alias vi=vim && export EDITOR=vim
 _have nvim && alias vi=nvim && export EDITOR=nvim
 
 _have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
+_have fzf && fzf-git-files() {
+    local files
+    files=$(git diff --name-only --relative 2>/dev/null)
+    [[ -z "$files" ]] && files=$(git status --porcelain --untracked-files=all | awk '{print $NF}')
+    [[ -z "$files" ]] && return
+    LBUFFER+=$(echo "$files" | fzf --multi | paste -sd' ' -)
+    zle reset-prompt
+}
+
+_have fzf && zle -N fzf-git-files
+_have fzf && bindkey '^Y' fzf-git-files
+
 _have mise && eval "$(mise activate zsh)" && export MISE_ENV_FILE=.env
 
 _source_if "$HOME/.cargo/env"
