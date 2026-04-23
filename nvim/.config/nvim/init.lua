@@ -28,12 +28,8 @@ vim.o.background = "dark"
 
 local set_colors = function()
     vim.cmd([[
-    hi PMenu         guibg=NONE ctermbg=NONE guifg=white ctermfg=white
-    hi PMenuKind     guibg=NONE ctermbg=NONE guifg=white ctermfg=white
-    hi PMenuMatch    guibg=NONE ctermbg=NONE
-    hi diffAdded     guifg=lightgreen ctermfg=lightgreen
-    hi diffRemoved   guifg=lightred ctermfg=lightred
-    hi User1         gui=bold,reverse cterm=bold,reverse
+    hi Normal        guibg=NONE ctermbg=NONE
+    hi PMenu         guibg=NONE ctermbg=NONE
     ]])
 end
 
@@ -43,7 +39,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     callback = set_colors,
 })
 
-vim.cmd.colorscheme "quiet"
+vim.cmd.colorscheme "catppuccin"
 
 -- persistent undo
 local data_dir = vim.fn.stdpath("data")

@@ -1,3 +1,7 @@
+general.import = [
+    "themes/catppuccin-mocha.toml",
+]
+
 [colors.primary]
 background = "#000000"
 
