@@ -8,7 +8,7 @@
 	alias = ! "git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /"
 	graph = log --graph
 	amend = commit -a --amend
-	sync = !git fetch --all && git rebase --interactive origin/main
+	sync = "!f() { target=\"${1:-$(git rev-parse --abbrev-ref @{u})}\"; git fetch --all && git rebase --interactive \"$target\"; }; f"
 	patch = add -p
 	prune = fetch --prune origin
 	staged = diff --cached --ignore-submodules=dirty
