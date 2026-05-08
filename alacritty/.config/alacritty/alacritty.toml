@@ -15,3 +15,10 @@ option_as_alt = "OnlyLeft"
 [font]
 normal = { family = "PlemolJP Console NF", style = "Regular" }
 size = 16
+
+[[hints.enabled]]
+hyperlinks = true
+regex = '''(https?://|ssh://|ftp://|ftps://|mailto:|magnet:|gemini://|gopher://)\S+'''
+command = { program = "open", args = [] }
+binding = { mods = "Command", key = "Period" }
+mouse = { enabled = true, mods = "Command" }
