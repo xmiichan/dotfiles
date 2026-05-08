@@ -8,7 +8,8 @@
 	alias = ! "git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /"
 	graph = log --graph
 	amend = commit -a --amend
-	sync = "!f() { target=\"${1:-$(git rev-parse --abbrev-ref @{u})}\"; git fetch --all && git rebase --interactive \"$target\"; }; f"
+	sync = "!f() { target=\"${1:+origin/$1}\"; target=\"${target:-origin/HEAD}\"; git fetch origin && git rebase \"$target\"; }; f"
+	vs = "!f() { base=\"${1:-origin/HEAD}\"; git fetch origin --quiet; counts=$(git rev-list --left-right --count \"$base\"...HEAD); behind=$(echo \"$counts\" | cut -f1); ahead=$(echo \"$counts\" | cut -f2); echo \"vs $base: $ahead ahead, $behind behind\"; }; f"
 	patch = add -p
 	prune = fetch --prune origin
 	staged = diff --cached --ignore-submodules=dirty
