@@ -273,6 +273,7 @@ local plugins = {
     "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
+    "https://github.com/alker0/chezmoi.vim",             -- chezmoi template support
 }
 
 vim.pack.add(plugins)
