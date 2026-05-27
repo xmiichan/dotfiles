@@ -3,32 +3,3 @@
 # Log files
 *.log
 *.log.*
-
-# Vim files
-vim/.vim/pack/
-vim/.vim/plugged/
-vim/.vim/autoload/
-vim/**/*.add
-vim/**/*.spl
-Session.vim
-lazy-lock.json
-nvim-pack-lock.json
-.netrwhist
-*.swp
-*.swo
-
-# Misc files
-!tmux/.config/tmux/plugins/tpm
-tmux/.config/tmux/plugins/**/*
-tmux/.config/tmux/resurrect
-beets/.config/beets/state.pickle
-
-# Emacs files
-emacs/.emacs.d/elpa/
-emacs/.emacs.d/tmp/
-emacs/.emacs.d/var/
-emacs/.emacs.d/etc/
-emacs/.emacs.d/lsp-cache/
-emacs/.emacs.d/eln-cache/
-emacs/.emacs.d/tree-sitter/
-emacs/.emacs.d/transient/
