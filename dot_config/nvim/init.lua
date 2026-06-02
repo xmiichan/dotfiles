@@ -66,6 +66,17 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end,
 })
 
+-- make directory on write if it does not exist
+vim.api.nvim_create_autocmd("BufWritePre", {
+    pattern = "*",
+    callback = function(args)
+        local dir = vim.fn.fnamemodify(args.file, ":p:h")
+        if vim.fn.isdirectory(dir) == 0 then
+            vim.fn.mkdir(dir, "p")
+        end
+    end,
+})
+
 -- command-line completion
 vim.o.wildmode = "longest:full,full"
 
