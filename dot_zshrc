@@ -168,6 +168,7 @@ _have xdg-open && alias open="xdg-open"
 _have tmux && alias ta="tmux attach"
 _have fdfind && alias fd=fdfind
 _have fastfetch && alias ff=fastfetch
+_have yazi && alias y=yazi
 _have vim && alias vi=vim && export EDITOR=vim
 _have nvim && alias vi=nvim && export EDITOR=nvim
 
