@@ -26,6 +26,11 @@
             noise_reduction: 77,
         ),
     ),
+    artists: (
+            album_display_mode: NameOnly,
+            album_sort_by: Date,
+            album_date_tags: [OriginalDate, Date],
+            ),
     tabs: [
         (
             name: "Queue",
