@@ -406,7 +406,21 @@ vim.keymap.set("n", "<leader>F", require("fzf-lua").files, { silent = true })
 vim.keymap.set("n", "<leader>b", require("fzf-lua").buffers, { silent = true })
 vim.keymap.set("n", "<leader>m", require("fzf-lua").marks, { silent = true })
 vim.keymap.set("n", "<leader>j", require("fzf-lua").jumps, { silent = true })
-vim.keymap.set("n", "<leader>l", require("fzf-lua").blines, { silent = true })
+vim.keymap.set("n", "<leader>l", function()
+    require("fzf-lua").blines({ previewer = false })
+end, { silent = true })
+vim.keymap.set({ "n", "x" }, "<leader>r", function()
+    require("fzf-lua").registers({
+        winopts = {
+            relative = "cursor",
+            row = 1,
+            col = 0,
+            height = 0.30,
+            width = 0.40,
+            preview = { hidden = true },
+        },
+    })
+end, { silent = true })
 
 local rg_opts = "--hidden --column --line-number --no-heading"
     .. " --color=always --smart-case -g '!.git/'"
