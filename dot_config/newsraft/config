@@ -1,0 +1,20 @@
+scrolloff 3
+
+# drop unread counts, RSS isn't a mailbox
+menu-section-entry-format " %t"
+menu-feed-entry-format " %t"
+menu-item-entry-format " %d │ %-20O │ %o "
+menu-explore-item-entry-format " %d │ %-20O │ %o "
+
+sections-menu-paramount-explore true
+feeds-menu-paramount-explore true
+
+status-placeholder ""
+
+# keybinds
+bind y copy-to-clipboard
+
+bind m exec ~/.config/newsraft/mpv-queue.sh queue "%l"
+bind M exec ~/.config/newsraft/mpv-queue.sh now "%l"
+
+bind E exec $EDITOR ~/.config/newsraft/config
