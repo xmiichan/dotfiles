@@ -162,6 +162,8 @@ alias se="sudo $EDITOR"
 alias ggr='[ -d .git ] && cd "$(git rev-parse --show-toplevel)" || echo "Not in a git repository"'
 
 _have chezmoi && alias ce="chezmoi edit"
+_have chezmoi && alias cea="chezmoi edit --apply"
+_have chezmoi && alias cew="chezmoi edit --watch"
 _have chezmoi && alias ca="chezmoi apply"
 
 _have xdg-open && alias open="xdg-open"
