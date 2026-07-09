@@ -246,11 +246,17 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- statusline
-function _G.jumplist_pos()
+_G.Statusline = {}
+
+function Statusline.jumplist_pos()
     local result = vim.fn.getjumplist()
     local jl, idx = result[1], result[2]
     if #jl == 0 then return "" end
     return string.format(" %d/%d ", idx + 1, #jl)
+end
+
+function Statusline.chezmoi_flag()
+    return vim.b.chezmoi_managed and "cz" or ""
 end
 
 vim.o.statusline = table.concat({
@@ -260,8 +266,9 @@ vim.o.statusline = table.concat({
     " ‹‹ %f%r%m ›› ",
     "%{exists('*FugitiveStatusline')?FugitiveStatusline():''}",
     "%=",
+    "%{v:lua.Statusline.chezmoi_flag()}",
     "   %{toupper(&ft)}   ",
-    "%{v:lua.jumplist_pos()} ",
+    "%{v:lua.Statusline.jumplist_pos()} ",
     "%*",
     "  %2P %4l:%02v ",
 })
@@ -477,6 +484,57 @@ vim.lsp.config("lua_ls", {
 })
 
 vim.keymap.set("n", "gr=", vim.lsp.buf.format, { silent = true })
+
+-- chezmoi
+---@type string?
+local chezmoi_source = vim.trim(vim.fn.system("chezmoi source-path"))
+if vim.v.shell_error ~= 0 then
+    chezmoi_source = nil
+end
+
+local function chezmoi_apply()
+    if vim.bo.modified then
+        vim.cmd("write")
+    end
+    local file = vim.fn.resolve(vim.fn.expand("%:p"))
+    local target = vim.trim(vim.fn.system({ "chezmoi", "target-path", file }))
+    if vim.v.shell_error ~= 0 then
+        vim.notify(target, vim.log.levels.ERROR)
+        return
+    end
+    vim.system({ "chezmoi", "apply", target }, {}, function(res)
+        vim.schedule(function()
+            if res.code == 0 then
+                vim.notify("chezmoi: applied " .. target)
+            else
+                vim.notify(
+                    "chezmoi apply failed: " .. vim.trim(res.stderr or ""),
+                    vim.log.levels.ERROR
+                )
+            end
+        end)
+    end)
+end
+
+if chezmoi_source then
+    local prefix = chezmoi_source .. "/"
+    vim.api.nvim_create_augroup("chezmoi_managed", { clear = true })
+    vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
+        group = "chezmoi_managed",
+        callback = function(args)
+            local file = vim.fn.resolve(vim.fn.fnamemodify(args.file, ":p"))
+            if file:sub(1, #prefix) ~= prefix then
+                return
+            end
+            vim.b[args.buf].chezmoi_managed = true
+            vim.keymap.set("n", "<leader>ca", chezmoi_apply, {
+                buffer = args.buf,
+                silent = true,
+                desc = "chezmoi apply this file",
+            })
+        end,
+    })
+end
 
 -- local settings
 local local_config = vim.fn.stdpath("config") .. "/init.local.lua"
