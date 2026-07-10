@@ -246,18 +246,18 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 })
 
 -- statusline
-_G.Statusline = {}
+_G.Statusline = {
+    jumplist_pos = function()
+        local result = vim.fn.getjumplist()
+        local jl, idx = result[1], result[2]
+        if #jl == 0 then return "" end
+        return string.format(" %d/%d ", idx + 1, #jl)
+    end,
 
-function Statusline.jumplist_pos()
-    local result = vim.fn.getjumplist()
-    local jl, idx = result[1], result[2]
-    if #jl == 0 then return "" end
-    return string.format(" %d/%d ", idx + 1, #jl)
-end
-
-function Statusline.chezmoi_flag()
-    return vim.b.chezmoi_managed and "cz" or ""
-end
+    chezmoi_flag = function()
+        return vim.b.chezmoi_managed and "cz" or ""
+    end,
+}
 
 vim.o.statusline = table.concat({
     "%*",
