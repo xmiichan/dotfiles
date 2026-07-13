@@ -1,20 +1,63 @@
 #!/bin/sh
 
-alias clip="xclip -selection c -filter"
-
+os=$(uname -s)
+here=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 tempfile=$(mktemp -t qr-XXXXXX)
-maim -soBu --color=0.8,0.8,0.8,0.6 "$tempfile"
 
-if [ $? -eq 0 ]; then
-    scanresult=$(zbarimg --quiet --raw "$tempfile" | tr -d '\n')
+capture() {
+    case "$os" in
+        Darwin)
+            screencapture -i "$1"
+            ;;
+        *)
+            if [ -n "$WAYLAND_DISPLAY" ] && \
+               command -v grim >/dev/null 2>&1 && \
+               command -v slurp >/dev/null 2>&1; then
+                grim -g "$(slurp)" "$1"
+            else
+                maim -soBu --color=0.8,0.8,0.8,0.6 "$1"
+            fi
+            ;;
+    esac
+}
+
+clip() {
+    case "$os" in
+        Darwin)
+            pbcopy
+            ;;
+        *)
+            if [ -n "$WAYLAND_DISPLAY" ] && \
+               command -v wl-copy >/dev/null 2>&1; then
+                wl-copy
+            else
+                xclip -selection c
+            fi
+            ;;
+    esac
+}
+
+decode() {
+    case "$os" in
+        Darwin)
+            swift "$here/qrdecode.swift" "$1"
+            ;;
+        *)
+            zbarimg --quiet --raw "$1"
+            ;;
+    esac
+}
+
+if capture "$tempfile"; then
+    scanresult=$(decode "$tempfile" | tr -d '\n')
 
     if [ -z "$scanresult" ]; then
-        notify-send "QR Scan" "No scan data found!"
+        "$here/notify" "QR Scan" "No scan data found!"
     else
-        echo "$scanresult" | clip
-        convert $tempfile -resize 96x96 "$tempfile"
-        notify-send -i "$tempfile" "QR Scan" "$scanresult\nCopied to clipboard."
+        printf '%s' "$scanresult" | clip
+        "$here/notify" -i "$tempfile" "QR Scan" \
+            "$scanresult\nCopied to clipboard."
     fi
 fi
 
-rm "$tempfile";
+rm "$tempfile"
