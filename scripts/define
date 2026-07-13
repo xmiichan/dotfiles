@@ -1,0 +1,19 @@
+#!/usr/bin/env sh
+
+word="${1:-$(echo "moo")}"
+query="$(curl -s "https://api.dictionaryapi.dev/api/v2/entries/en_US/$word")"
+
+# first definiton only
+# def="$(echo "$query" | jq -r '.[0].meanings[] | "\(.partOfSpeech): \(.definitions[0].definition)\n"')"
+# all defintions
+def="$(echo "$query" | jq -r '.[].meanings[] | "\(.partOfSpeech): \(.definitions[0].definition)\n"' 2>/dev/null)"
+
+if [ $? -eq 0 ]; then
+    tput bold
+    echo "$word"
+    tput sgr0
+    echo "$def"
+else
+    echo "No definitions found for $word"
+fi
+
