@@ -157,7 +157,6 @@ alias ll="ls -hla"
 alias ducks="du -cksh *"
 alias untar='tar -xvf'
 alias h="history"
-alias ggr='[ -d .git ] && cd "$(git rev-parse --show-toplevel)" || echo "Not in a git repository"'
 
 _have chezmoi && alias ce="chezmoi edit"
 _have chezmoi && alias cea="chezmoi edit --apply"
@@ -170,7 +169,6 @@ _have fdfind && alias fd=fdfind
 _have fastfetch && alias ff=fastfetch
 _have yazi && alias y=yazi
 _have vim && alias vi=vim && export EDITOR=vim
-_have nvim && alias vi=nvim && export EDITOR=nvim
 _have emacsclient && export EDITOR=em && export VISUAL=em
 
 alias e="$EDITOR"
@@ -187,7 +185,7 @@ _have fzf && fzf-git-files() {
 }
 
 _have fzf && zle -N fzf-git-files
-_have fzf && bindkey '^Y' fzf-git-files
+_have fzf && bindkey '^X^F' fzf-git-files
 
 _have mise && eval "$(mise activate zsh)" && export MISE_ENV_FILE=.env
 
