@@ -5,9 +5,6 @@ auth on
 tls on
 tls_starttls off
 tls_certcheck off
-eval "gpg -d -q --for-your-eyes-only --no-tty $DOTFILES/secrets/smtp-user.gpg"
+user {{ .email | quote }}
 passwordeval "gpg -d -q --for-your-eyes-only --no-tty $DOTFILES/secrets/smtp-pass.gpg"
 logfile "$XDG_CACHE_HOME/msmtp/msmtp.log"
-
-
-# vim:filetype=msmtp

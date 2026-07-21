@@ -1,0 +1,23 @@
+IMAPAccount posteo
+Host posteo.de
+Port 993
+TLSType IMAPS
+User {{ .email | quote }}
+PassCmd "gpg -dq --no-tty ~/.dotfiles/secrets/smtp-pass.gpg"
+CertificateFile /etc/ssl/cert.pem
+
+IMAPStore posteo-remote
+Account posteo
+
+MaildirStore posteo-local
+Path ~/Mail/
+Inbox ~/Mail/INBOX
+SubFolders Verbatim
+
+Channel posteo
+Far :posteo-remote:
+Near :posteo-local:
+Patterns *
+Create Both
+Expunge Both
+SyncState *
