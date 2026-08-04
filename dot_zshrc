@@ -170,7 +170,7 @@ _have fastfetch && alias ff=fastfetch
 _have yazi && alias y=yazi
 _have vim && alias vi=vim && export EDITOR=vim
 _have nvim && alias vi=nvim && export EDITOR=nvim
-# _have emacsclient && export EDITOR=em && export VISUAL=em
+_have emacsclient && export EDITOR=em && export VISUAL=em
 
 alias e="$EDITOR"
 alias se="sudo $EDITOR"
