@@ -12,7 +12,7 @@ paths:
 
 fetchart:
   auto: yes
-  sources: [filesystem]
+  sources: [filesystem, coverart, itunes, albumart]
   cautious: yes
   cover_names: [cover, folder, front, art]
   # minwidth: 250
