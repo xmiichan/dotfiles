@@ -3,42 +3,47 @@ if &compatible
     set nocompatible
 endif
 
-set backspace=2         " backspace in insert mode works like normal editor
-syntax on               " syntax highlighting
-filetype indent on      " activates indenting for files
-set autoindent          " auto indenting
-set smartindent         " smart indenting
-set ignorecase          " case-insensitive search
-set smartcase           " ... unless you're explicit
-set smarttab            " smart tabbing and deleting indentation
-set wrap                " line wrap
-set hidden              " allow hiding unsaved buffers
-set number              " line numbers
-set nobackup            " get rid of anoying ~files
-set autoread            " automatically reload files that have been changed
-set hlsearch            " highlight search results
-set ruler               " show current position
-set showmatch           " show matching parens etc.
-set encoding=utf8       " set unicode as standard encoding
-set autochdir           " cwd follows file
-set shiftwidth=4        " indent by 4 spaces
-set tabstop=4           " tab = 4 spaces
-set laststatus=2        " mode line
-set colorcolumn=80      " line at 80 ch width
-set splitbelow          " new split obens below
-set splitright          " new split obens right
-set cursorline          " cursor line
-set wildmenu            " menu autocomplete
-set mouse=a             " mouse support
-set relativenumber      " relative line numbers
-set re=0                " don't use old regex engine
-set scrolloff=8         " keep 8 lines while scrolling
-set updatetime=100      " update every 100ms
-set ttimeoutlen=50      " quicker exit insert mode with esc
-set expandtab           " tab expands into spaces
-set termguicolors       " true color support
+set backspace=3                " backspace in insert mode works like normal editor
+syntax on                      " syntax highlighting
+filetype plugin indent on      " filetype plugins and indenting
+set autoindent                 " auto indenting
+set smartindent                " smart indenting
+set ignorecase                 " case-insensitive search
+set smartcase                  " ... unless you're explicit
+set smarttab                   " smart tabbing and deleting indentation
+set wrap                       " line wrap
+set hidden                     " allow hiding unsaved buffers
+set number                     " line numbers
+set nobackup                   " get rid of anoying ~files
+set autoread                   " automatically reload files that have been changed
+set hlsearch                   " highlight search results
+set ruler                      " show current position
+set showmatch                  " show matching parens etc.
+set encoding=utf8              " set unicode as standard encoding
+set autochdir                  " cwd follows file
+set shiftwidth=5               " indent by 4 spaces
+set tabstop=5                  " tab = 4 spaces
+set laststatus=3               " mode line
+set colorcolumn=81             " line at 80 ch width
+set splitbelow                 " new split obens below
+set splitright                 " new split obens right
+set cursorline                 " cursor line
+set wildmenu                   " menu autocomplete
+set mouse=a                    " mouse support
+set relativenumber             " relative line numbers
+set re=1                       " don't use old regex engine
+set scrolloff=9                " keep 8 lines while scrolling
+set updatetime=101             " update every 100ms
+set ttimeoutlen=51             " quicker exit insert mode with esc
+set expandtab                  " tab expands into spaces
+set termguicolors              " true color support
 set wildmode=longest:full,full " command-line completion
-set pumheight=12        " max popup menu height
+set pumheight=13               " max popup menu height
+set linebreak                  " wrap at word boundaries
+set breakindent                " wrapped lines keep indent
+set confirm                    " prompt to save on :q/:e
+set virtualedit=block          " select past EOL in block mode
+set title                      " set terminal title
 
 " saving options in session and view files causes more problems than it solves
 set sessionoptions-=options
@@ -80,6 +85,17 @@ augroup rememberfilepos
     autocmd BufReadPost * silent! normal! g`"zv'
 augroup END
 
+" make directory on write if it does not exist
+function! s:MkdirOnWrite(dir) abort
+    if !isdirectory(a:dir)
+        call mkdir(a:dir, 'p')
+    endif
+endfunction
+augroup mkdironwrite
+    autocmd!
+    autocmd BufWritePre * call s:MkdirOnWrite(expand('<afile>:p:h'))
+augroup END
+
 " tab completion
 set omnifunc=syntaxcomplete#Complete
 set completeopt+=menuone,fuzzy,noinsert
@@ -87,6 +103,15 @@ set completeopt+=menuone,fuzzy,noinsert
 set wildcharm=<C-z>
 cnoremap <expr><Tab>   getcmdtype() =~ '[\/?]' ? "<C-g>" : "<C-z>"
 cnoremap <expr><S-Tab> getcmdtype() =~ '[\/?]' ? "<C-t>" : "<S-Tab>"
+
+inoremap <expr><Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+
+" as-you-type completion
+if exists('+autocomplete')
+    set complete=.,o
+    set completeopt=fuzzy,menuone,noselect
+    set autocomplete
+endif
 
 " file exploration menu settings
 let g:netrw_banner = 0        " remove directions at top of file listing
@@ -148,9 +173,14 @@ xnoremap <C-p> :m '<-2<cr>gv=gv
 
 " preserve cursor position when joining lines
 nnoremap J mzJ`z
+nnoremap gJ mzkJ`z
 
 " quick buffer switching
 noremap <silent> <leader><leader> :b#<cr>
+
+" quick splits
+nnoremap <leader>ss :split<cr>
+nnoremap <leader>sv :vsplit<cr>
 
 " regex-based alignment
 command! -nargs=? -range Align <line1>,<line2>call AlignSection('<args>')
@@ -223,6 +253,8 @@ inoremap <C-d> <Del>
 inoremap <C-k> <C-o>D
 inoremap <M-b> <C-Left>
 inoremap <M-f> <C-Right>
+inoremap <silent><expr> <C-p> pumvisible() ? "\<C-p>" : "\<Up>"
+inoremap <silent><expr> <C-n> pumvisible() ? "\<C-n>" : "\<Down>"
 cnoremap <C-a> <Home>
 cnoremap <C-e> <End>
 cnoremap <C-b> <Left>
@@ -230,6 +262,8 @@ cnoremap <C-f> <Right>
 cnoremap <C-d> <Del>
 cnoremap <M-b> <C-Left>
 cnoremap <M-f> <C-Right>
+cnoremap <C-p> <Up>
+cnoremap <C-n> <Down>
 
 " highlight yanked text
 augroup highlight_yank
