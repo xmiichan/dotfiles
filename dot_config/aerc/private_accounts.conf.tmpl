@@ -1,6 +1,8 @@
 [Posteo]
 source             = maildir://~/.local/share/mail
 outgoing           = msmtp --read-envelope-from
+use-envelope-from  = true
+pgp-auto-sign      = true
 from               = <{{ .email }}>
 default            = INBOX
 folders-sort       = INBOX,Sent,Drafts,Archive,Trash
