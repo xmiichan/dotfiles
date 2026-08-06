@@ -1,0 +1,13 @@
+[Posteo]
+source             = maildir://~/.local/share/mail
+outgoing           = msmtp --read-envelope-from
+from               = <{{ .email }}>
+default            = INBOX
+folders-sort       = INBOX,Sent,Drafts,Archive,Trash
+folders-exclude    = Notes
+archive            = Archive
+postpone           = Drafts
+copy-to            = Sent
+check-mail         = 5m
+check-mail-cmd     = GPG_TTY= mbsync -a
+check-mail-timeout = 2m
