@@ -119,28 +119,6 @@ vim.keymap.set({ "n", "v" }, "<leader>Y", '"+Y', { remap = true })
 vim.keymap.set({ "n", "v" }, "<leader>p", '"+p')
 vim.keymap.set({ "n", "v" }, "<leader>P", '"+P')
 
--- launchbar support
-if vim.uv.os_uname().sysname == 'Darwin' then
-    local send_to_lb = function()
-        vim.cmd('normal! "zy')
-        local text = vim.fn.getreg('z')
-        local escaped = text:gsub('\\', '\\\\'):gsub('"', '\\"'):gsub('\n', '\\n')
-
-        local script = [[tell application "LaunchBar"
-        set selection to "]] .. escaped .. [["
-        activate
-        end tell]]
-
-        vim.fn.system({ 'osascript', '-e', script })
-    end
-
-    vim.keymap.set("v", "<C-j>", send_to_lb)
-    vim.keymap.set("n", "<C-j>", function()
-        vim.cmd('normal! viw')
-        send_to_lb()
-    end)
-end
-
 -- diff quickies
 vim.keymap.set("n", "dol", ":diffget //2<cr>", { silent = true })
 vim.keymap.set("n", "dor", ":diffget //3<cr>", { silent = true })
@@ -204,38 +182,6 @@ vim.keymap.set({ "i", "c" }, "<M-f>", "<C-Right>")
 vim.keymap.set({ "i", "c" }, "<M-p>", "<C-p>")
 vim.keymap.set({ "i", "c" }, "<M-n>", "<C-n>")
 
--- regex-based alignment
-local function align_section(line1, line2, regex)
-    local extra = 1
-    local sep = regex == "" and "=" or regex
-    local maxpos = 0
-    local lines = vim.api.nvim_buf_get_lines(0, line1 - 1, line2, false)
-
-    for _, line in ipairs(lines) do
-        local pos = string.find(line, " *" .. vim.pesc(sep))
-        if pos and maxpos < pos then
-            maxpos = pos
-        end
-    end
-
-    for i, line in ipairs(lines) do
-        local beg, rest = string.match(line, "(.-) *(" .. vim.pesc(sep) .. ".*)")
-        if beg and rest then
-            local spaces = string.rep(" ", maxpos - string.len(beg) + extra)
-            lines[i] = beg .. spaces .. rest
-        end
-    end
-
-    vim.api.nvim_buf_set_lines(0, line1 - 1, line2, false, lines)
-end
-
-vim.api.nvim_create_user_command("Align", function(opts)
-    align_section(opts.line1, opts.line2, opts.args or "")
-end, { nargs = "?", range = true })
-
-vim.keymap.set("x", "<leader>a", ":Align ")
-vim.keymap.set("x", "<leader>A", ":Align<cr>")
-
 -- highlight yanked areas
 vim.api.nvim_create_augroup("highlight_yanked", { clear = true })
 vim.api.nvim_create_autocmd("TextYankPost", {
@@ -243,34 +189,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     callback = function()
         vim.hl.hl_op({ higroup = "IncSearch", timeout = 200 })
     end,
-})
-
--- statusline
-_G.Statusline = {
-    jumplist_pos = function()
-        local result = vim.fn.getjumplist()
-        local jl, idx = result[1], result[2]
-        if #jl == 0 then return "" end
-        return string.format(" %d/%d ", idx + 1, #jl)
-    end,
-
-    chezmoi_flag = function()
-        return vim.b.chezmoi_managed and "cz" or ""
-    end,
-}
-
-vim.o.statusline = table.concat({
-    "%*",
-    "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",
-    "%1*",
-    " ‹‹ %f%r%m ›› ",
-    "%{exists('*FugitiveStatusline')?FugitiveStatusline():''}",
-    "%=",
-    "%{v:lua.Statusline.chezmoi_flag()}",
-    "   %{toupper(&ft)}   ",
-    "%{v:lua.Statusline.jumplist_pos()} ",
-    "%*",
-    "  %2P %4l:%02v ",
 })
 
 -- plugins
@@ -352,35 +270,6 @@ require("oil").setup({
     },
 })
 vim.keymap.set("n", "-", require("oil").open_float)
-
-local tmux = require("tmux")
-tmux.setup({
-    navigation = {
-        enable_default_keybindings = false,
-    },
-    resize = {
-        enable_default_keybindings = false,
-        resize_step_x = 5,
-    },
-    swap = {
-        enable_default_keybindings = false,
-    },
-})
-
-vim.keymap.set("n", "<M-h>", tmux.move_left)
-vim.keymap.set("n", "<M-j>", tmux.move_bottom)
-vim.keymap.set("n", "<M-k>", tmux.move_top)
-vim.keymap.set("n", "<M-l>", tmux.move_right)
-
-vim.keymap.set("n", "<M-H>", tmux.resize_left)
-vim.keymap.set("n", "<M-J>", tmux.resize_bottom)
-vim.keymap.set("n", "<M-K>", tmux.resize_top)
-vim.keymap.set("n", "<M-L>", tmux.resize_right)
-
-vim.keymap.set("n", "<C-M-h>", tmux.swap_left)
-vim.keymap.set("n", "<C-M-j>", tmux.swap_bottom)
-vim.keymap.set("n", "<C-M-k>", tmux.swap_top)
-vim.keymap.set("n", "<C-M-l>", tmux.swap_right)
 
 local is_git_repo = function()
     local ok, res = pcall(vim.fn.system, "git rev-parse --is-inside-work-tree")
@@ -472,57 +361,6 @@ vim.lsp.config("lua_ls", {
 })
 
 vim.keymap.set("n", "gr=", vim.lsp.buf.format, { silent = true })
-
--- chezmoi
----@type string?
-local chezmoi_source = vim.trim(vim.fn.system("chezmoi source-path"))
-if vim.v.shell_error ~= 0 then
-    chezmoi_source = nil
-end
-
-local function chezmoi_apply()
-    if vim.bo.modified then
-        vim.cmd("write")
-    end
-    local file = vim.fn.resolve(vim.fn.expand("%:p"))
-    local target = vim.trim(vim.fn.system({ "chezmoi", "target-path", file }))
-    if vim.v.shell_error ~= 0 then
-        vim.notify(target, vim.log.levels.ERROR)
-        return
-    end
-    vim.system({ "chezmoi", "apply", target }, {}, function(res)
-        vim.schedule(function()
-            if res.code == 0 then
-                vim.notify("chezmoi: applied " .. target)
-            else
-                vim.notify(
-                    "chezmoi apply failed: " .. vim.trim(res.stderr or ""),
-                    vim.log.levels.ERROR
-                )
-            end
-        end)
-    end)
-end
-
-if chezmoi_source then
-    local prefix = chezmoi_source .. "/"
-    vim.api.nvim_create_augroup("chezmoi_managed", { clear = true })
-    vim.api.nvim_create_autocmd({ "BufReadPost", "BufNewFile" }, {
-        group = "chezmoi_managed",
-        callback = function(args)
-            local file = vim.fn.resolve(vim.fn.fnamemodify(args.file, ":p"))
-            if file:sub(1, #prefix) ~= prefix then
-                return
-            end
-            vim.b[args.buf].chezmoi_managed = true
-            vim.keymap.set("n", "<leader>ca", chezmoi_apply, {
-                buffer = args.buf,
-                silent = true,
-                desc = "chezmoi apply this file",
-            })
-        end,
-    })
-end
 
 -- local settings
 local local_config = vim.fn.stdpath("config") .. "/init.local.lua"
