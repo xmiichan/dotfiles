@@ -1,0 +1,9 @@
+#!/usr/bin/env zsh
+
+# parse path dirs in reverse order so the path set in zshenv survives
+for p (${(Oa)MY_PATH_DIRS}); do
+    [ -d "$p" ] && path=("$p" $path)
+done
+
+[[ -n "$HOMEBREW_PREFIX" ]] &&
+      path=("$HOMEBREW_PREFIX/bin" "$HOMEBREW_PREFIX/sbin" $path)

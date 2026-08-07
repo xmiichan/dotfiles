@@ -2,8 +2,9 @@
 
 # Basics
 bindkey -e
-DISABLE_AUTO_TITLE="true"
-export EDITOR=vi
+
+## Fix an issue with gpg signing
+export GPG_TTY="$TTY"
 
 # When using macOS (brew) add the right paths so completion works as expected
 if (( $+commands[brew] )); then
@@ -37,12 +38,8 @@ fi
 
 fpath+="$Z_PLUGIN_DIR/zsh-completions/src"
 
-# zsh cache
-ZSH_COMPDUMP="$HOME/.cache/zsh/zcompcache"
-
 # Modules and autoloads
 zmodload -i zsh/complist
-autoload -Uz compinit && compinit -u
 autoload -Uz vcs_info
 autoload -Uz add-zsh-hook
 autoload -U select-word-style
@@ -97,30 +94,21 @@ setopt correct
 
 add-zsh-hook precmd vcs_info
 
+# cache
+export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+ZSH_COMPDUMP="$ZSH_CACHE_DIR/zcompdump-${ZSH_VERSION}"
 
-# Create the parent directory if it doesn't exist
-[[ -d $ZSH_COMPDUMP ]] || mkdir -p $ZSH_COMPDUMP
-
-_comp_files=($ZSH_COMPDUMP/zcompdump(#qN.mh+24))
-
+autoload -Uz compinit
+_comp_files=($ZSH_COMPDUMP(N.mh-24))
 if (( $#_comp_files )); then
-    autoload -Uz compinit -C -d "$ZSH_COMPDUMP/.zcompdump-${ZSH_VERSION}"
+    compinit -C -d "$ZSH_COMPDUMP"
 else
-    autoload -Uz compinit -d "$ZSH_COMPDUMP/.zcompdump-${ZSH_VERSION}"
+    compinit -u -d "$ZSH_COMPDUMP"
 fi
 
-export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
-[[ -d "$ZSH_CACHE_DIR" ]] || mkdir -p "$ZSH_CACHE_DIR"
-[[ -d "$ZSH_CACHE_DIR/completions" ]] || mkdir -p "$ZSH_CACHE_DIR/completions"
-
-# Set style options
-## version control info
-zstyle ':vcs_info:*' enable git
-zstyle ':vcs_info:*' check-for-changes true
-zstyle ':vcs_info:*' unstagedstr '*'
-zstyle ':vcs_info:*' stagedstr '+'
-zstyle ':vcs_info:git:*' formats '%F{green} %b%F{red}%c%u%f'
-zstyle ':vcs_info:git:*' actionformats '%B%F{yellow}(%a)%f %B%F{green} %b%F{red}%c%u%f'
+# completions
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR/zcompcache"
 ## disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
 ## set descriptions format to enable group support
@@ -135,6 +123,14 @@ zstyle ':completion:*' matcher-list '' \
     'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
     'r:|?=** m:{a-z\-}={A-Z\_}'
 
+# Set style options
+## version control info
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' unstagedstr '*'
+zstyle ':vcs_info:*' stagedstr '+'
+zstyle ':vcs_info:git:*' formats '%F{green} %b%F{red}%c%u%f'
+zstyle ':vcs_info:git:*' actionformats '%B%F{yellow}(%a)%f %B%F{green} %b%F{red}%c%u%f'
 # Prompt
 PROMPT="%F{blue}%(4~|.../%2~|%~) %B%(#.%F{red}root%(?.%F{green}.%F{red})#.%(?.%F{green}.%F{red})$)%f%b "
 RPROMPT="\${vcs_info_msg_0_}"
@@ -149,14 +145,16 @@ preexec_functions+=(_set_title_cmd)
 alias myip="curl http://ipecho.net/plain; echo"
 alias reload="exec zsh"
 alias clean="stty sane"
-alias xc="if [ $XDG_SESSION_TYPE = 'wayland' ]; then wl-copy; else xclip -selection c; fi"
-alias xp="if [ $XDG_SESSION_TYPE = 'wayland' ]; then wl-paste; else xclip -o; fi"
 alias ls="ls --color -F"
 alias la="ls -a"
 alias ll="ls -hla"
 alias ducks="du -cksh *"
 alias untar='tar -xvf'
 alias h="history"
+
+_have xclip && alias xc="xclip -selection c" && alias xp="xclip -o"
+_have wl-copy && alias xc=wl-copy && alias xp=wl-paste
+_have pbcopy && alias xc=pbcopy && alias xp=pbpaste
 
 _have chezmoi && alias ce="chezmoi edit"
 _have chezmoi && alias cea="chezmoi edit --apply"
@@ -168,9 +166,8 @@ _have tmux && alias ta="tmux attach"
 _have fdfind && alias fd=fdfind
 _have fastfetch && alias ff=fastfetch
 _have yazi && alias y=yazi
-_have vim && alias vi=vim && export EDITOR=vim
-_have nvim && alias vi=nvim && export EDITOR=nvim
-# _have emacsclient && export EDITOR=em && export VISUAL=em
+_have vim && alias vi=vim
+_have nvim && alias vi=nvim
 
 alias e="$EDITOR"
 alias se="sudo $EDITOR"
@@ -192,7 +189,6 @@ _have fzf && bindkey '^X^F' fzf-git-files
 
 _have mise && eval "$(mise activate zsh)" && export MISE_ENV_FILE=.env
 
-_source_if "$HOME/.cargo/env"
 _source_if "$EAT_SHELL_INTEGRATION_DIR/zsh"
 
 # Source plugins
