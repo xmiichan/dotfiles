@@ -1,0 +1,26 @@
+#!/bin/sh
+# gpg-agent's pinentry-program: curses on a live tty (interactive use),
+# GUI fallback otherwise (headless timers/agents have no tty to draw on).
+
+ttyname=
+prev=
+for arg in "$@"; do
+    case "$prev" in
+        -T|--ttyname) ttyname="$arg" ;;
+    esac
+    case "$arg" in
+        --ttyname=*) ttyname="${arg#--ttyname=}" ;;
+    esac
+    prev="$arg"
+done
+
+if [ -n "$ttyname" ] && { exec 3<>"$ttyname"; } 2>/dev/null; then
+    exec 3<&-
+    exec pinentry-curses "$@"
+fi
+
+for gui in pinentry-mac pinentry-bemenu pinentry-gtk2 pinentry-qt; do
+    command -v "$gui" >/dev/null 2>&1 && exec "$gui" "$@"
+done
+
+exec pinentry-curses "$@"

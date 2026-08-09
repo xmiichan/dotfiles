@@ -1,6 +1,4 @@
-{{ $pinentry := lookPath "pinentry-curses" -}}
-{{ if $pinentry }}pinentry-program {{ $pinentry }}
-{{ end -}}
+pinentry-program {{ .chezmoi.sourceDir }}/scripts/pinentry-select
 allow-emacs-pinentry
 allow-loopback-pinentry
 

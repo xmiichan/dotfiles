@@ -1,0 +1,6 @@
+[Unit]
+Description=Sync calendars/contacts (vdirsyncer)
+
+[Service]
+Type=oneshot
+ExecStart=vdirsyncer sync
