@@ -360,6 +360,10 @@ vim.lsp.config("lua_ls", {
     },
 })
 
+vim.lsp.config("bashls", {
+    filetypes = { "sh", "bash", "zsh" },
+})
+
 vim.keymap.set("n", "gr=", vim.lsp.buf.format, { silent = true })
 
 -- local settings
