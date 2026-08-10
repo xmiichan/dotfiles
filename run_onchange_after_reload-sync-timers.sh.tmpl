@@ -7,9 +7,9 @@ for label in mail-sync cal-sync; do
     launchctl load -w "{{ .chezmoi.homeDir }}/Library/LaunchAgents/com.mii.$label.plist"
 done
 {{- else }}
-# {{ include "dot_config/systemd/user/mail-sync.service" | sha256sum }}
+# {{ include "dot_config/systemd/user/mail-sync.service.tmpl" | sha256sum }}
 # {{ include "dot_config/systemd/user/mail-sync.timer" | sha256sum }}
-# {{ include "dot_config/systemd/user/cal-sync.service" | sha256sum }}
+# {{ include "dot_config/systemd/user/cal-sync.service.tmpl" | sha256sum }}
 # {{ include "dot_config/systemd/user/cal-sync.timer" | sha256sum }}
 systemctl --user daemon-reload
 systemctl --user enable --now mail-sync.timer cal-sync.timer

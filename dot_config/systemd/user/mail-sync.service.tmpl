@@ -3,4 +3,4 @@ Description=Sync mail (mbsync)
 
 [Service]
 Type=oneshot
-ExecStart=mbsync -a
+ExecStart={{ lookPath "mbsync" }} -a

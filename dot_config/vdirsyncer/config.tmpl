@@ -17,7 +17,7 @@ fileext = ".ics"
 type = "caldav"
 url = "https://posteo.de:8443/"
 username = {{ .email | quote }}
-password.fetch = ["shell", "gpg -dq --no-tty $DOTFILES/secrets/smtp-pass.gpg"]
+password.fetch = ["shell", "gpg -dq --no-tty $HOME/.dotfiles/secrets/smtp-pass.gpg"]
 
 [pair posteo_contacts]
 a = "contacts_local"
@@ -34,4 +34,4 @@ fileext = ".vcf"
 type = "carddav"
 url = "https://posteo.de:8843/"
 username = {{ .email | quote }}
-password.fetch = ["shell", "gpg -dq --no-tty $DOTFILES/secrets/smtp-pass.gpg"]
+password.fetch = ["shell", "gpg -dq --no-tty $HOME/.dotfiles/secrets/smtp-pass.gpg"]
