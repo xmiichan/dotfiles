@@ -175,8 +175,6 @@ _have nvim && alias vi=nvim
 alias e="$EDITOR"
 alias se="sudo $EDITOR"
 
-_have aerc && alias mail=aerc
-
 _have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
 _have fzf && fzf-git-files() {
     local files
@@ -197,5 +195,24 @@ _source_if "$EAT_SHELL_INTEGRATION_DIR/zsh"
 # Source plugins
 _source_if "$Z_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
 export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+
+# New mail notice, mail(1)-style
+_mail_notice() {
+    local maildir="${XDG_DATA_HOME:-$HOME/.local/share}/mail"
+    local skip='^(Sent|Drafts|Trash|Archive)'
+    local -a unread
+    local plural=''
+    # mbsync files unseen mail into cur/ without the S flag, not into new/
+    unread=(
+        $maildir/${~skip}/new/*(N.)
+        $maildir/${~skip}/cur/*:2,^*S*(N.)
+    )
+    if (( $#unread )); then
+        [ $#unread -gt 1 ] && plural='s'
+        print -P "%F{yellow}You have $#unread new mail$plural%f"
+    fi
+}
+_have aerc && _mail_notice
+_have aerc && alias mail=aerc
 
 # vim: set filetype=zsh
