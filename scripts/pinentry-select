@@ -1,26 +1,18 @@
 #!/bin/sh
-# gpg-agent's pinentry-program: curses on a live tty (interactive use),
-# GUI fallback otherwise (headless timers/agents have no tty to draw on).
 
-ttyname=
-prev=
-for arg in "$@"; do
-    case "$prev" in
-        -T|--ttyname) ttyname="$arg" ;;
-    esac
-    case "$arg" in
-        --ttyname=*) ttyname="${arg#--ttyname=}" ;;
-    esac
-    prev="$arg"
-done
-
-if [ -n "$ttyname" ] && { exec 3<>"$ttyname"; } 2>/dev/null; then
-    exec 3<&-
-    exec pinentry-curses "$@"
+if [ "$(uname)" = Darwin ]; then
+    gui='pinentry-mac'
+else
+    gui='pinentry-gnome3 pinentry-qt pinentry-gtk-2 pinentry-bemenu'
+    [ -n "${WAYLAND_DISPLAY:-}${DISPLAY:-}" ] || gui=''
 fi
 
-for gui in pinentry-mac pinentry-bemenu pinentry-gtk2 pinentry-qt; do
-    command -v "$gui" >/dev/null 2>&1 && exec "$gui" "$@"
+for p in $gui; do
+    command -v "$p" >/dev/null 2>&1 && exec "$p" "$@"
 done
 
-exec pinentry-curses "$@"
+for p in pinentry-curses pinentry-tty pinentry; do
+    command -v "$p" >/dev/null 2>&1 && exec "$p" "$@"
+done
+
+exit 1
