@@ -211,6 +211,7 @@ local plugins = {
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
     "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
     "https://github.com/alker0/chezmoi.vim",             -- chezmoi template support
+    "https://github.com/rickhowe/wrapwidth",             -- softwrap
 }
 
 vim.pack.add(plugins)
