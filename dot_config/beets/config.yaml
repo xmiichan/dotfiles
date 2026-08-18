@@ -49,15 +49,19 @@ import:
   duplicate_option: skip
 
 convert:
-  copy_album_art: yes
-  dest: "~/Downloads/out"
-  never_convert_lossy_files: yes
-  timid: yes
-  embed: yes
+  dest: ~/Downloads/out
+  format: opus
   formats:
-    aac:
-      command: ffmpeg -i $source -y -vn -acodec aac -vbr 3 $dest
-      extension: m4a
+    opus:
+      command: ffmpeg -i $source -y -vn -acodec libopus -b:a 128k $dest
+      extension: opus
+  never_convert_lossy_files: no
+  no_convert: 'bitrate:..192000'
+  embed: yes
+  album_art_maxwidth: 500
+  copy_album_art: yes
+  timid: no
+  threads: 10
 
 directory_remove_empty: yes
 clutter: [".DS_Store", "Thumbs.db", "cover.jpg", "folder.jpg"]
