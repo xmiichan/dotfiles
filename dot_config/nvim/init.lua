@@ -28,8 +28,9 @@ vim.o.background = "dark"
 
 local set_colors = function()
     vim.cmd([[
-    hi Normal        guibg=NONE ctermbg=NONE
-    hi PMenu         guibg=NONE ctermbg=NONE
+    hi Normal guibg=NONE ctermbg=NONE
+    hi PMenu  guibg=NONE ctermbg=NONE
+    hi! link FloatBorder Normal
     ]])
 end
 
@@ -39,7 +40,7 @@ vim.api.nvim_create_autocmd("ColorScheme", {
     callback = set_colors,
 })
 
-vim.cmd.colorscheme "catppuccin"
+vim.cmd.colorscheme("catppuccin")
 
 -- persistent undo
 local data_dir = vim.fn.stdpath("data")
@@ -61,7 +62,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
         local mark = vim.api.nvim_buf_get_mark(0, '"')
         local lcount = vim.api.nvim_buf_line_count(0)
         if mark[1] > 0 and mark[1] <= lcount then
-            pcall(vim.api.nvim_win_set_cursor, 0, mark)
+            pcall(function() vim.api.nvim_win_set_cursor(0, mark) end)
         end
     end,
 })
@@ -137,7 +138,8 @@ vim.keymap.set("n", "<C-q>", "mzgqip`z", { silent = true })
 vim.keymap.set("n", "-", ":Ex<cr>", { silent = true })
 
 -- quick-edit all like this (budget multicursor)
-vim.keymap.set("n", "<C-s>", ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<left><left><left>")
+vim.keymap.set("n", "<C-s>",
+    ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<left><left><left>")
 
 -- quick macro
 vim.keymap.set("n", "Q", "@q")
@@ -343,29 +345,11 @@ vim.keymap.set("n", "<leader>gb", function()
     fugitive_resolve()
     vim.cmd("Git blame")
 end, { silent = true })
-vim.keymap.set("n", "<leader>gc", require("fzf-lua").git_commits, { silent = true })
-vim.keymap.set("n", "<leader>gC", require("fzf-lua").git_bcommits, { silent = true })
+vim.keymap.set("n", "<leader>gc", require("fzf-lua").git_commits,
+    { silent = true })
+vim.keymap.set("n", "<leader>gC", require("fzf-lua").git_bcommits,
+    { silent = true })
 vim.keymap.set("n", "<leader>gf", require("fzf-lua").git_diff, { silent = true })
-
-require("mason").setup()
-require("mason-lspconfig").setup()
-
-vim.lsp.config("lua_ls", {
-    settings = {
-        Lua = {
-            -- tell lsp where the vim runtime lives
-            workspace = {
-                library = vim.api.nvim_get_runtime_file("", true),
-            },
-        },
-    },
-})
-
-vim.lsp.config("bashls", {
-    filetypes = { "sh", "bash", "zsh" },
-})
-
-vim.keymap.set("n", "gr=", vim.lsp.buf.format, { silent = true })
 
 -- local settings
 local local_config = vim.fn.stdpath("config") .. "/init.local.lua"
