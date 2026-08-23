@@ -17,6 +17,8 @@ export MANPAGER="less -R --use-color -Dd+g -Du+y -Ds+r"
 export EDITOR=vi
 export LYNX_CFG="$XDG_CONFIG_HOME/lynx/lynx.cfg"
 export LYNX_LSS="$XDG_CONFIG_HOME/lynx/lynx.lss"
+export MDCAT_THEME=catppuccin-mocha
+export BAT_THEME="Catppuccin Mocha"
 
 [[ -S "$XDG_RUNTIME_DIR/ssh-agent.socket" ]] &&
       export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
