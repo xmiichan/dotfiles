@@ -216,6 +216,8 @@ local plugins = {
     "https://github.com/rickhowe/wrapwidth",             -- softwrap
 }
 
+vim.o.packlockfile = vim.fs.joinpath(
+    vim.fn.stdpath("config"), "nvim-pack-lock.json")
 vim.pack.add(plugins)
 
 vim.api.nvim_create_user_command("PackUpdate", function()
