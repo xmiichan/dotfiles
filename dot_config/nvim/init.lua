@@ -220,10 +220,6 @@ vim.o.packlockfile = vim.fs.joinpath(
     vim.fn.stdpath("config"), "nvim-pack-lock.json")
 vim.pack.add(plugins)
 
-vim.api.nvim_create_user_command("PackUpdate", function()
-    vim.pack.update()
-end, {})
-
 vim.g.rooter_resolve_links = 1
 
 -- regreplop: replace with register
