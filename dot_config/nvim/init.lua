@@ -214,6 +214,7 @@ local plugins = {
     "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
     "https://github.com/alker0/chezmoi.vim",             -- chezmoi template support
     "https://github.com/rickhowe/wrapwidth",             -- softwrap
+    "https://github.com/folke/zen-mode.nvim",            -- distraction-free writing
 }
 
 vim.o.packlockfile = vim.fs.joinpath(
