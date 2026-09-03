@@ -213,8 +213,6 @@ local plugins = {
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
     "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
     "https://github.com/alker0/chezmoi.vim",             -- chezmoi template support
-    "https://github.com/rickhowe/wrapwidth",             -- softwrap
-    "https://github.com/folke/zen-mode.nvim",            -- distraction-free writing
 }
 
 vim.o.packlockfile = vim.fs.joinpath(
@@ -292,7 +290,7 @@ vim.keymap.set("n", "<leader>F", require("fzf-lua").files, { silent = true })
 vim.keymap.set("n", "<leader>b", require("fzf-lua").buffers, { silent = true })
 vim.keymap.set("n", "<leader>m", require("fzf-lua").marks, { silent = true })
 vim.keymap.set("n", "<leader>j", require("fzf-lua").jumps, { silent = true })
-vim.keymap.set("n", "<leader>l", function()
+vim.keymap.set("n", "<leader>/", function()
     require("fzf-lua").blines({ previewer = false })
 end, { silent = true })
 vim.keymap.set({ "n", "x" }, "<leader>r", function()
@@ -310,10 +308,10 @@ end, { silent = true })
 
 local rg_opts = "--hidden --column --line-number --no-heading"
     .. " --color=always --smart-case -g '!.git/'"
-vim.keymap.set("n", "<leader>/", function()
+vim.keymap.set("n", "<leader>;", function()
     require("fzf-lua").live_grep({ rg_opts = rg_opts })
 end, { silent = true })
-vim.keymap.set("v", "<leader>/", function()
+vim.keymap.set("v", "<leader>;", function()
     require("fzf-lua").grep_visual({ rg_opts = rg_opts })
 end, { silent = true })
 
