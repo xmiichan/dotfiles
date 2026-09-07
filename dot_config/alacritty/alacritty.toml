@@ -1,6 +1,8 @@
-general.import = [
+[general]
+import = [
     "themes/catppuccin-mocha.toml",
 ]
+live_config_reload = true
 
 [colors.primary]
 background = "#000000"
@@ -22,3 +24,8 @@ regex = '''(https?://|ssh://|ftp://|ftps://|mailto:|magnet:|gemini://|gopher://)
 command = { program = "open", args = [] }
 binding = { mods = "Command", key = "Period" }
 mouse = { enabled = true, mods = "Command" }
+
+[keyboard]
+bindings = [
+    { key = "W", mods = "Command", chars = "\u0004" },
+]
