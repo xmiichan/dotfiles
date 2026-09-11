@@ -41,6 +41,13 @@ fi
 
 fpath+="$Z_PLUGIN_DIR/zsh-completions/src"
 
+if _have jj && [[ ! -e "$Z_PLUGIN_DIR/zsh-jj" ]]; then
+    git clone https://github.com/rkh/zsh-jj \
+        "$Z_PLUGIN_DIR/zsh-jj"
+fi
+
+_have jj && fpath+="$Z_PLUGIN_DIR/zsh-jj/functions"
+
 # Modules and autoloads
 zmodload -i zsh/complist
 autoload -Uz vcs_info
@@ -125,15 +132,23 @@ zstyle ':completion:*' matcher-list '' \
     'm:{a-z\-}={A-Z\_}' \
     'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
     'r:|?=** m:{a-z\-}={A-Z\_}'
+_have jj && source <(COMPLETE=zsh jj)
 
 # Set style options
 ## version control info
-zstyle ':vcs_info:*' enable git
+if _have jj; then
+    zstyle ':vcs_info:*' enable jj git
+    zstyle ':vcs_info:jj:*' formats '%F{green}󰜛 %b%F{red}%c%u%f %F{blue}%i%f %m'
+    zstyle ':vcs_info:jj:*' actionformats '%B%F{yellow}(%a)%f %B%F{green} %b%F{red}%c%u%f %F{blue}%i%f %m'
+else
+    zstyle ':vcs_info:*' enable git
+fi
 zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:*' unstagedstr '*'
 zstyle ':vcs_info:*' stagedstr '+'
 zstyle ':vcs_info:git:*' formats '%F{green} %b%F{red}%c%u%f'
 zstyle ':vcs_info:git:*' actionformats '%B%F{yellow}(%a)%f %B%F{green} %b%F{red}%c%u%f'
+
 # Prompt
 PROMPT="%F{blue}%(4~|.../%2~|%~) %B%(#.%F{red}root%(?.%F{green}.%F{red})#.%(?.%F{green}.%F{red})$)%f%b "
 RPROMPT="\${vcs_info_msg_0_}"
