@@ -213,6 +213,8 @@ local plugins = {
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
     "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
     "https://github.com/alker0/chezmoi.vim",             -- chezmoi template support
+    "https://github.com/junegunn/goyo.vim",              -- distraction-free writing
+    "https://github.com/junegunn/limelight.vim",         -- ... and paragraph highlighting
 }
 
 vim.o.packlockfile = vim.fs.joinpath(
@@ -348,8 +350,19 @@ vim.keymap.set("n", "<leader>gC", require("fzf-lua").git_bcommits,
     { silent = true })
 vim.keymap.set("n", "<leader>gf", require("fzf-lua").git_diff, { silent = true })
 
--- local settings
-local local_config = vim.fn.stdpath("config") .. "/init.local.lua"
-if vim.fn.filereadable(local_config) == 1 then
-    dofile(local_config)
-end
+-- distraction-free writing
+vim.g.limelight_conceal_ctermfg = 'grey'
+vim.g.limelight_conceal_guifg = 'grey'
+
+vim.api.nvim_create_autocmd("User", {
+    pattern = "GoyoEnter",
+    command = "Limelight",
+})
+
+vim.api.nvim_create_autocmd("User", {
+    pattern = "GoyoLeave",
+    command = "Limelight!",
+})
+
+vim.keymap.set("n", "<leader>G", ":Goyo<cr>")
+
