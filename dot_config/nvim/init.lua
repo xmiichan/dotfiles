@@ -22,6 +22,24 @@ vim.o.title = true          -- set terminal title
 vim.o.winborder = "rounded" -- rounded border
 vim.o.pumborder = "rounded" -- ... also for popups
 
+-- folding
+_G.mii = _G.mii or {}
+mii.foldexpr = require('mii.foldexpr')
+vim.o.foldlevelstart = 99  -- start unfolded
+vim.o.foldmethod = 'expr'
+vim.o.foldminlines = 0     -- Allow closing even 1-line folds.
+vim.o.foldexpr = 'v:lua.mii.foldexpr(v:lnum)'
+vim.o.fillchars = 'eob: ,fold: ,foldopen:,foldsep: ,foldinner: ,foldclose:'
+
+vim.api.nvim_create_autocmd('FileType', {
+    callback = function()
+        vim.wo.foldmethod = 'expr'
+        vim.wo.foldexpr = 'v:lua.mii.foldexpr(v:lnum)'
+    end,
+})
+
+vim.keymap.set("n", "+", "za")
+
 -- theme
 vim.o.termguicolors = true
 vim.o.background = "dark"
