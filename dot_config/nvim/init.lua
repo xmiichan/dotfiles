@@ -71,6 +71,11 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 vim.api.nvim_create_autocmd("BufWritePre", {
     pattern = "*",
     callback = function(args)
+        -- Skip for Oil buffers or unnamed buffers
+        if vim.bo.filetype == "oil" or vim.api.nvim_buf_get_name(0) == "" then
+            return
+        end
+
         local dir = vim.fn.fnamemodify(args.file, ":p:h")
         if vim.fn.isdirectory(dir) == 0 then
             vim.fn.mkdir(dir, "p")
