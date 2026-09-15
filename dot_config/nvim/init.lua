@@ -189,12 +189,6 @@ vim.keymap.set("n", "<leader><leader>", ":b#<cr>", { silent = true })
 -- open diagnostic window
 vim.keymap.set("n", "<leader>e", vim.diagnostic.open_float, { silent = true })
 
--- fix Home/End under tmux-256color terminfo
-vim.keymap.set("", "<Find>", "<Home>")
-vim.keymap.set("", "<Select>", "<End>")
-vim.keymap.set("!", "<Find>", "<Home>")
-vim.keymap.set("!", "<Select>", "<End>")
-
 -- readline style motions in insert mode
 vim.keymap.set({ "i", "c" }, "<C-b>", "<Left>")
 vim.keymap.set({ "i", "c" }, "<C-f>", "<Right>")
