@@ -39,7 +39,12 @@ if [[ ! -e "$Z_PLUGIN_DIR/zsh-autosuggestions" ]]; then
         "$Z_PLUGIN_DIR/zsh-autosuggestions"
 fi
 
-fpath+="$Z_PLUGIN_DIR/zsh-completions/src"
+if [[ ! -e "$Z_PLUGIN_DIR/z.d" ]]; then
+    git clone https://github.com/rupa/z \
+        "$Z_PLUGIN_DIR/z.d"
+fi
+
+source "$Z_PLUGIN_DIR/z.d/z.sh"
 
 if _have jj && [[ ! -e "$Z_PLUGIN_DIR/zsh-jj" ]]; then
     git clone https://github.com/rkh/zsh-jj \
@@ -184,6 +189,7 @@ _have fdfind && alias fd=fdfind
 _have tmux && alias ta="tmux attach"
 _have vim && alias vi=vim
 _have nvim && alias vi=nvim
+_have jaq && alias jq=jaq
 
 alias e="$EDITOR"
 alias se="sudo $EDITOR"
