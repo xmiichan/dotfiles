@@ -215,6 +215,7 @@ local plugins = {
     "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
     "https://github.com/airblade/vim-rooter",            -- auto-detect pwd
     "https://github.com/tpope/vim-fugitive",             -- git client
+    "https://github.com/NicolasGB/jj.nvim",              -- and jj
     "https://github.com/lewis6991/gitsigns.nvim",        -- git gutter
     "https://github.com/vim-scripts/regreplop.vim",      -- replace operator on <s>
     "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
@@ -256,6 +257,7 @@ require("flash").setup({
 })
 vim.keymap.set({ "n", "x", "o" }, "s", require("flash").jump)
 
+require("jj").setup()
 require("nvim-surround").setup()
 require("nvim-autopairs").setup()
 require("csvview").setup({
@@ -308,7 +310,7 @@ vim.keymap.set("n", "<leader>f", files_or_git_files, { silent = true })
 vim.keymap.set("n", "<leader>F", require("fzf-lua").files, { silent = true })
 vim.keymap.set("n", "<leader>b", require("fzf-lua").buffers, { silent = true })
 vim.keymap.set("n", "<leader>m", require("fzf-lua").marks, { silent = true })
-vim.keymap.set("n", "<leader>j", require("fzf-lua").jumps, { silent = true })
+vim.keymap.set("n", "<leader>J", require("fzf-lua").jumps, { silent = true })
 vim.keymap.set("n", "<leader>/", function()
     require("fzf-lua").blines({ previewer = false })
 end, { silent = true })
@@ -366,6 +368,10 @@ vim.keymap.set("n", "<leader>gc", require("fzf-lua").git_commits,
 vim.keymap.set("n", "<leader>gC", require("fzf-lua").git_bcommits,
     { silent = true })
 vim.keymap.set("n", "<leader>gf", require("fzf-lua").git_diff, { silent = true })
+
+-- jj
+vim.keymap.set("n", "<leader>jj", ":J<cr>")
+vim.keymap.set("n", "<leader>jb", ":J annotate<cr>")
 
 -- distraction-free writing
 vim.g.limelight_conceal_ctermfg = 'grey'
