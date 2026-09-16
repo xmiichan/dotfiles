@@ -29,3 +29,4 @@ vim.keymap.set(modes, "<C-M-h>", tmux.swap_left)
 vim.keymap.set(modes, "<C-M-j>", tmux.swap_bottom)
 vim.keymap.set(modes, "<C-M-k>", tmux.swap_top)
 vim.keymap.set(modes, "<C-M-l>", tmux.swap_right)
+-- scratch diff line

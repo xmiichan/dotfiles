@@ -25,9 +25,9 @@ vim.o.pumborder = "rounded" -- ... also for popups
 -- folding
 _G.mii = _G.mii or {}
 mii.foldexpr = require('mii.foldexpr')
-vim.o.foldlevelstart = 99  -- start unfolded
+vim.o.foldlevelstart = 99 -- start unfolded
 vim.o.foldmethod = 'expr'
-vim.o.foldminlines = 0     -- Allow closing even 1-line folds.
+vim.o.foldminlines = 0    -- Allow closing even 1-line folds.
 vim.o.foldexpr = 'v:lua.mii.foldexpr(v:lnum)'
 vim.o.fillchars = 'eob: ,fold: ,foldopen:,foldsep: ,foldinner: ,foldclose:'
 
@@ -217,6 +217,7 @@ local plugins = {
     "https://github.com/tpope/vim-fugitive",             -- git client
     "https://github.com/NicolasGB/jj.nvim",              -- and jj
     "https://github.com/lewis6991/gitsigns.nvim",        -- git gutter
+    "https://github.com/evanphx/jjsigns.nvim",           -- jj gutter
     "https://github.com/vim-scripts/regreplop.vim",      -- replace operator on <s>
     "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
     "https://github.com/stevearc/oil.nvim",              -- file browser on steroids
@@ -258,6 +259,17 @@ require("flash").setup({
 vim.keymap.set({ "n", "x", "o" }, "s", require("flash").jump)
 
 require("jj").setup()
+
+-- gutter: jjsigns on jj/colocated repos, gitsigns on pure-git repos
+local jj_root = require("mii.jj_root")
+
+require("gitsigns").setup({
+    on_attach = function(bufnr)
+        if jj_root(bufnr) then return false end
+    end,
+})
+require("jjsigns").setup()
+
 require("nvim-surround").setup()
 require("nvim-autopairs").setup()
 require("csvview").setup({
@@ -372,6 +384,7 @@ vim.keymap.set("n", "<leader>gf", require("fzf-lua").git_diff, { silent = true }
 -- jj
 vim.keymap.set("n", "<leader>jj", ":J<cr>")
 vim.keymap.set("n", "<leader>jb", ":J annotate<cr>")
+vim.keymap.set("n", "<leader>jd", ":J diff<cr>")
 
 -- distraction-free writing
 vim.g.limelight_conceal_ctermfg = 'grey'
@@ -388,4 +401,3 @@ vim.api.nvim_create_autocmd("User", {
 })
 
 vim.keymap.set("n", "<leader>G", ":Goyo<cr>")
-
