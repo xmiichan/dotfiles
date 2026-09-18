@@ -218,7 +218,9 @@ local plugins = {
     "https://github.com/NicolasGB/jj.nvim",              -- and jj
     "https://github.com/lewis6991/gitsigns.nvim",        -- git gutter
     "https://github.com/evanphx/jjsigns.nvim",           -- jj gutter
+    "https://github.com/tpope/vim-eunuch",               -- file operations va cmdline
     "https://github.com/vim-scripts/regreplop.vim",      -- replace operator on <s>
+    "https://github.com/tpope/vim-speeddating",          -- inc/dec dates and more
     "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
     "https://github.com/stevearc/oil.nvim",              -- file browser on steroids
     "https://github.com/folke/flash.nvim",               -- quick jump
