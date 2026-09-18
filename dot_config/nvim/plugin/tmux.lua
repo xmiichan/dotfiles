@@ -11,6 +11,7 @@ tmux.setup({
     swap = {
         enable_default_keybindings = false,
     },
+    copy_sync = { enaable = false },
 })
 
 local modes = { "n", "t" }
