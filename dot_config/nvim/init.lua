@@ -144,8 +144,8 @@ vim.keymap.set({ "n", "v" }, "<leader>p", '"+p')
 vim.keymap.set({ "n", "v" }, "<leader>P", '"+P')
 
 -- diff quickies
-vim.keymap.set("n", "dol", ":diffget //2<cr>", { silent = true })
-vim.keymap.set("n", "dor", ":diffget //3<cr>", { silent = true })
+vim.keymap.set("n", "co", ":diffget //2<cr>", { silent = true })
+vim.keymap.set("n", "ct", ":diffget //3<cr>", { silent = true })
 
 -- re-source config
 vim.keymap.set("n", "<leader>x", ":Update<cr> :source<cr>")
@@ -212,29 +212,30 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 -- plugins
 local plugins = {
-    "https://github.com/tpope/vim-sleuth",               -- auto-detect indentation from file
-    "https://github.com/airblade/vim-rooter",            -- auto-detect pwd
-    "https://github.com/tpope/vim-fugitive",             -- git client
-    "https://github.com/NicolasGB/jj.nvim",              -- and jj
-    "https://github.com/lewis6991/gitsigns.nvim",        -- git gutter
-    "https://github.com/evanphx/jjsigns.nvim",           -- jj gutter
-    "https://github.com/tpope/vim-eunuch",               -- file operations va cmdline
-    "https://github.com/vim-scripts/regreplop.vim",      -- replace operator on <s>
-    "https://github.com/tpope/vim-speeddating",          -- inc/dec dates and more
-    "https://github.com/ibhagwan/fzf-lua",               -- fuzzy finder
-    "https://github.com/stevearc/oil.nvim",              -- file browser on steroids
-    "https://github.com/folke/flash.nvim",               -- quick jump
-    "https://github.com/kylechui/nvim-surround",         -- motion for surrounding text
-    "https://github.com/windwp/nvim-autopairs",          -- auto-close brackets
-    "https://github.com/tpope/vim-endwise",              -- ... and keywords
-    "https://github.com/mattn/emmet-vim",                -- html/xml quick inserts
-    "https://github.com/hat0uma/csvview.nvim",           -- pretty csv files
-    "https://github.com/neovim/nvim-lspconfig",          -- lsp config data
-    "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
-    "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
-    "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
-    "https://github.com/junegunn/goyo.vim",              -- distraction-free writing
-    "https://github.com/junegunn/limelight.vim",         -- ... and paragraph highlighting
+    "https://github.com/tpope/vim-sleuth",                 -- auto-detect indentation from file
+    "https://github.com/airblade/vim-rooter",              -- auto-detect pwd
+    "https://github.com/tpope/vim-fugitive",               -- git client
+    "https://github.com/NicolasGB/jj.nvim",                -- and jj
+    "https://github.com/lewis6991/gitsigns.nvim",          -- git gutter
+    "https://github.com/evanphx/jjsigns.nvim",             -- jj gutter
+    "https://github.com/mistweaverco/diffconflicts.nvim",  -- difftool
+    "https://github.com/tpope/vim-eunuch",                 -- file operations va cmdline
+    "https://github.com/vim-scripts/regreplop.vim",        -- replace operator on <s>
+    "https://github.com/tpope/vim-speeddating",            -- inc/dec dates and more
+    "https://github.com/ibhagwan/fzf-lua",                 -- fuzzy finder
+    "https://github.com/stevearc/oil.nvim",                -- file browser on steroids
+    "https://github.com/folke/flash.nvim",                 -- quick jump
+    "https://github.com/kylechui/nvim-surround",           -- motion for surrounding text
+    "https://github.com/windwp/nvim-autopairs",            -- auto-close brackets
+    "https://github.com/tpope/vim-endwise",                -- ... and keywords
+    "https://github.com/mattn/emmet-vim",                  -- html/xml quick inserts
+    "https://github.com/hat0uma/csvview.nvim",             -- pretty csv files
+    "https://github.com/neovim/nvim-lspconfig",            -- lsp config data
+    "https://github.com/mason-org/mason.nvim",             -- lsp server install helper
+    "https://github.com/mason-org/mason-lspconfig.nvim",   -- ... with config data
+    "https://github.com/aserowy/tmux.nvim",                -- tmux integrations
+    "https://github.com/junegunn/goyo.vim",                -- distraction-free writing
+    "https://github.com/junegunn/limelight.vim",           -- ... and paragraph highlighting
 }
 
 vim.o.packlockfile = vim.fs.joinpath(
@@ -259,7 +260,7 @@ require("flash").setup({
 })
 vim.keymap.set({ "n", "x", "o" }, "s", require("flash").jump)
 
-require("jj").setup()
+require("jj").setup({ picker = { snacks = false } })
 
 -- gutter: jjsigns on jj/colocated repos, gitsigns on pure-git repos
 local jj_root = require("mii.jj_root")
@@ -385,7 +386,7 @@ vim.keymap.set("n", "<leader>gf", require("fzf-lua").git_diff, { silent = true }
 -- jj
 vim.keymap.set("n", "<leader>jj", ":J<cr>")
 vim.keymap.set("n", "<leader>jb", ":J annotate<cr>")
-vim.keymap.set("n", "<leader>jd", ":J diff<cr>")
+vim.keymap.set("n", "<leader>jd", ":Jdiff<cr>")
 
 -- distraction-free writing
 vim.g.limelight_conceal_ctermfg = 'grey'
