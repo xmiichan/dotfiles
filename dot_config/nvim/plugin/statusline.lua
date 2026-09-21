@@ -54,6 +54,7 @@ vim.api.nvim_set_hl(0, 'User1',
     { ctermfg = 3, ctermbg = 'NONE', fg = 'orange', bg = 'NONE' })
 vim.api.nvim_set_hl(0, 'User2', { bold = true })
 
+vim.o.laststatus = 3
 vim.o.statusline = table.concat({
     "%1*",
     "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)",

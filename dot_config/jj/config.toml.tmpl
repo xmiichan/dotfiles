@@ -36,7 +36,7 @@ bookmark-advance-to = "coalesce(@ & ~empty(), @-)"
 "user(x)" = "author(x) | committer(x)"
 "mine()" = 'user("me@personal.domain") | user("me@domain")'
 # all private commits (see above)
-"wip()" = 'description(glob:"wip:*") | description(glob:"[[]wip[]]*")'
+'wip()' = 'description(glob:"wip:*") | description(glob:"[[]wip[]]*")'
 # `stack(x, n)` is the set of mutable commits reachable from 'x', with 'n'
 # parents. 'n' is often useful to customize the display and return set for
 # certain operations. 'x' can be used to target the set of 'roots' to traverse,
@@ -45,54 +45,61 @@ bookmark-advance-to = "coalesce(@ & ~empty(), @-)"
 "stack(x)" = "stack(x, 2)"
 "stack(x, n)" = "ancestors(reachable(x, mutable()), n)"
 # remote branches and tags
-"uninterested()" = "::remote_bookmarks() | tags()"
-"interested()" = "mine() ~ uninterested()"
+'uninterested()' = '::remote_bookmarks() | tags()'
+'interested()' = 'mine() ~ uninterested()'
 # anything that is either local-only, tracking the remote, or close to the
 # current commit
-"open()" = '''
-    ancestors(interested(), 3)
-      | tracked_remote_bookmarks()
-      | ancestors(@, 3)
-'''
+  'open()' = '''
+  ancestors(interested(), 3)
+  | tracked_remote_bookmarks()
+| ancestors(@, 3)
+  '''
 # every open commit that isn't private
-"ready()" = "open() ~ descendants(wip())"
+  'ready()' = 'open() ~ descendants(wip())'
 
-[templates]
-log_node = '''
-if(self && !current_working_copy && !immutable && !conflict && in_branch(self),
-  "◇",
-  builtin_log_node
-)
-'''
+  [templates]
+  log_node = '''
+  if(self && !current_working_copy && !immutable && !conflict && in_branch(self),
+      "◇",
+      builtin_log_node
+    )
+  '''
 
-[template-aliases]
+  [template-aliases]
 # show a `log_node` (see above) if a commit is pushable from the current branch
-"in_branch(commit)" = 'commit.contained_in("immutable_heads()..bookmarks()")'
+  "in_branch(commit)" = 'commit.contained_in("immutable_heads()..bookmarks()")'
 
-[aliases]
-push = ["git", "push"]
-fetch = ["git", "fetch"]
+  [aliases]
+  la = ["util", "exec", "--", "bash", "-c", '''
+  jj log -r "ancestors(@, ${1:-3})" "${@:2}"
+  ''', ""]
+  push = ["git", "push"]
+  fetch = ["git", "fetch"]
 # show recent ancestors on log
-la = ["util", "exec", "--", "bash", "-c", '''
-jj log -r "ancestors(@, ${1:-3})" "${@:2}"
-''', ""]
+  la = ["util", "exec", "--", "bash", "-c", '''
+  jj log -r "ancestors(@, ${1:-3})" "${@:2}"
+  ''', ""]
 # watch the log, autoupdate on change to oplog
-tail = ["util", "exec", "--", "bash", "-c", '''
-set -euo pipefail
-exec watchexec --quiet --clear --restart \
+  tail = ["util", "exec", "--", "bash", "-c", '''
+  set -euo pipefail
+  exec watchexec --quiet --clear --restart \
     --watch="$JJ_WORKSPACE_ROOT/.jj/repo/op_heads/heads" \
     --ignore-nothing --wrap-process=none \
     -- jj --ignore-working-copy log --color=always "$@"
-''', ""]
+    ''', ""]
 # fuzzy find bookmarks by name and branch off
-fuzzy_bookmark = ["util", "exec", "--", "sh", "-c", """
-if [ "x$1" = "x" ]; then
-  jj bookmark list
-else
-  jj bookmark list -a -T 'separate("@", name, remote) ++ "\n"' 2> /dev/null | sort | uniq | fzf -f "$1" | head -n1 | xargs jj new
-fi
-""", ""]
-z = ["fuzzy_bookmark"]
-za = ["bookmark", "list", "-a"]
-de = ["diffedit", "--tool", "nvim"]
-re = ["resolve", "--tool", "nvim"]
+    fuzzy_bookmark = ["util", "exec", "--", "sh", "-c", """
+    if [ "x$1" = "x" ]; then
+    jj bookmark list
+    else
+    jj bookmark list -a -T 'separate("@", name, remote) ++ "\n"' 2> /dev/null | sort | uniq | fzf -f "$1" | head -n1 | xargs jj new
+    fi
+    """, ""]
+    z = ["fuzzy_bookmark"]
+    za = ["bookmark", "list", "-a"]
+    de = ["diffedit", "--tool", "nvim"]
+    re = ["resolve", "--tool", "nvim"]
+    sync = [
+      "util", "exec", "--", "sh", "-c",
+      "jj git fetch && jj rebase -o 'trunk()'",
+    ]
