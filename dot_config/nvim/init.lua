@@ -38,6 +38,17 @@ vim.api.nvim_create_autocmd('FileType', {
     end,
 })
 
+-- chezmoi templates: detect as the rendered target's type
+vim.filetype.add({
+    pattern = {
+        [".*%.tmpl"] = function(path)
+            return vim.filetype.match({
+                filename = (path:gsub("%.tmpl$", "")),
+            })
+        end,
+    },
+})
+
 vim.keymap.set("n", "+", "za")
 
 -- theme
@@ -207,6 +218,21 @@ vim.api.nvim_create_autocmd("TextYankPost", {
     group = "highlight_yanked",
     callback = function()
         vim.hl.hl_op({ higroup = "IncSearch", timeout = 200 })
+    end,
+})
+
+-- strip autowrap in diffs
+vim.api.nvim_create_augroup("diff_no_autoformat", { clear = true })
+vim.api.nvim_create_autocmd("DiffUpdated", {
+    group = "diff_no_autoformat",
+    callback = function()
+        for _, win in ipairs(vim.api.nvim_list_wins()) do
+            if vim.wo[win].diff then
+                local buf = vim.api.nvim_win_get_buf(win)
+                vim.bo[buf].formatoptions =
+                    vim.bo[buf].formatoptions:gsub("[at]", "")
+            end
+        end
     end,
 })
 
