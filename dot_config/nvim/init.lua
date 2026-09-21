@@ -171,16 +171,8 @@ vim.keymap.set("n", "<C-q>", "mzgqip`z", { silent = true })
 -- quick netrw
 vim.keymap.set("n", "-", ":Ex<cr>", { silent = true })
 
--- quick-edit all like this (budget multicursor)
-vim.keymap.set("n", "<C-s>",
-    ":%s/\\<<C-r><C-w>\\>/<C-r><C-w>/gI<left><left><left>")
-
--- quick macro
-vim.keymap.set("n", "Q", "@q")
-
 -- dot repeat / macro on a visually select lines
 vim.keymap.set("x", ".", ":norm .<cr>")
-vim.keymap.set("x", "Q", ":norm @q<cr>")
 
 -- quick splits
 vim.keymap.set("n", "<leader>ss", ":split<cr>")
