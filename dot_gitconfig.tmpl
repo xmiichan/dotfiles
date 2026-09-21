@@ -1,5 +1,9 @@
 ;; -*-gitconfig-*-
-;; vim: set filetype=gitconfig
+;; vim: set filetype=gitconfig:
+
+[user]
+	email = {{ .gitEmail | quote }}
+	name = {{ .gitName | quote }}
 
 [core]
 	excludesfile = ~/.gitignore_global
@@ -47,14 +51,22 @@
 [color]
 	ui = true
 
+[init]
+	defaultbranch = main
+
+[branch]
+	autoSetupMerge = simple
+
 [diff]
 	colorMoved = default
+	tool = nvimdiff
 
 [rerere]
 	enabled = true
 
 [merge]
-	conflictstyle = diff3
+	conflictstyle = zdiff3
+	tool = nvimdiff
 
 [push]
 	autoSetupRemote = true

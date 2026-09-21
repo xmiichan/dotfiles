@@ -35,3 +35,5 @@ type = "carddav"
 url = "https://posteo.de:8843/"
 username = {{ .email | quote }}
 password.fetch = ["shell", {{ if eq .chezmoi.os "darwin" }}"security find-generic-password -s mail-sync -w 2>/dev/null || gpg -dq --no-tty $HOME/.dotfiles/secrets/smtp-pass.gpg"{{ else }}"gpg -dq --no-tty $HOME/.dotfiles/secrets/smtp-pass.gpg"{{ end }}]
+
+# vim: set filetype=dosini:

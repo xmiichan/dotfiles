@@ -233,7 +233,6 @@ local plugins = {
     "https://github.com/mason-org/mason.nvim",           -- lsp server install helper
     "https://github.com/mason-org/mason-lspconfig.nvim", -- ... with config data
     "https://github.com/aserowy/tmux.nvim",              -- tmux integrations
-    "https://github.com/alker0/chezmoi.vim",             -- chezmoi template support
     "https://github.com/junegunn/goyo.vim",              -- distraction-free writing
     "https://github.com/junegunn/limelight.vim",         -- ... and paragraph highlighting
 }

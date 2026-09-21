@@ -1,8 +1,11 @@
-{{ $personal := promptBoolOnce . "personal" "Personal machine" }}
-{{ $email := promptStringOnce . "email" "Email address" }}
+{{- $personal := promptBoolOnce . "personal" "Personal machine" -}}
+{{- $email := promptStringOnce . "email" "Email address" -}}
+{{- $gitEmail := promptStringOnce . "gitEmail" "Email address used for git" -}}
+{{- $gitName := promptStringOnce . "gitName" "Name used for git" -}}
 
 encryption = "age"
 sourceDir = "~/.dotfiles"
+mode = "symlink"
 
 [age]
     identity = "~/.config/chezmoi/key.txt"
@@ -11,3 +14,5 @@ sourceDir = "~/.dotfiles"
 [data]
     personal = {{ $personal }}
     email = {{ $email | quote }}
+    gitEmail = {{ $gitEmail | quote }}
+    gitName = {{ $gitName | quote }}
