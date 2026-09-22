@@ -62,7 +62,6 @@ autoload -z edit-command-line
 ## quick command editing
 zle -N edit-command-line
 bindkey "^X^E" edit-command-line
-autoload -Uz run-help
 ## M-? to run-help on current line
 bindkey '^[?' run-help
 autoload -Uz url-quote-magic bracketed-paste-magic
@@ -77,6 +76,24 @@ bindkey "^R" history-incremental-pattern-search-backward
 bindkey '^[r' history-incremental-pattern-search-forward
 
 select-word-style bash
+
+# help
+unalias run-help 2>/dev/null
+autoload -Uz run-help
+
+typeset -ga HELPDIR_CANDIDATES=(
+    "/usr/share/zsh/$ZSH_VERSION/help"
+    "/usr/share/zsh/help"
+    "/usr/local/share/zsh/help"
+    "/opt/homebrew/share/zsh/help"
+    "/opt/local/share/zsh/help"
+    "${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/share/zsh/help}"
+)
+for d ($HELPDIR_CANDIDATES); do
+    [[ -n "$d" && -d "$d" ]] && { HELPDIR=$d; break; }
+done
+
+alias help=run-help
 
 # Don't eat space after TAB followed by & or |
 ZLE_SPACE_SUFFIX_CHARS=$'&|'
