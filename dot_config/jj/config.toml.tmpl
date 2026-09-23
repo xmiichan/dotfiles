@@ -10,6 +10,7 @@ private-commits = 'description(glob:"wip:*") | description(glob:"[[]wip[]]*")'
 [ui]
 diff-editor = ':builtin'
 merge-editor = 'mergiraf'
+diff-formatter = ["difft", "--color=always", "$left", "$right"]
 
 [merge-tools.nvim]
 program = 'nvim'
@@ -65,7 +66,8 @@ if(self && !current_working_copy && !immutable && !conflict && in_branch(self),
 "in_branch(commit)" = 'commit.contained_in("immutable_heads()..bookmarks()")'
 
 [aliases]
-difft = ["diff", "--tool", "difft"]
+push = ["git", "push"]
+fetch = ["git", "fetch"]
 # watch the log, autoupdate on change to oplog
 tail = ["util", "exec", "--", "bash", "-c", '''
 set -euo pipefail
