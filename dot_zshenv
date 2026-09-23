@@ -50,7 +50,7 @@ typeset -ga MY_PATH_DIRS=(
     "$PERLDIR/bin"
     "/Library/TeX/texbin"
 )
-for p ($MY_PATH_DIRS); do
+for p in $MY_PATH_DIRS; do
     [ -d "$p" ] && path+=("$p")
 done
 unset MY_PATH_DIRS

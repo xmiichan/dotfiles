@@ -87,7 +87,7 @@ typeset -ga HELPDIR_CANDIDATES=(
     "/opt/local/share/zsh/help"
     "${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/share/zsh/help}"
 )
-for d ($HELPDIR_CANDIDATES); do
+for d in $HELPDIR_CANDIDATES; do
     [[ -n "$d" && -d "$d" ]] && { HELPDIR=$d; break; }
 done
 unset HELPDIR_CANDIDATES
