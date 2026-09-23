@@ -53,6 +53,7 @@ typeset -ga MY_PATH_DIRS=(
 for p ($MY_PATH_DIRS); do
     [ -d "$p" ] && path+=("$p")
 done
+unset MY_PATH_DIRS
 
 if (( $+commands[nvim] )); then
     export EDITOR=nvim

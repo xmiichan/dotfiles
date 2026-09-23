@@ -43,14 +43,12 @@ if [[ ! -e "$Z_PLUGIN_DIR/z.d" ]]; then
     git clone https://github.com/rupa/z \
         "$Z_PLUGIN_DIR/z.d"
 fi
-
 source "$Z_PLUGIN_DIR/z.d/z.sh"
 
 if _have jj && [[ ! -e "$Z_PLUGIN_DIR/zsh-jj" ]]; then
     git clone https://github.com/rkh/zsh-jj \
         "$Z_PLUGIN_DIR/zsh-jj"
 fi
-
 _have jj && fpath+="$Z_PLUGIN_DIR/zsh-jj/functions"
 
 # Modules and autoloads
@@ -92,6 +90,7 @@ typeset -ga HELPDIR_CANDIDATES=(
 for d ($HELPDIR_CANDIDATES); do
     [[ -n "$d" && -d "$d" ]] && { HELPDIR=$d; break; }
 done
+unset HELPDIR_CANDIDATES
 
 alias help=run-help
 
