@@ -174,6 +174,44 @@ vim.keymap.set("n", "-", ":Ex<cr>", { silent = true })
 -- dot repeat / macro on a visually select lines
 vim.keymap.set("x", ".", ":norm .<cr>")
 
+-- replay last recorded macro
+vim.keymap.set({ "n", "x" }, "Q", function()
+    local reg = vim.fn.reg_recorded()
+    if reg == "" then
+        return ""
+    end
+    if vim.fn.mode() == "n" then
+        return "@" .. reg
+    end
+    return ":normal @" .. reg .. "<cr>"
+end, { expr = true })
+
+-- multicursors
+vim.api.nvim_set_hl(0, "MCursor", { reverse = true })
+local function add_cursor(dir)
+    for _ = 1, vim.v.count1 do
+        local pos = vim.api.nvim_win_get_cursor(0)
+        vim.api.nvim_mcursor(0, pos)
+        if vim.v.hlsearch == 1 then
+            vim.fn.search(vim.fn.getreg("/"), dir > 0 and "" or "b")
+        else
+            local last = vim.fn.line("$")
+            local lnum = math.min(math.max(pos[1] + dir, 1), last)
+            vim.api.nvim_win_set_cursor(0, { lnum, pos[2] })
+        end
+    end
+    vim.cmd.normal({ "1q=", bang = true })
+end
+vim.keymap.set("n", "<C-j>", function() add_cursor(1) end)
+vim.keymap.set("n", "<C-k>", function() add_cursor(-1) end)
+vim.keymap.set("n", "<Esc>", function()
+    local ns = vim.api.nvim_create_namespace("nvim.multicursor")
+    vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
+end)
+vim.keymap.set("n", "<C-l>", "<Cmd>nohlsearch|diffupdate|normal! <C-l><CR>")
+vim.keymap.set("x", "<leader>c", "Q")
+vim.keymap.set("n", "<leader>c", "1Q1q=")
+
 -- quick splits
 vim.keymap.set("n", "<leader>ss", ":split<cr>")
 vim.keymap.set("n", "<leader>sv", ":vsplit<cr>")
@@ -230,30 +268,30 @@ vim.api.nvim_create_autocmd("DiffUpdated", {
 
 -- plugins
 local plugins = {
-    "https://github.com/tpope/vim-sleuth",                 -- auto-detect indentation from file
-    "https://github.com/airblade/vim-rooter",              -- auto-detect pwd
-    "https://github.com/tpope/vim-fugitive",               -- git client
-    "https://github.com/NicolasGB/jj.nvim",                -- and jj
-    "https://github.com/lewis6991/gitsigns.nvim",          -- git gutter
-    "https://github.com/evanphx/jjsigns.nvim",             -- jj gutter
-    "https://github.com/mistweaverco/diffconflicts.nvim",  -- difftool
-    "https://github.com/tpope/vim-eunuch",                 -- file operations va cmdline
-    "https://github.com/vim-scripts/regreplop.vim",        -- replace operator on <s>
-    "https://github.com/tpope/vim-speeddating",            -- inc/dec dates and more
-    "https://github.com/ibhagwan/fzf-lua",                 -- fuzzy finder
-    "https://github.com/stevearc/oil.nvim",                -- file browser on steroids
-    "https://github.com/folke/flash.nvim",                 -- quick jump
-    "https://github.com/kylechui/nvim-surround",           -- motion for surrounding text
-    "https://github.com/windwp/nvim-autopairs",            -- auto-close brackets
-    "https://github.com/tpope/vim-endwise",                -- ... and keywords
-    "https://github.com/mattn/emmet-vim",                  -- html/xml quick inserts
-    "https://github.com/hat0uma/csvview.nvim",             -- pretty csv files
-    "https://github.com/neovim/nvim-lspconfig",            -- lsp config data
-    "https://github.com/mason-org/mason.nvim",             -- lsp server install helper
-    "https://github.com/mason-org/mason-lspconfig.nvim",   -- ... with config data
-    "https://github.com/aserowy/tmux.nvim",                -- tmux integrations
-    "https://github.com/junegunn/goyo.vim",                -- distraction-free writing
-    "https://github.com/junegunn/limelight.vim",           -- ... and paragraph highlighting
+    "https://github.com/tpope/vim-sleuth",                -- auto-detect indentation from file
+    "https://github.com/airblade/vim-rooter",             -- auto-detect pwd
+    "https://github.com/tpope/vim-fugitive",              -- git client
+    "https://github.com/NicolasGB/jj.nvim",               -- and jj
+    "https://github.com/lewis6991/gitsigns.nvim",         -- git gutter
+    "https://github.com/evanphx/jjsigns.nvim",            -- jj gutter
+    "https://github.com/mistweaverco/diffconflicts.nvim", -- difftool
+    "https://github.com/tpope/vim-eunuch",                -- file operations va cmdline
+    "https://github.com/vim-scripts/regreplop.vim",       -- replace operator on <s>
+    "https://github.com/tpope/vim-speeddating",           -- inc/dec dates and more
+    "https://github.com/ibhagwan/fzf-lua",                -- fuzzy finder
+    "https://github.com/stevearc/oil.nvim",               -- file browser on steroids
+    "https://github.com/folke/flash.nvim",                -- quick jump
+    "https://github.com/kylechui/nvim-surround",          -- motion for surrounding text
+    "https://github.com/windwp/nvim-autopairs",           -- auto-close brackets
+    "https://github.com/tpope/vim-endwise",               -- ... and keywords
+    "https://github.com/mattn/emmet-vim",                 -- html/xml quick inserts
+    "https://github.com/hat0uma/csvview.nvim",            -- pretty csv files
+    "https://github.com/neovim/nvim-lspconfig",           -- lsp config data
+    "https://github.com/mason-org/mason.nvim",            -- lsp server install helper
+    "https://github.com/mason-org/mason-lspconfig.nvim",  -- ... with config data
+    "https://github.com/aserowy/tmux.nvim",               -- tmux integrations
+    "https://github.com/junegunn/goyo.vim",               -- distraction-free writing
+    "https://github.com/junegunn/limelight.vim",          -- ... and paragraph highlighting
 }
 
 vim.o.packlockfile = vim.fs.joinpath(
