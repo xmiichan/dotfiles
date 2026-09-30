@@ -1,0 +1,19 @@
+set modeindicatormodes.normal false
+set hintfiltermode vimperator-reflow
+
+bind J tabnext
+bind K tabprev
+bind f hint -J
+bind F hint -Jb
+bind ' gobble 1 markjump
+bind ;f hint
+bind ;F hint -b
+unbind --mode=hint <Space>
+
+bindurl youtube.com <C-j> js let s = document.createElement('script'); s.textContent = 'document.querySelector("#movie_player").seekBy(-10)'; document.head.appendChild(s); s.remove()
+bindurl youtube.com <C-l> js let s = document.createElement('script'); s.textContent = 'document.querySelector("#movie_player").seekBy(+10)'; document.head.appendChild(s); s.remove()
+bindurl ^https?://duckduckgo\.com gi focusinput #searchbox_input
+bindurl github.com f hint -J -x #repos-split-pane-content
+bindurl github.com F hint -Jb -x #repos-split-pane-content
+
+" vim: set filetype=tridactyl
