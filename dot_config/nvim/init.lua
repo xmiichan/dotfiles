@@ -189,9 +189,11 @@ end, { expr = true })
 -- multicursors
 vim.api.nvim_set_hl(0, "MCursor", { reverse = true })
 local function add_cursor(dir)
+    local ns = vim.api.nvim_create_namespace("nvim.multicursor")
+    vim.bo.follow = false
     for _ = 1, vim.v.count1 do
         local pos = vim.api.nvim_win_get_cursor(0)
-        vim.api.nvim_mcursor(0, pos)
+        vim.api.nvim_buf_set_extmark(0, ns, pos[1] - 1, pos[2], {})
         if vim.v.hlsearch == 1 then
             vim.fn.search(vim.fn.getreg("/"), dir > 0 and "" or "b")
         else
@@ -200,7 +202,7 @@ local function add_cursor(dir)
             vim.api.nvim_win_set_cursor(0, { lnum, pos[2] })
         end
     end
-    vim.cmd.normal({ "1q=", bang = true })
+    vim.bo.follow = true
 end
 vim.keymap.set("n", "<C-j>", function() add_cursor(1) end)
 vim.keymap.set("n", "<C-k>", function() add_cursor(-1) end)
@@ -208,9 +210,7 @@ vim.keymap.set("n", "<Esc>", function()
     local ns = vim.api.nvim_create_namespace("nvim.multicursor")
     vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
 end)
-vim.keymap.set("n", "<C-l>", "<Cmd>nohlsearch|diffupdate|normal! <C-l><CR>")
-vim.keymap.set("x", "<leader>c", "Q")
-vim.keymap.set("n", "<leader>c", "1Q1q=")
+vim.keymap.set("x", "<C-j>", "Q")
 
 -- quick splits
 vim.keymap.set("n", "<leader>ss", ":split<cr>")
