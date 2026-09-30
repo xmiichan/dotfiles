@@ -9,7 +9,7 @@ email = {{ .gitEmail | quote }}
 private-commits = "wip()"
 
 [ui]
-default-command = "status"
+default-command = "log"
 diff-editor = ":builtin"
 merge-editor = "mergiraf"
 diff-formatter = ["difft", "--color=always", "$left", "$right"]
@@ -73,7 +73,9 @@ if(
 
 [aliases]
 push = ["git", "push"]
+p = ["push"]
 fetch = ["git", "fetch"]
+f = ["fetch"]
 # show recent ancestors on log
 la = ["util", "exec", "--", "bash", "-c", '''
 jj log -r "ancestors(@, ${1:-3})" "${@:2}"
