@@ -109,13 +109,6 @@ setopt hist_ignore_space
 setopt hist_ignore_all_dups
 setopt hist_find_no_dups
 
-## refresh history on every prompt
-autoload -Uz add-zsh-hook
-__import_shared_history() {
-    fc -RI
-}
-add-zsh-hook precmd __import_shared_history
-
 # Options
 unsetopt listbeep
 setopt extended_glob
