@@ -29,3 +29,6 @@ mouse = { enabled = true, mods = "Command" }
 bindings = [
     { key = "W", mods = "Command", chars = "\u0004" },
 ]
+
+[mouse]
+hide_when_typing = true
