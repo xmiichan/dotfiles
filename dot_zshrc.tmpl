@@ -101,24 +101,26 @@ ZLE_SPACE_SUFFIX_CHARS=$'&|'
 ZLE_REMOVE_SUFFIX_CHARS=$' \t\n;)'
 
 # History config
-HISTSIZE=5000
-HISTFILE=~/.cache/zsh/history
-SAVEHIST=5000
-HISTDUP=erase
+histsize=100000
+histfile=~/.cache/zsh/history
+savehist=100000
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_find_no_dups
+
+## refresh history on every prompt
+autoload -Uz add-zsh-hook
+__import_shared_history() {
+    fc -RI
+}
+add-zsh-hook precmd __import_shared_history
 
 # Options
 unsetopt listbeep
 setopt extended_glob
 setopt prompt_subst
 setopt transient_rprompt
-setopt appendhistory
-setopt sharehistory
-setopt incappendhistory
-setopt hist_ignore_space
-setopt hist_ignore_all_dups
-setopt hist_ignore_dups
-setopt hist_save_no_dups
-setopt hist_find_no_dups
 setopt auto_pushd
 setopt interactive_comments
 setopt correct
