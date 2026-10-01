@@ -8,11 +8,27 @@
 [core]
 	excludesfile = ~/.gitignore_global
 
+[pretty]
+	log = format:%C(magenta)%h%C(reset) %C(yellow)%ae%C(reset) %C(cyan)%ad%C(reset)%C(auto)%d%C(reset)%n%s
+	oplog = format:%C(blue)%h%C(reset) %C(cyan)%gd%C(reset)%n%gs
+
+[format]
+	pretty = log
+
+[log]
+	date = format:%Y-%m-%d %H:%M:%S
+
 [alias]
-	alias = ! "git config --get-regexp ^alias\\. | sed -e s/^alias\\.// -e s/\\ /\\ =\\ /"
-	graph = log --graph
+	f = fetch
+	p = push
+	co = checkout
+	l = log --graph
+	st = status
+	oplog = reflog --pretty=oplog --date=format:'%Y-%m-%d %H:%M:%S'
 	amend = commit -a --amend
+	;; fetch, then rebase onto origin/$1 (default: origin/HEAD)
 	sync = "!f() { target=\"${1:+origin/$1}\"; target=\"${target:-origin/HEAD}\"; git fetch origin && git rebase \"$target\"; }; f"
+	;; fetch, then print ahead/behind counts against $1
 	vs = "!f() { base=\"${1:-origin/HEAD}\"; git fetch origin --quiet; counts=$(git rev-list --left-right --count \"$base\"...HEAD); behind=$(echo \"$counts\" | cut -f1); ahead=$(echo \"$counts\" | cut -f2); echo \"vs $base: $ahead ahead, $behind behind\"; }; f"
 	patch = add -p
 	prune = fetch --prune origin
@@ -21,15 +37,25 @@
 	unstash = stash branch
 	rewind = checkout HEAD --
 	reword = commit --amend --only -v --
-	uncommit = "!f() { git reset @~"$@" && git commit --amend --no-edit; }; f"
+	;; undo a commit
+	undo = "!f() { git reset @~"$@" && git commit --amend --no-edit; }; f"
+	;; get short hash of a commit
 	abbrev = "!f() { git rev-parse --short "${1-`echo HEAD`}"; }; f"
 	root = rev-parse --show-toplevel
+	;; force-delete local branches that have no upstream
 	gone = ! "git fetch -p && git branch -vv | grep ': gone]' | grep -v '\\*' | awk '{ print $1 }' | xargs -r git branch -D"
 	filediff = diff --name-only
+	;; list every path in history (incl. deleted ones)
 	files = "!f() { git log --name-only --diff-filter=A --pretty=format: | sort -u; }; f"
-	open = "!f() { git files | fzf --query="$1" | xargs -I{} "$EDITOR $(git root)/"{}; }; f"
-	fixup = ! "git log --oneline --decorate @{u} | fzf | awk '{ print $1 }' | xargs -I{} git commit --fixup={}"
+	;; fzf a commit and create a fixup for it
+	fixup = "!f() { \
+              sha=$(git log --oneline \"${1:-@{u}}..\" \
+                      | fzf --preview 'git show --stat --color=always {1}' \
+                      | cut -d' ' -f1); \
+              [ -n \"$sha\" ] && git commit --fixup=\"$sha\"; \
+        }; f"
 	trash = reset --hard HEAD
+	;; prompt for a tag and create it if new, defaults to latest
 	release = "!f() { \
 		LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo '0.0.0'); \
 		read -p \"New release [$LAST_TAG]: \" NEW_TAG; \
