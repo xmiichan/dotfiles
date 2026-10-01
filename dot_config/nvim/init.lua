@@ -271,9 +271,8 @@ local plugins = {
     "https://github.com/tpope/vim-sleuth",                -- auto-detect indentation from file
     "https://github.com/airblade/vim-rooter",             -- auto-detect pwd
     "https://github.com/tpope/vim-fugitive",              -- git client
-    "https://github.com/NicolasGB/jj.nvim",               -- and jj
+    "https://github.com/jceb/jiejie.nvim",                -- and jj
     "https://github.com/lewis6991/gitsigns.nvim",         -- git gutter
-    "https://github.com/evanphx/jjsigns.nvim",            -- jj gutter
     "https://github.com/mistweaverco/diffconflicts.nvim", -- difftool
     "https://github.com/tpope/vim-eunuch",                -- file operations va cmdline
     "https://github.com/vim-scripts/regreplop.vim",       -- replace operator on <s>
@@ -316,17 +315,7 @@ require("flash").setup({
 })
 vim.keymap.set({ "n", "x", "o" }, "s", require("flash").jump)
 
-require("jj").setup({ picker = { snacks = false } })
-
--- gutter: jjsigns on jj/colocated repos, gitsigns on pure-git repos
-local jj_root = require("mii.jj_root")
-
-require("gitsigns").setup({
-    on_attach = function(bufnr)
-        if jj_root(bufnr) then return false end
-    end,
-})
-require("jjsigns").setup()
+require("gitsigns").setup()
 
 require("nvim-surround").setup()
 require("nvim-autopairs").setup()
