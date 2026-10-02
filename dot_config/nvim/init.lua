@@ -271,7 +271,6 @@ local plugins = {
     "https://github.com/tpope/vim-sleuth",                -- auto-detect indentation from file
     "https://github.com/airblade/vim-rooter",             -- auto-detect pwd
     "https://github.com/tpope/vim-fugitive",              -- git client
-    "https://github.com/jceb/jiejie.nvim",                -- and jj
     "https://github.com/lewis6991/gitsigns.nvim",         -- git gutter
     "https://github.com/mistweaverco/diffconflicts.nvim", -- difftool
     "https://github.com/tpope/vim-eunuch",                -- file operations va cmdline
@@ -291,6 +290,7 @@ local plugins = {
     "https://github.com/aserowy/tmux.nvim",               -- tmux integrations
     "https://github.com/junegunn/goyo.vim",               -- distraction-free writing
     "https://github.com/junegunn/limelight.vim",          -- ... and paragraph highlighting
+    "https://github.com/voldikss/vim-floaterm",           -- floating terminal
 }
 
 vim.o.packlockfile = vim.fs.joinpath(
@@ -428,10 +428,13 @@ vim.keymap.set("n", "<leader>gC", require("fzf-lua").git_bcommits,
     { silent = true })
 vim.keymap.set("n", "<leader>gf", require("fzf-lua").git_diff, { silent = true })
 
--- jj
-vim.keymap.set("n", "<leader>jj", ":J<cr>")
-vim.keymap.set("n", "<leader>jb", ":J annotate<cr>")
-vim.keymap.set("n", "<leader>jd", ":Jdiff<cr>")
+-- terminal
+vim.keymap.set("n", "<M-o>", ":FloatermToggle<cr>")
+vim.keymap.set("t", "<M-o>", "<C-\\><C-o>:FloatermToggle<cr><Esc>")
+vim.keymap.set("t", "<M-c>", "<C-\\><C-o>:FloatermNew<cr>")
+vim.keymap.set("t", "<M-q>", "<C-\\><C-o>:FloatermKill<cr><esc>:FloatermToggle<cr>")
+vim.keymap.set("t", "<M-n>", "<C-\\><C-o>:FloatermNext<cr>")
+vim.keymap.set("t", "<M-p>", "<C-\\><C-o>:FloatermPrev<cr>")
 
 -- distraction-free writing
 vim.g.limelight_conceal_ctermfg = 'grey'

@@ -1,6 +1,4 @@
 -- statusline
-local jj_root = require("mii.jj_root")
-
 _G.Statusline = {
     spell = function()
         return vim.wo.spell and '/SPELL' or ''
@@ -11,42 +9,25 @@ _G.Statusline = {
         return #clients > 0 and '/LSP' or ''
     end,
 
-    jj = function()
-        local now = vim.uv.now()
-        if not Statusline._t or now - Statusline._t > 2000 then
-            Statusline._t = now
-            vim.system({ "jj", "log", "--no-graph", "-r",
-                    "heads(::@ & bookmarks())", "-T", "bookmarks" },
-                { text = true },
-                vim.schedule_wrap(function(r)
-                    local bookmark = r.code == 0 and vim.trim(r.stdout) or ""
-                    if (not bookmark) or bookmark == "" then
-                        vim.g.jj_bookmark = "root() "
-                    else
-                        vim.g.jj_bookmark = bookmark .. " "
-                    end
-                end))
-            vim.system({ "jj", "log", "--no-graph", "-r", "@", "-T",
-                    'change_id.shortest() ++ if(conflict, "!", "")'
-                    .. ' ++ if(divergent, "?", "") ++ if(empty, "", "+")' },
-                { text = true },
-                vim.schedule_wrap(function(r)
-                    vim.g.jj_change = r.code == 0 and vim.trim(r.stdout) or ""
-                end))
-        end
-        local ret = vim.g.jj_change and
-            "[jj(" .. vim.g.jj_bookmark .. vim.g.jj_change .. ")]" or ""
-        return ret
-    end,
-
     vcs = function()
-        if jj_root() then
-            return Statusline.jj()
+        local jj_cmd = vim.system(
+            { "jj", "log", "-r", "heads(::@ & bookmarks())", "--no-graph", "-T", "bookmarks" },
+            { text = true}
+        ):wait()
+
+        if jj_cmd.code == 0 then
+            local jj_changeid = vim.system(
+                { "jj", "log", "-r", "@", "--no-graph", "-T", "change_id.shortest()" },
+                { text = true}
+            ):wait()
+            return " 󰜛 " .. vim.trim(jj_cmd.stdout) .. " " .. vim.trim(jj_changeid.stdout)
         end
-        if vim.fn.exists("*FugitiveStatusline") == 1 then
-            return vim.fn.FugitiveStatusline()
-        end
-        return ""
+
+        local git_cmd = vim.system(
+            { "git", "rev-parse", "--abbrev-ref", "HEAD" },
+            { text = true}
+        ):wait()
+        return git_cmd.code == 0 and "  " .. vim.trim(git_cmd.stdout) or ""
     end,
 }
 
