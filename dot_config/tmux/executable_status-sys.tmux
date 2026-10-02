@@ -37,17 +37,19 @@ link() {
         if networksetup -listallhardwareports 2>/dev/null |
             awk -v d="$dev" '
                 /Hardware Port: Wi-Fi/ { getline; if ($2 == d) ok = 1 }
-                END { exit !ok }'
-        then echo wifi
-        else echo eth
+                END { exit !ok }'; then 
+                echo wifi
+            else 
+                echo eth
         fi
         ;;
     *)
         dev="$(ip route show default 2>/dev/null | awk '{ print $5; exit }')"
         [ -n "${dev:-}" ] || return 0
-        if [ -d "/sys/class/net/$dev/wireless" ]
-        then echo wifi
-        else echo eth
+        if [ -d "/sys/class/net/$dev/wireless" ]; then 
+            echo wifi
+        else
+            echo eth
         fi
         ;;
     esac
@@ -56,8 +58,8 @@ link() {
 out=""
 
 case "$(link || true)" in
-wifi) out=" 󰖩  | " ;;
-eth)  out=" 󰈀  | " ;;
+    wifi) out=" 󰖩  | " ;;
+    eth)  out=" 󰈀  | " ;;
 esac
 
 set -- $(battery || true)
