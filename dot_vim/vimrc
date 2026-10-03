@@ -3,7 +3,7 @@ if &compatible
     set nocompatible
 endif
 
-set backspace=3                " backspace in insert mode works like normal editor
+set backspace=2                " backspace in insert mode works like normal editor
 syntax on                      " syntax highlighting
 filetype plugin indent on      " filetype plugins and indenting
 set autoindent                 " auto indenting
@@ -17,45 +17,74 @@ set number                     " line numbers
 set nobackup                   " get rid of anoying ~files
 set autoread                   " automatically reload files that have been changed
 set hlsearch                   " highlight search results
+set incsearch                  " ... while typing
 set ruler                      " show current position
 set showmatch                  " show matching parens etc.
 set encoding=utf8              " set unicode as standard encoding
 set autochdir                  " cwd follows file
-set shiftwidth=5               " indent by 4 spaces
-set tabstop=5                  " tab = 4 spaces
-set laststatus=3               " mode line
-set colorcolumn=81             " line at 80 ch width
+set shiftwidth=4               " indent by 4 spaces
+set tabstop=4                  " tab = 4 spaces
+set laststatus=2               " mode line
+set colorcolumn=80             " line at 80 ch width
 set splitbelow                 " new split obens below
 set splitright                 " new split obens right
 set cursorline                 " cursor line
 set wildmenu                   " menu autocomplete
 set mouse=a                    " mouse support
 set relativenumber             " relative line numbers
-set re=1                       " don't use old regex engine
-set scrolloff=9                " keep 8 lines while scrolling
-set updatetime=101             " update every 100ms
-set ttimeoutlen=51             " quicker exit insert mode with esc
+set re=0                       " don't use old regex engine
+set scrolloff=8                " keep 8 lines while scrolling
+set updatetime=100             " update every 100ms
+set ttimeoutlen=50             " quicker exit insert mode with esc
 set expandtab                  " tab expands into spaces
-set termguicolors              " true color support
 set wildmode=longest:full,full " command-line completion
-set pumheight=13               " max popup menu height
+set pumheight=12               " max popup menu height
+if exists('+pumborder')
+    set pumborder=round        " nicer borders
+endif
 set linebreak                  " wrap at word boundaries
 set breakindent                " wrapped lines keep indent
 set confirm                    " prompt to save on :q/:e
 set virtualedit=block          " select past EOL in block mode
 set title                      " set terminal title
 
+" folding
+set foldmethod=indent
+set foldlevelstart=99
+set foldminlines=0
+let &fillchars .= ",fold: "
+silent! set fillchars+=eob:\ ,foldsep:\ ,foldopen:,foldclose:
+silent! let &fillchars .= ",foldinner: "
+nnoremap + za
+
+" marker folds where a file has markers, indent folds elsewhere
+function! s:FoldMethod() abort
+    if !&diff && empty(&buftype)
+        let &l:foldmethod = search('{\{3}', 'nw') ? 'marker' : 'indent'
+    endif
+endfunction
+augroup foldmethod
+    autocmd!
+    autocmd BufWinEnter * call s:FoldMethod()
+augroup END
+
 " saving options in session and view files causes more problems than it solves
 set sessionoptions-=options
 set viewoptions-=options
 
-" undercurl support
-let &t_Cs = "\e[4:3m"
-let &t_Ce = "\e[4:0m"
-
-" bar cursor in insert mode
-let &t_SI = "\e[6 q"
-let &t_EI = "\e[2 q"
+" skip on console ...
+if &term !~# '^linux'
+    " true color
+    set termguicolors
+    let &t_8f = "\e[38;2;%lu;%lu;%lum"
+    let &t_8b = "\e[48;2;%lu;%lu;%lum"
+    " undercurl support
+    let &t_Cs = "\e[4:3m"
+    let &t_Ce = "\e[4:0m"
+    " bar cursor in insert mode
+    let &t_SI = "\e[6 q"
+    let &t_EI = "\e[2 q"
+endif
 
 " undo
 if has('persistent_undo')
@@ -85,6 +114,12 @@ augroup rememberfilepos
     autocmd BufReadPost * silent! normal! g`"zv'
 augroup END
 
+" reload buffers changed outside of vim
+augroup autoread_check
+    autocmd!
+    autocmd FocusGained,BufEnter,CursorHold * silent! checktime
+augroup END
+
 " make directory on write if it does not exist
 function! s:MkdirOnWrite(dir) abort
     if !isdirectory(a:dir)
@@ -98,13 +133,16 @@ augroup END
 
 " tab completion
 set omnifunc=syntaxcomplete#Complete
-set completeopt+=menuone,fuzzy,noinsert
+set completeopt+=menuone,noinsert
+silent! set completeopt+=fuzzy
 
 set wildcharm=<C-z>
 cnoremap <expr><Tab>   getcmdtype() =~ '[\/?]' ? "<C-g>" : "<C-z>"
 cnoremap <expr><S-Tab> getcmdtype() =~ '[\/?]' ? "<C-t>" : "<S-Tab>"
 
 inoremap <expr><Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <silent><expr> <C-p> pumvisible() ? "\<C-p>" : "\<Up>"
+inoremap <silent><expr> <C-n> pumvisible() ? "\<C-n>" : "\<Down>"
 
 " as-you-type completion
 if exists('+autocomplete')
@@ -130,10 +168,6 @@ noremap X "_X
 " Y works like C/D
 noremap Y y$
 
-" yank and comment in one go
-nmap yc yygccp
-xmap Y ygvgc`>p
-
 " yank/paste from system clipboard
 nnoremap <leader>y "+y
 nnoremap <leader>Y "+Y
@@ -152,7 +186,7 @@ noremap H ^
 noremap L $
 
 " wrap current paragraph
-noremap <silent> <C-q> gqip
+nnoremap <silent> <C-q> mzgqip`z
 
 " netrw
 nnoremap <silent> - :Ex<cr>
@@ -161,11 +195,19 @@ nnoremap <silent> - :Ex<cr>
 nnoremap <C-s> :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<left><left><left>
 
 " quick macro
-nnoremap Q @q
+let g:reg_recorded = ''
+function! s:StopRecording() abort
+    let g:reg_recorded = reg_recording()
+    return 'q'
+endfunction
 
-" dot repeat / macro on a visually select lines
+nnoremap <expr> q empty(reg_recording()) ? 'q' : <SID>StopRecording()
+xnoremap <expr> q empty(reg_recording()) ? 'q' : <SID>StopRecording()
+nnoremap <expr> Q empty(g:reg_recorded) ? '' : '@' . g:reg_recorded
+xnoremap <expr> Q empty(g:reg_recorded) ? '' : ':normal @' . g:reg_recorded . "\<cr>"
+
+" dot repeat on a visually select lines
 xmap . :norm .<cr>
-xmap Q :norm @q<cr>
 
 " move lines in visual
 xnoremap <C-n> :m '>+1<cr>gv=gv
@@ -182,45 +224,24 @@ noremap <silent> <leader><leader> :b#<cr>
 nnoremap <leader>ss :split<cr>
 nnoremap <leader>sv :vsplit<cr>
 
-" regex-based alignment
-command! -nargs=? -range Align <line1>,<line2>call AlignSection('<args>')
-function! AlignSection(regex) range
-    let extra = 1
-    let sep = empty(a:regex) ? '=' : a:regex
-    let maxpos = 0
-    let section = getline(a:firstline, a:lastline)
-    for line in section
-	let pos = match(line, ' *'.sep)
-	if maxpos < pos
-	    let maxpos = pos
-	endif
-    endfor
-    call map(section, 'AlignLine(v:val, sep, maxpos, extra)')
-    call setline(a:firstline, section)
-endfunction
-
-function! AlignLine(line, sep, maxpos, extra)
-    let m = matchlist(a:line, '\(.\{-}\) \{-}\('.a:sep.'.*\)')
-    if empty(m)
-	return a:line
-    endif
-    let spaces = repeat(' ', a:maxpos - strlen(m[1]) + a:extra)
-    return m[1] . spaces . m[2]
-endfunction
-vnoremap <silent> <leader>a :Align 
-vnoremap <silent> <leader>A :Align<CR>
-
 " split style
 set fillchars+=vert:│
 
 " color scheme
-set bg=dark
-
 function! s:set_colors() abort
-    hi Normal ctermbg=NONE
-    hi VertSplit ctermbg=NONE
-    hi User1 cterm=bold,reverse gui=bold,reverse
-    hi link User2 Normal
+    hi Normal guibg=NONE ctermbg=NONE
+    if exists('+pumborder')
+        " clear popup bg if borders are available
+        for l:group in ['Pmenu', 'PmenuKind', 'PmenuExtra', 'PmenuBorder']
+            execute 'hi' l:group 'guibg=NONE ctermbg=NONE'
+        endfor
+    endif
+    hi SpellBad   cterm=undercurl ctermfg=NONE ctermbg=NONE
+    hi SpellCap   cterm=undercurl ctermfg=NONE ctermbg=NONE
+    hi SpellLocal cterm=undercurl ctermfg=NONE ctermbg=NONE
+    hi SpellRare  cterm=undercurl ctermfg=NONE ctermbg=NONE
+    hi VertSplit  ctermbg=NONE
+    hi User1      ctermfg=3 guifg=orange
 endfunction
 
 augroup colorscheme_change
@@ -228,42 +249,44 @@ augroup colorscheme_change
     autocmd ColorScheme * call s:set_colors()
 augroup END
 
-colorscheme lunaperche
+silent! colorscheme default
+set bg=dark
 
-" Statusline
-set statusline=
-set statusline+=%1*
-set statusline+=%(%{&filetype!='help'?'\ \ '.bufnr('%'):''}\ %)
-set statusline+=%*\ ‹‹\ %f
-set statusline+=%r%m\ ››\ 
-set statusline+=%=
-set statusline+=%{toupper(&ft)}
-set statusline+=\ \ \ %1*\ \ 
-set statusline+=%2P
-set statusline+=\ 
-set statusline+=%4l:%02v
-set statusline+=\ 
+" strip autowrap in diffs
+function! s:DiffNoAutoformat() abort
+    for l:win in range(1, winnr('$'))
+        if getwinvar(l:win, '&diff')
+            let l:buf = winbufnr(l:win)
+            let l:fo = getbufvar(l:buf, '&formatoptions')
+            call setbufvar(l:buf, '&formatoptions',
+                \ substitute(l:fo, '[at]', '', 'g'))
+        endif
+    endfor
+endfunction
+if exists('##DiffUpdated')
+    augroup diff_no_autoformat
+        autocmd!
+        autocmd DiffUpdated * call s:DiffNoAutoformat()
+    augroup END
+endif
 
-" readline keys in insert mode
-inoremap <C-a> <Home>
-inoremap <C-e> <End>
-inoremap <C-b> <Left>
-inoremap <C-f> <Right>
-inoremap <C-d> <Del>
-inoremap <C-k> <C-o>D
-inoremap <M-b> <C-Left>
-inoremap <M-f> <C-Right>
-inoremap <silent><expr> <C-p> pumvisible() ? "\<C-p>" : "\<Up>"
-inoremap <silent><expr> <C-n> pumvisible() ? "\<C-n>" : "\<Down>"
-cnoremap <C-a> <Home>
-cnoremap <C-e> <End>
-cnoremap <C-b> <Left>
-cnoremap <C-f> <Right>
-cnoremap <C-d> <Del>
-cnoremap <M-b> <C-Left>
-cnoremap <M-f> <C-Right>
-cnoremap <C-p> <Up>
-cnoremap <C-n> <Down>
+" filetype settings
+function! s:Prose() abort
+    setlocal textwidth=80 formatoptions+=ta spell complete+=kspell
+    if exists('+autocomplete')
+        setlocal noautocomplete
+    endif
+    for l:ch in ['.', '!', '?', ',', ';', ':']
+        execute 'inoremap <buffer> ' . l:ch . ' ' . l:ch . '<C-g>u'
+    endfor
+endfunction
+augroup filetype_settings
+    autocmd!
+    autocmd FileType markdown,text call s:Prose()
+    autocmd FileType markdown setlocal conceallevel=2
+    autocmd FileType mail setlocal textwidth=72 formatoptions+=w
+        \ formatoptions-=t nojoinspaces
+augroup END
 
 " highlight yanked text
 augroup highlight_yank
@@ -285,21 +308,207 @@ function! s:HighlightYank()
     call timer_start(200, {-> matchdelete(l:match)})
 endfunction
 
-" replace operator (s to replace without yanking)
-function! s:Replace(type, ...) abort
-    let l:sel_save = &selection
-    let &selection = 'inclusive'
-    if a:0
-        silent exe 'normal! gv"_c' . getreg('"')
-    elseif a:type == 'line'
-        silent exe "normal! '[V']\"_c" . getreg('"')
-    else
-        silent exe 'normal! `[v`]"_c' . getreg('"')
+" PLUGINS
+if exists('g:noplug')
+    finish
+endif
+
+let s:plug = expand('~/.vim/autoload/plug.vim')
+if empty(glob(s:plug))
+    silent execute '!curl -fLo ' . s:plug . ' --create-dirs'
+        \ . ' https://raw.githubusercontent.com/junegunn/vim-plug'
+        \ . '/master/plug.vim'
+    if v:shell_error
+        finish
     endif
-    let &selection = l:sel_save
+endif
+
+if !empty($DOTFILES)
+    let g:chezmoi#source_dir_path = $DOTFILES
+endif
+
+call plug#begin()
+Plug 'tpope/vim-rsi'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-speeddating'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-vinegar'
+Plug 'airblade/vim-rooter'
+Plug 'airblade/vim-gitgutter'
+Plug 'whiteinge/diffconflicts'
+Plug 'cohama/lexima.vim'
+Plug 'easymotion/vim-easymotion'
+Plug 'mattn/emmet-vim'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/limelight.vim'
+Plug 'voldikss/vim-floaterm'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'prabirshrestha/asyncomplete-buffer.vim'
+Plug 'alker0/chezmoi.vim'
+Plug 'sheerun/vim-polyglot'
+Plug 'catppuccin/vim', { 'as': 'catppuccin' }
+call plug#end()
+
+augroup plug_install
+    autocmd!
+    autocmd VimEnter *
+        \ if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+        \ | PlugInstall --sync | source $MYVIMRC
+        \ | endif
+augroup END
+
+" copy and comment at the same time
+nmap yc yygccp
+xmap Y ygvgc`>p
+
+silent! colorscheme catppuccin
+
+" rooter
+let g:rooter_resolve_links = 1
+
+" easymotion
+let g:EasyMotion_do_mapping = 0
+let g:EasyMotion_smartcase = 1
+map s <Plug>(easymotion-sn)
+
+" gitgutter
+let g:gitgutter_sign_added = '┃'
+let g:gitgutter_sign_modified = '┃'
+let g:gitgutter_sign_removed = '▁'
+let g:gitgutter_sign_removed_first_line = '▔'
+let g:gitgutter_sign_removed_above_and_below = '▔▁'
+let g:gitgutter_sign_modified_removed = '┃-'
+
+" goyo/limelight
+let g:limelight_conceal_ctermfg = 'grey'
+let g:limelight_conceal_guifg = 'grey'
+augroup goyo_limelight
+    autocmd!
+    autocmd User GoyoEnter Limelight
+    autocmd User GoyoLeave Limelight!
+augroup END
+nnoremap <leader>G :Goyo<cr>
+
+" fugitive
+function! s:FugitiveResolve() abort
+    let l:dir = fnamemodify(resolve(expand('%:p')), ':h')
+    let l:git_dir = trim(system('git -C ' . shellescape(l:dir)
+        \ . ' rev-parse --absolute-git-dir 2>/dev/null'))
+    if !v:shell_error && !empty(l:git_dir)
+        let b:git_dir = l:git_dir
+    endif
+endfunction
+nnoremap <silent> <leader>gg :call <SID>FugitiveResolve()<bar>Git<cr>
+nnoremap <silent> <leader>gb :call <SID>FugitiveResolve()<bar>Git blame<cr>
+nnoremap <silent> co :diffget //2<cr>
+nnoremap <silent> ct :diffget //3<cr>
+
+" fzf
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+let g:fzf_vim = {}
+let g:fzf_vim.preview_window = ['right,50%,<50(up,50%)', 'ctrl-/']
+let g:fzf_vim.options = '--bind alt-a:select-all,alt-d:deselect-all'
+
+function! s:BuildQuickfixList(lines) abort
+    call setqflist(map(copy(a:lines), '{"filename": v:val, "lnum": 1}'))
+    copen
+    cc
 endfunction
 
-nmap <silent> s :set opfunc=<SID>Replace<cr>g@
-nmap <silent> ss :set opfunc=<SID>Replace<cr>g@_
-nmap <silent> S s$
-xmap <silent> s :<C-u>call <SID>Replace(visualmode(), 1)<cr>
+let g:fzf_action = {
+    \ 'ctrl-q': function('s:BuildQuickfixList'),
+    \ 'ctrl-t': 'tab split',
+    \ 'ctrl-x': 'split',
+    \ 'ctrl-v': 'vsplit',
+    \ }
+
+function! s:GitFilesOrFiles() abort
+    call system('git rev-parse --is-inside-work-tree')
+    execute v:shell_error ? 'Files' : 'GFiles'
+endfunction
+
+nnoremap <silent> <leader>f :call <SID>GitFilesOrFiles()<cr>
+nnoremap <silent> <leader>F :Files<cr>
+nnoremap <silent> <leader>b :Buffers<cr>
+nnoremap <silent> <leader>m :Marks<cr>
+nnoremap <silent> <leader>J :Jumps<cr>
+nnoremap <silent> <leader>/ :BLines<cr>
+nnoremap <silent> <leader>; :RG<cr>
+xnoremap <silent> <leader>; "zy:execute 'RG' @z<cr>
+nnoremap <silent> <leader>gc :Commits<cr>
+nnoremap <silent> <leader>gC :BCommits<cr>
+nnoremap <silent> <leader>gf :GFiles?<cr>
+
+" lsp
+let g:lsp_settings_filetype_ruby = ['ruby-lsp', 'rubocop-lsp-mode']
+let g:lsp_settings = {
+    \ 'bash-language-server': {'allowlist': ['sh', 'bash', 'zsh']},
+    \ }
+let g:lsp_diagnostics_float_cursor = 1
+let g:lsp_diagnostics_signs_priority = 20
+let g:lsp_diagnostics_signs_error = {'text': 'E'}
+let g:lsp_diagnostics_signs_warning = {'text': 'W'}
+let g:lsp_diagnostics_signs_information = {'text': 'I'}
+let g:lsp_diagnostics_signs_hint = {'text': 'H'}
+let g:lsp_document_code_action_signs_priority = 15
+let g:lsp_document_code_action_signs_hint = {'text': 'A'}
+let g:lsp_popup_highlight = 'Normal'
+let g:lsp_popup_borderchars = ['─', '│', '─', '│', '╭', '╮', '╯', '╰']
+
+function! s:LspMaps() abort
+    nmap <buffer> K <plug>(lsp-hover)
+    nmap <buffer> grn <plug>(lsp-rename)
+    nmap <buffer> gra <plug>(lsp-code-action)
+    nmap <buffer> grr <plug>(lsp-references)
+    nmap <buffer> gri <plug>(lsp-implementation)
+    nmap <buffer> grt <plug>(lsp-type-definition)
+    nmap <buffer> gO <plug>(lsp-document-symbol)
+    nmap <buffer> gr= <plug>(lsp-document-format)
+    nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+    nmap <buffer> [d <plug>(lsp-previous-diagnostic)
+    nmap <buffer> <leader>e <plug>(lsp-document-diagnostics)
+endfunction
+
+augroup lsp_maps
+    autocmd!
+    autocmd User lsp_buffer_enabled call s:LspMaps()
+augroup END
+
+" floaterm
+execute "set <M-o>=\<Esc>o"
+execute "set <M-c>=\<Esc>c"
+execute "set <M-q>=\<Esc>q"
+let g:floaterm_keymap_toggle = '<M-o>'
+let g:floaterm_keymap_new = '<M-c>'
+let g:floaterm_keymap_kill = '<M-q>'
+" vim-rsi maps M-n/M-p as <F32> / <F33>, we can reuse this
+let g:floaterm_keymap_next = '<F32>'
+let g:floaterm_keymap_prev = '<F33>'
+
+" asyncomplete
+if exists('+autocomplete')
+    set noautocomplete
+endif
+
+function! s:AsyncompleteSetup() abort
+    call asyncomplete#register_source(
+        \ asyncomplete#sources#buffer#get_source_options({
+        \ 'name': 'buffer',
+        \ 'allowlist': ['*'],
+        \ 'completor': function('asyncomplete#sources#buffer#completor'),
+        \ }))
+endfunction
+
+augroup asyncomplete_config
+    autocmd!
+    autocmd User asyncomplete_setup call s:AsyncompleteSetup()
+    autocmd FileType markdown,text let b:asyncomplete_enable = 0
+augroup END

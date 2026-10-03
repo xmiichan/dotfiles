@@ -55,8 +55,6 @@ for p in $MY_PATH_DIRS; do
 done
 unset MY_PATH_DIRS
 
-if (( $+commands[nvim] )); then
-    export EDITOR=nvim
-elif (( $+commands[vim] )); then
+if (( $+commands[vim] )); then
     export EDITOR=vim
 fi

@@ -1,9 +1,6 @@
 " vim: filetype=vifm :
 
-if executable('nvim')
-    set vicmd=nvim
-    command! diff nvim -d %f %F
-elseif executable('vim')
+if executable('vim')
     set vicmd=vim
     command! diff vim -d %f %F
 endif

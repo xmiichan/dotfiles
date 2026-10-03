@@ -14,8 +14,8 @@ diff-editor = ":builtin"
 merge-editor = "mergiraf"
 diff-formatter = ["difft", "--color=always", "$left", "$right"]
 
-[merge-tools.nvim]
-program = "nvim"
+[merge-tools.vim]
+program = "vim"
 edit-args = ["-f", "-d", "$left", "$right"]
 merge-args = [
     "-d", "$left", "$output", "$right",
@@ -103,8 +103,8 @@ fi
 ''', ""]
 z = ["fuzzy_bookmark"]
 za = ["bookmark", "list", "-a"]
-de = ["diffedit", "--tool", "nvim"]
-re = ["resolve", "--tool", "nvim"]
+de = ["diffedit", "--tool", "vim"]
+re = ["resolve", "--tool", "vim"]
 sync = [
     "util", "exec", "--", "sh", "-c",
     "jj git fetch && jj rebase -o 'trunk()'",
