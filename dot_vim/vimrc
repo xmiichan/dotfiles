@@ -163,6 +163,8 @@ let g:netrw_preview = 1       " preview in vertical split
 " -- keymaps ---
 " C-l clears search highlight
 nnoremap <C-l> :noh<cr><C-l>
+" ... and in insert mode it opens spellcheck
+inoremap <C-l> <C-x>s
 
 " x does not yank
 noremap x "_x
