@@ -87,6 +87,9 @@ if &term !~# '^linux'
     " bar cursor in insert mode
     let &t_SI = "\e[6 q"
     let &t_EI = "\e[2 q"
+    " italics
+    let &t_ZH = "\e[3m"
+    let &t_ZR = "\e[23m"
 endif
 
 " undo
@@ -355,9 +358,11 @@ Plug 'junegunn/limelight.vim'
 Plug 'voldikss/vim-floaterm'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/async.vim'
 Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 Plug 'prabirshrestha/asyncomplete-buffer.vim'
+Plug 'prabirshrestha/asyncomplete-file.vim'
 Plug 'alker0/chezmoi.vim'
 Plug 'sheerun/vim-polyglot'
 Plug 'catppuccin/vim', { 'as': 'catppuccin' }
