@@ -18,6 +18,7 @@ set nobackup                   " get rid of anoying ~files
 set autoread                   " automatically reload files that have been changed
 set hlsearch                   " highlight search results
 set incsearch                  " ... while typing
+set nowrapscan                 " don't wrap around when searching
 set ruler                      " show current position
 set showmatch                  " show matching parens etc.
 set encoding=utf8              " set unicode as standard encoding
@@ -29,6 +30,7 @@ set colorcolumn=80             " line at 80 ch width
 set splitbelow                 " new split obens below
 set splitright                 " new split obens right
 set cursorline                 " cursor line
+set nojoinspaces               " only one space when joining lines
 set wildmenu                   " menu autocomplete
 set mouse=a                    " mouse support
 set relativenumber             " relative line numbers
@@ -45,11 +47,12 @@ endif
 set linebreak                  " wrap at word boundaries
 set breakindent                " wrapped lines keep indent
 set confirm                    " prompt to save on :q/:e
-set virtualedit=block          " select past EOL in block mode
+set virtualedit=block,onemore  " select past EOL in block mode
 set title                      " set terminal title
+set noerrorbells visualbell    " no annoying bells
 
 " folding
-set foldmethod=indent
+set foldmethod=indent 
 set foldlevelstart=99
 set foldminlines=0
 let &fillchars .= ",fold: "
