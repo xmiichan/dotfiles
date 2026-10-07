@@ -10,6 +10,8 @@ bind ;f hint
 bind ;F hint -b
 unbind --mode=hint <Space>
 
+bind go js const h = location.hostname, p = h.split("."), d = p[Math.max(p.length - 2, 0)], u = "open " + location.href, s = u.indexOf(h) + h.length - p.slice(-2).join(".").length; tri.excmds.fillcmdline_notrail(u).then(() => document.getElementById("cmdline_iframe").contentWindow.document.getElementById("tridactyl-input").setSelectionRange(s, s + d.length));
+
 bindurl youtube.com <C-j> js let s = document.createElement('script'); s.textContent = 'document.querySelector("#movie_player").seekBy(-10)'; document.head.appendChild(s); s.remove()
 bindurl youtube.com <C-l> js let s = document.createElement('script'); s.textContent = 'document.querySelector("#movie_player").seekBy(+10)'; document.head.appendChild(s); s.remove()
 bindurl ^https?://duckduckgo\.com gi focusinput #searchbox_input
