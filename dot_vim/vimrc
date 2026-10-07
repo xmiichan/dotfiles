@@ -4,8 +4,8 @@ if &compatible
 endif
 
 set backspace=2                " backspace in insert mode works like normal editor
-syntax on                      " syntax highlighting
 filetype plugin indent on      " filetype plugins and indenting
+syntax on                      " syntax highlighting
 set autoindent                 " auto indenting
 set smartindent                " smart indenting
 set ignorecase                 " case-insensitive search
