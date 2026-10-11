@@ -7,6 +7,7 @@
 
 [core]
 	excludesfile = ~/.gitignore_global
+	abbrev = 4
 
 [pretty]
 	log = format:%C(magenta)%h%C(reset) %C(yellow)%ae%C(reset) %C(cyan)%ad%C(reset)%C(auto)%d%C(reset)%n%s
@@ -26,12 +27,32 @@
 	st = status
 	oplog = reflog --pretty=oplog --date=format:'%Y-%m-%d %H:%M:%S'
 	amend = commit -a --amend
+	cram = commit --amend --no-edit
 	;; fetch, then rebase onto origin/$1 (default: origin/HEAD)
-	sync = "!f() { target=\"${1:+origin/$1}\"; target=\"${target:-origin/HEAD}\"; git fetch origin && git rebase \"$target\"; }; f"
+	sync = "!f() { \
+		target=\"${1:+origin/$1}\"; \
+		target=\"${target:-origin/HEAD}\"; \
+		git fetch origin && git rebase \"$target\"; \
+	}; f"
 	;; fetch, then print ahead/behind counts against $1
-	vs = "!f() { base=\"${1:-origin/HEAD}\"; git fetch origin --quiet; counts=$(git rev-list --left-right --count \"$base\"...HEAD); behind=$(echo \"$counts\" | cut -f1); ahead=$(echo \"$counts\" | cut -f2); echo \"vs $base: $ahead ahead, $behind behind\"; }; f"
+	vs = "!f() { \
+		base=\"${1:-origin/HEAD}\"; \
+		git fetch origin --quiet; \
+		counts=$(git rev-list --left-right --count \"$base\"...HEAD); \
+		behind=$(echo \"$counts\" | cut -f1); \
+		ahead=$(echo \"$counts\" | cut -f2); \
+		echo \"vs $base: $ahead ahead, $behind behind\"; \
+	}; f"
+	;; edit commit, then rebase descendants onto the edited version
+	edit = "!f() { \
+		sha=$(git log --oneline \
+			| fzf --preview 'git show --stat --color=always {1}' \
+			| cut -d' ' -f1); \
+		[ -n \"$sha\" ] && GIT_SEQUENCE_EDITOR=\"sed -i.bak -e 1s/^pick/edit/\" \
+			git rebase -i --update-refs \"$1~\"; \
+	}; f"
 	patch = add -p
-	prune = fetch --prune origin
+	prune = fetch --all --prune origin
 	staged = diff --cached --ignore-submodules=dirty
 	pop = stash pop
 	unstash = stash branch
@@ -43,17 +64,20 @@
 	abbrev = "!f() { git rev-parse --short "${1-`echo HEAD`}"; }; f"
 	root = rev-parse --show-toplevel
 	;; force-delete local branches that have no upstream
-	gone = ! "git fetch -p && git branch -vv | grep ': gone]' | grep -v '\\*' | awk '{ print $1 }' | xargs -r git branch -D"
+	gone = ! "git fetch -p && git branch -vv | grep ': gone]' | grep -v '\\*' \
+		| awk '{ print $1 }' | xargs -r git branch -D"
 	filediff = diff --name-only
 	;; list every path in history (incl. deleted ones)
-	files = "!f() { git log --name-only --diff-filter=A --pretty=format: | sort -u; }; f"
+	files = "!f() { \
+		git log --name-only --diff-filter=A --pretty=format: | sort -u;\
+	}; f"
 	;; fzf a commit and create a fixup for it
 	fixup = "!f() { \
-              sha=$(git log --oneline \"${1:-@{u}}..\" \
-                      | fzf --preview 'git show --stat --color=always {1}' \
-                      | cut -d' ' -f1); \
-              [ -n \"$sha\" ] && git commit --fixup=\"$sha\"; \
-        }; f"
+	  sha=$(git log --oneline \"${1:-@{u}}..\" \
+		  | fzf --preview 'git show --stat --color=always {1}' \
+		  | cut -d' ' -f1); \
+	  [ -n \"$sha\" ] && git commit --fixup=\"$sha\"; \
+	}; f"
 	trash = reset --hard HEAD
 	;; prompt for a tag and create it if new, defaults to latest
 	release = "!f() { \
