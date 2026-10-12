@@ -1,0 +1,33 @@
+#compdef mergiraf
+
+_mergiraf_conflicts() {
+    local -a files
+    files=(${(f)"$(git diff --name-only --diff-filter=U --relative 2>/dev/null)"})
+    if (( ${#files} )); then
+        _describe 'conflicted file' files
+    else
+        _files
+    fi
+}
+
+_mergiraf() {
+    local -a commands
+    commands=(
+        'merge:do a three-way merge'
+        'solve:solve the conflicts in a merged file'
+        'review:review the resolution of a merge'
+        'report:create a bug report for a bad merge'
+        'languages:show the supported languages'
+        'help:print help'
+    )
+    if (( CURRENT == 2 )); then
+        _describe 'command' commands
+        return
+    fi
+    case $words[2] in
+        solve|review) _mergiraf_conflicts ;;
+        *) _files ;;
+    esac
+}
+
+_mergiraf "$@"
