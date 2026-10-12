@@ -45,7 +45,8 @@
 	}; f"
 	;; edit commit, then rebase descendants onto the edited version
 	edit = "!f() { \
-		sha=$(git log --oneline \
+		base=${1:-origin/HEAD}; \
+		sha=$(git log --oneline \"$base\" \
 			| fzf --preview 'git show --stat --color=always {1}' \
 			| cut -d' ' -f1); \
 		[ -n \"$sha\" ] && GIT_SEQUENCE_EDITOR=\"sed -i.bak -e 1s/^pick/edit/\" \
@@ -73,9 +74,10 @@
 	}; f"
 	;; fzf a commit and create a fixup for it
 	fixup = "!f() { \
-	  sha=$(git log --oneline \"${1:-@{u}}..\" \
-		  | fzf --preview 'git show --stat --color=always {1}' \
-		  | cut -d' ' -f1); \
+		u='@{u}'; \
+		sha=$(git log --oneline \"${1:-$u}..\" \
+			| fzf --preview 'git show --stat --color=always {1}' \
+			| cut -d' ' -f1); \
 	  [ -n \"$sha\" ] && git commit --fixup=\"$sha\"; \
 	}; f"
 	trash = reset --hard HEAD
