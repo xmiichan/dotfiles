@@ -13,19 +13,16 @@ bind F hint -Jbc a,area,button,input:not([type=hidden]),select,textarea,summary,
 bind ;f hint
 bind ;F hint -b
 
-bind go js const h = location.hostname, p = h.split("."), d = p[Math.max(p.length - 2, 0)], u = "open " + location.href, s = u.indexOf(h) + h.length - p.slice(-2).join(".").length; tri.excmds.fillcmdline_notrail(u).then(() => document.getElementById("cmdline_iframe").contentWindow.document.getElementById("tridactyl-input").setSelectionRange(s, s + d.length));
+bind go js -r js/edit-domain.js
 
-bindurl youtube.com <C-j> js \
-    let s = document.createElement('script'); \
-    s.textContent = 'document.querySelector("#movie_player").seekBy(-10)'; \
-    document.head.appendChild(s); \
-    s.remove()
-bindurl youtube.com <C-l> js \
-    let s = document.createElement('script'); \
-    s.textContent = 'document.querySelector("#movie_player").seekBy(+10)'; \
-    document.head.appendChild(s); \
-    s.remove()
-bindurl ^https?://duckduckgo\.com gi focusinput #searchbox_input
+bindurl duckduckgo.com gi focusinput #searchbox_input
+
+bindurl youtube.com gq js -r -d@ js/yt-click-menu.js@Add to queue
+bindurl youtube.com gw js -r -d@ js/yt-click-menu.js@Save to Watch later
+bindurl youtube.com gbb js -r -d@ js/yt-click-menu.js@Not interested
+bindurl youtube.com gbc js -r -d@ js/yt-click-menu.js@Don't recommend channel
+bindurl youtube.com <C-j> js -r -d@ js/yt-seek.js@-10
+bindurl youtube.com <C-l> js -r -d@ js/yt-seek.js@10
 
 autocontain -s google\.(com?\.)?[a-z]{2,3} Google
 autocontain -s youtube\.com Google
