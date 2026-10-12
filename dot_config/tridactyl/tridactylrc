@@ -1,0 +1,29 @@
+set modeindicatormodes.normal false
+set hintfiltermode vimperator-reflow
+colourscheme --module=reader serif
+
+bind J tabnext
+bind K tabprev
+bind f hint -J
+bind F hint -Jb
+bind ' gobble 1 markjump
+bind ;f hint
+bind ;F hint -b
+bind gr reader
+unbind --mode=hint <Space>
+
+bind go js const h = location.hostname, p = h.split("."), d = p[Math.max(p.length - 2, 0)], u = "open " + location.href, s = u.indexOf(h) + h.length - p.slice(-2).join(".").length; tri.excmds.fillcmdline_notrail(u).then(() => document.getElementById("cmdline_iframe").contentWindow.document.getElementById("tridactyl-input").setSelectionRange(s, s + d.length));
+
+bindurl youtube.com <C-j> js let s = document.createElement('script'); s.textContent = 'document.querySelector("#movie_player").seekBy(-10)'; document.head.appendChild(s); s.remove()
+bindurl youtube.com <C-l> js let s = document.createElement('script'); s.textContent = 'document.querySelector("#movie_player").seekBy(+10)'; document.head.appendChild(s); s.remove()
+bindurl youtube.com ]c js let s = document.createElement('script'); s.textContent = '{ const p = document.querySelector("#movie_player"); const c = ytInitialData.playerOverlays.playerOverlayRenderer.decoratedPlayerBarRenderer.decoratedPlayerBarRenderer.playerBar.multiMarkersPlayerBarRenderer.markersMap.flatMap(m => m.value.chapters || []).map(x => x.chapterRenderer.timeRangeStartMillis / 1000); const t = p.getCurrentTime(); const i = c.findIndex(x => x > t + 0.5); if (i !== -1) p.seekToChapterWithAnimation(i); }'; document.head.appendChild(s); s.remove()
+bindurl youtube.com [c js let s = document.createElement('script'); s.textContent = '{ const p = document.querySelector("#movie_player"); const c = ytInitialData.playerOverlays.playerOverlayRenderer.decoratedPlayerBarRenderer.decoratedPlayerBarRenderer.playerBar.multiMarkersPlayerBarRenderer.markersMap.flatMap(m => m.value.chapters || []).map(x => x.chapterRenderer.timeRangeStartMillis / 1000); const t = p.getCurrentTime(); const i = c.findLastIndex(x => x < t - 1); if (i !== -1) p.seekToChapterWithAnimation(i); }'; document.head.appendChild(s); s.remove()
+bindurl ^https?://duckduckgo\.com gi focusinput #searchbox_input
+bindurl github.com f hint -J -x #repos-split-pane-content
+bindurl github.com F hint -Jb -x #repos-split-pane-content
+
+autocontain -s google\.(com?\.)?[a-z]{2,3} Google
+autocontain -s youtube\.com Google
+autocontain -s youtu\.be Google
+
+" vim: set filetype=tridactyl
