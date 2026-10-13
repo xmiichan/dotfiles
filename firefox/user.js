@@ -96,6 +96,8 @@ user_pref("browser.download.useDownloadDir", false);
 user_pref("dom.disable_window_move_resize", true);
 // no automatic translation offer
 user_pref("browser.translations.automaticallyPopup", false);
+// fullscreen videos just take the browser window
+user_pref("full-screen-api.ignore-widgets", true);
 // }}}
 
 // vim: set foldmethod=marker foldlevel=0:
