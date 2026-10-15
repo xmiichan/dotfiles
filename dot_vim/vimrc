@@ -404,7 +404,7 @@ augroup END
 nmap yc yygccp
 xmap Y ygvgc`>p
 
-silent! colorscheme catppuccin
+silent! colorscheme gruber
 
 " rooter
 let g:rooter_resolve_links = 1
