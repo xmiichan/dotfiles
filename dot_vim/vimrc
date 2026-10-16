@@ -12,6 +12,7 @@ set ignorecase                 " case-insensitive search
 set smartcase                  " ... unless you're explicit
 set smarttab                   " smart tabbing and deleting indentation
 set wrap                       " line wrap
+set showbreak=↪\               " ... with a little indicator
 set hidden                     " allow hiding unsaved buffers
 set number                     " line numbers
 set nobackup                   " get rid of anoying ~files
