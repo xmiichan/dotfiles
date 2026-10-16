@@ -46,12 +46,6 @@ if [[ ! -e "$Z_PLUGIN_DIR/z.d" ]]; then
 fi
 source "$Z_PLUGIN_DIR/z.d/z.sh"
 
-if _have jj && [[ ! -e "$Z_PLUGIN_DIR/zsh-jj" ]]; then
-    git clone https://github.com/rkh/zsh-jj \
-        "$Z_PLUGIN_DIR/zsh-jj"
-fi
-_have jj && fpath+="$Z_PLUGIN_DIR/zsh-jj/functions"
-
 # Modules and autoloads
 zmodload -i zsh/complist
 autoload -Uz vcs_info
@@ -153,18 +147,12 @@ _have jj && source <(COMPLETE=zsh jj)
 
 # Set style options
 ## version control info
-if _have jj; then
-    zstyle ':vcs_info:*' enable jj git
-    zstyle ':vcs_info:jj:*' formats '%F{green}󰜛 %b%F{red}%c%u%f %F{blue}%i%f %m'
-    zstyle ':vcs_info:jj:*' actionformats '%B%F{yellow}(%a)%f %B%F{green} %b%F{red}%c%u%f %F{blue}%i%f %m'
-else
-    zstyle ':vcs_info:*' enable git
-fi
+zstyle ':vcs_info:*' enable git
 zstyle ':vcs_info:*' check-for-changes true
 zstyle ':vcs_info:*' unstagedstr '*'
 zstyle ':vcs_info:*' stagedstr '+'
-zstyle ':vcs_info:git:*' formats '%F{green} %b%F{red}%c%u%f'
-zstyle ':vcs_info:git:*' actionformats '%B%F{yellow}(%a)%f %B%F{green} %b%F{red}%c%u%f'
+zstyle ':vcs_info:git:*' formats '%F{green}@%b%F{red}%c%u%f'
+zstyle ':vcs_info:git:*' actionformats '%B%F{yellow}(%a)%f %B%F{green}@%b%F{red}%c%u%f'
 
 # Prompt
 PROMPT="%F{blue}%(4~|.../%2~|%~) %B%(#.%F{red}root%(?.%F{green}.%F{red})#.%(?.%F{green}.%F{red})$)%f%b "
@@ -178,6 +166,7 @@ preexec_functions+=(_set_title_cmd)
 
 # Aliases
 alias myip="curl http://ipecho.net/plain; echo"
+alias weather='curl wttr.in/\?format=3'
 alias reload="exec zsh"
 alias clean="stty sane"
 alias ls="ls --color -F"
@@ -204,6 +193,19 @@ _have jaq && alias jq=jaq
 
 alias e="$EDITOR"
 alias se="sudo $EDITOR"
+
+# have make find makefiles up the tree
+_have make && make() {
+    local dir="$PWD"
+    until [[ -f $dir/GNUmakefile || -f $dir/makefile || -f $dir/Makefile ]]; do
+        if [[ $dir == / ]]; then
+            command make "$@"
+            return
+        fi
+        dir="$(dirname "$dir")"
+    done
+    command make -C "$dir" "$@"
+}
 
 _have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
 _have fzf && fzf-git-files() {
