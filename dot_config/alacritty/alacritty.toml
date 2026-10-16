@@ -1,7 +1,4 @@
 [general]
-import = [
-    "themes/catppuccin-mocha.toml",
-]
 live_config_reload = true
 
 [colors.primary]

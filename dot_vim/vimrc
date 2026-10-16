@@ -389,7 +389,6 @@ Plug 'prabirshrestha/asyncomplete-buffer.vim'
 Plug 'prabirshrestha/asyncomplete-file.vim'
 Plug 'alker0/chezmoi.vim'
 Plug 'sheerun/vim-polyglot'
-Plug 'catppuccin/vim', { 'as': 'catppuccin' }
 call plug#end()
 
 augroup plug_install

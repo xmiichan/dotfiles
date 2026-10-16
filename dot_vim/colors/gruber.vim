@@ -10,8 +10,9 @@ let g:colors_name = "gruber"
 let s:black  = ["#1c1c1c", "234"]
 let s:blue   = ["#87afd7", "110"]
 let s:brown  = ["#af875f", "137"]
-let s:cyan   = ["#afd7af", "151"]
+let s:cyan   = ["#9fa99f", "151"]
 let s:gray   = ["#262626", "235"]
+let s:lgray  = ["#5c5f63", "235"]
 let s:green  = ["#87d75f", "113"]
 let s:red    = ["#ff5f5f", "203"]
 let s:white  = ["#e4e4e4", "254"]
@@ -86,7 +87,7 @@ call s:hl("Normal",         { "fg": s:white })
 call s:hl("Pmenu",          { "fg": s:white })
 call s:hl("PmenuSbar",      { "bg": s:gray })
 call s:hl("PmenuSel",       { "bg": s:gray, "style": s:bold })
-call s:hl("PmenuThumb",     { "bg": s:white })
+call s:hl("PmenuThumb",     { "bg": s:lgray })
 call s:hl("PreProc",        { "fg": s:cyan })
 call s:hl("Question",       { "fg": s:blue })
 call s:hl("Special",        { "fg": s:white })
@@ -103,7 +104,7 @@ call s:hl("StatusLineNC",   { "fg": s:white, "bg": s:gray })
 call s:hl("String",         { "fg": s:green })
 call s:hl("Title",          { "fg": s:white })
 call s:hl("Todo",           { "fg": s:blue, "style": s:bold })
-call s:hl("Type",           { "fg": s:blue })
+call s:hl("Type",           { "fg": s:cyan })
 call s:hl("Underlined",     { "style": s:underline })
 call s:hl("VertSplit",      { "fg": s:gray })
 call s:hl("WarningMsg",     { "fg": s:yellow })
@@ -111,7 +112,7 @@ call s:hl("WildMenu",       { "fg": s:black, "bg": s:yellow, "style": s:bold })
 call s:hl("diffAdded",      { "fg": s:green })
 call s:hl("diffRemoved",    { "fg": s:red })
 call s:hl("diffSubname",    { "fg": s:blue })
-call s:hl("LineNr",         { "fg": s:gray })
+call s:hl("LineNr",         { "fg": s:lgray })
 call s:hl("CursorLineNr",   { "fg": s:yellow })
 call s:hl("SignColumn",     {  })
 call s:hl("IncSearch",      { "bg": s:brown })
