@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 set -eu
 
@@ -38,42 +38,39 @@ link() {
             awk -v d="$dev" '
                 /Hardware Port: Wi-Fi/ { getline; if ($2 == d) ok = 1 }
                 END { exit !ok }'; then 
-                echo wifi
+                echo "#[fg=blue]WIFI#[default] | "
             else 
-                echo eth
+                echo "#[fg=cyan]WIFI#[default] | "
         fi
         ;;
     *)
         dev="$(ip route show default 2>/dev/null | awk '{ print $5; exit }')"
         [ -n "${dev:-}" ] || return 0
         if [ -d "/sys/class/net/$dev/wireless" ]; then 
-            echo wifi
-        else
-            echo eth
+            echo "#[fg=blue]WIFI#[default] | "
+        else 
+            echo "#[fg=cyan]WIFI#[default] | "
         fi
         ;;
     esac
 }
 
-out=""
-
-case "$(link || true)" in
-    wifi) out=" 󰖩  | " ;;
-    eth)  out=" 󰈀  | " ;;
-esac
+out="$(link)"
 
 set -- $(battery || true)
 if [ "$#" -ge 1 ]; then
     pct="$1"
     ac="${2:-}"
     if [ "$pct" -le 20 ]; then
-        color="red"
+        color="#[fg=red]"
     elif [ "$pct" -le 50 ]; then
-        color="yellow"
+        color="#[fg=yellow]"
     else
-        color="green"
+        color="#[fg=green]"
     fi
-    out="$out 󰁹 ${pct}%${ac} | "
+    out="$out${color}BAT ${pct}%${ac}#[default] | "
 fi
 
-printf '%s' "$out"
+echo 
+
+printf "%s" "$out"
