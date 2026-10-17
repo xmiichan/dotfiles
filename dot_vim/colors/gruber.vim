@@ -7,21 +7,28 @@ endif
 set background=dark
 let g:colors_name = "gruber"
 
-let s:black  = ["#1c1c1c", "234"]
-let s:blue   = ["#87afd7", "110"]
-let s:brown  = ["#af875f", "137"]
-let s:cyan   = ["#9fa99f", "151"]
-let s:gray   = ["#262626", "235"]
-let s:lgray  = ["#5c5f63", "235"]
-let s:green  = ["#87d75f", "113"]
-let s:red    = ["#ff5f5f", "203"]
-let s:white  = ["#e4e4e4", "254"]
-let s:yellow = ["#ffd700", "220"]
+let s:black  = ["#1C1C1C", "234"]
+let s:blue   = ["#96A6C8", "110"]
+let s:brown  = ["#AF875F", "137"]
+let s:cyan   = ["#9FA99F", "151"]
+let s:gray   = ["#333333", "235"]
+let s:lgray  = ["#453D41", "235"]
+let s:green  = ["#87D75F", "113"]
+let s:red    = ["#FF5F5F", "203"]
+let s:white  = ["#E4E4E4", "254"]
+let s:yellow = ["#FFDD33", "220"]
 
 let s:bold      = "bold"
 let s:italic    = "italic"
 let s:underline = "underline"
 let s:undercurl = "undercurl"
+
+let g:terminal_ansi_colors = [
+    \ '#333333', '#F43841', '#73D936', '#FFDD33',
+    \ '#96A6C8', '#9E95C7', '#95A99F', '#E4E4E4',
+    \ '#453D41', '#F43841', '#73D936', '#FFDD33',
+    \ '#96A6C8', '#9E95C7', '#95A99F', '#FFFFFF',
+    \ ]
 
 function! s:hl(group, attrs) abort
     if has_key(a:attrs, "fg")
@@ -85,6 +92,10 @@ call s:hl("MoreMsg",        { "fg": s:green })
 call s:hl("NonText",        { "fg": s:blue })
 call s:hl("Normal",         { "fg": s:white })
 call s:hl("Pmenu",          { "fg": s:white })
+call s:hl("PmenuKind",      { "fg": s:cyan })
+call s:hl("PmenuExtra",     { "fg": s:lgray })
+call s:hl("PmenuBorder",    { "fg": s:lgray })
+call s:hl("Pmenu",          { "fg": s:white })
 call s:hl("PmenuSbar",      { "bg": s:gray })
 call s:hl("PmenuSel",       { "bg": s:gray, "style": s:bold })
 call s:hl("PmenuThumb",     { "bg": s:lgray })
@@ -94,13 +105,11 @@ call s:hl("Special",        { "fg": s:white })
 call s:hl("SpecialChar",    { "fg": s:cyan })
 call s:hl("SpecialComment", { "fg": s:brown })
 call s:hl("SpecialKey",     { "fg": s:blue })
-call s:hl("SpellBad",       { "fg": s:red, "style": s:underline })
-call s:hl("SpellCap",       { "fg": s:blue, "style": s:underline })
-call s:hl("SpellLocal",     { "fg": s:yellow, "style": s:underline })
-call s:hl("SpellRare",      { "style": s:underline })
 call s:hl("Statement",      { "fg": s:yellow, "style": s:bold })
-call s:hl("StatusLine",     { "fg": s:white, "bg": s:gray, "style": s:bold })
-call s:hl("StatusLineNC",   { "fg": s:white, "bg": s:gray })
+call s:hl("StatusLine",     { "fg": s:white, "bg": s:black })
+call s:hl("StatusLineNC",   { "fg": s:lgray, "bg": s:black })
+call s:hl("User1",          { "fg": s:brown, "bg": s:black, "style": s:bold })
+call s:hl("User2",          { "fg": s:white, "bg": s:black, "style": s:bold })
 call s:hl("String",         { "fg": s:green })
 call s:hl("Title",          { "fg": s:white })
 call s:hl("Todo",           { "fg": s:blue, "style": s:bold })
@@ -114,9 +123,10 @@ call s:hl("diffRemoved",    { "fg": s:red })
 call s:hl("diffSubname",    { "fg": s:blue })
 call s:hl("LineNr",         { "fg": s:lgray })
 call s:hl("CursorLineNr",   { "fg": s:yellow })
-call s:hl("SignColumn",     {  })
-call s:hl("IncSearch",      { "bg": s:brown })
+call s:hl("SignColumn",     { })
+call s:hl("Search",         { "fg": s:black, "bg": s:brown })
+call s:hl("IncSearch",      { "fg": s:black, "bg": s:yellow })
 call s:hl("SpellBad",       { "style": s:undercurl, "special": s:red })
 call s:hl("SpellCap",       { "style": s:undercurl, "special": s:blue })
 call s:hl("SpellLocal",     { "style": s:undercurl, "special": s:green })
-call s:hl("SpellRare",     { "style": s:undercurl, "special": s:cyan })
+call s:hl("SpellRare",      { "style": s:undercurl, "special": s:cyan })

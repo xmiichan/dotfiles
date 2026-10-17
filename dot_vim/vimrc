@@ -17,7 +17,9 @@ set hidden                     " allow hiding unsaved buffers
 set number                     " line numbers
 set nobackup                   " get rid of anoying ~files
 set autoread                   " automatically reload files that have been changed
-set hlsearch                   " highlight search results
+if !&hlsearch
+    set hlsearch               " highlight search results
+endif
 set incsearch                  " ... while typing
 set nowrapscan                 " don't wrap around when searching
 set ruler                      " show current position
@@ -212,7 +214,7 @@ vnoremap <leader>p "+p
 vnoremap <leader>P "+P
 
 " re-source vimrc
-nnoremap <leader>x :update<cr>:source $MYVIMRC<cr>
+nnoremap <leader>x <cmd>update <bar> source $MYVIMRC<cr>
 
 " quick bol/eol
 noremap H ^
@@ -259,28 +261,6 @@ nnoremap <leader>sv :vsplit<cr>
 
 " split style
 set fillchars+=vert:│
-
-" color scheme
-function! s:set_colors() abort
-    hi Normal guibg=NONE ctermbg=NONE
-    if exists('+pumborder')
-        " clear popup bg if borders are available
-        for l:group in ['Pmenu', 'PmenuKind', 'PmenuExtra', 'PmenuBorder']
-            execute 'hi' l:group 'guibg=NONE ctermbg=NONE'
-        endfor
-    endif
-    hi SpellBad   cterm=undercurl ctermfg=NONE ctermbg=NONE
-    hi SpellCap   cterm=undercurl ctermfg=NONE ctermbg=NONE
-    hi SpellLocal cterm=undercurl ctermfg=NONE ctermbg=NONE
-    hi SpellRare  cterm=undercurl ctermfg=NONE ctermbg=NONE
-    hi VertSplit  ctermbg=NONE
-    hi User1      ctermfg=3 guifg=orange
-endfunction
-
-augroup colorscheme_change
-    autocmd!
-    autocmd ColorScheme * call s:set_colors()
-augroup END
 
 silent! colorscheme default
 set bg=dark

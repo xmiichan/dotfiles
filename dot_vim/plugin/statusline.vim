@@ -6,7 +6,7 @@ endfunction
 
 let &statusline = '%1*'
     \ . "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)"
-    \ . '%* ‹‹ %t%r%w%m%* ›› '
+    \ . '%2* ‹‹ %t%r%w%m%* ›› %*'
     \ . "%{FugitiveStatusline()}"
     \ . '%=%{toupper(&ft)}%*'
     \ . "%{&spell?'/SPELL':''}"
