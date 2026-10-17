@@ -8,7 +8,8 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_CACHE_HOME="$HOME/.cache"
 export XDG_DATA_HOME="$HOME/.local/share"
 export XDG_STATE_HOME="$HOME/.local/state"
-export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$TMPDIR}"
+XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-$TMPDIR%/}"
+export XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR%/}
 export QT_QPA_PLATFORMTHEME=qt5ct
 export DOTFILES="$HOME/.dotfiles"
 export LESS="-R"
@@ -23,8 +24,12 @@ export FZF_DEFAULT_OPTS=" \
 --color=hl+:3,prompt:3,pointer:1,spinner:3 \
 --color=info:5,marker:6,header:7,border:7"
 
+# Sockets
 [[ -S "$XDG_RUNTIME_DIR/ssh-agent.socket" ]] &&
       export SSH_AUTH_SOCK="$XDG_RUNTIME_DIR/ssh-agent.socket"
+
+[[ -S "$XDG_RUNTIME_DIR/mpd.socket" ]] &&
+      export MPD_HOST="$XDG_RUNTIME_DIR/mpd.socket"
 
 # Perl
 PERLDIR="$HOME/.local/perl5"
