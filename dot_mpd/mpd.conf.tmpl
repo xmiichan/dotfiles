@@ -25,6 +25,8 @@ audio_output {
 {{- end }}
 }
 
+bind_to_address "{{ env "XDG_RUNTIME_DIR" | trimSuffix "/" }}/mpd.socket"
+
 bind_to_address "127.0.0.1"
 port "6600"
 
