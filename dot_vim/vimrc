@@ -208,10 +208,10 @@ nnoremap <leader>y "+y
 nmap <leader>Y "+Y
 nnoremap <leader>p "+p
 nnoremap <leader>P "+P
-vnoremap <leader>y "+y
-vmap <leader>Y "+Y
-vnoremap <leader>p "+p
-vnoremap <leader>P "+P
+xnoremap <leader>y "+y
+xmap <leader>Y "+Y
+xnoremap <leader>p "+p
+xnoremap <leader>P "+P
 
 " re-source vimrc
 nnoremap <leader>x <cmd>update <bar> source $MYVIMRC<cr>
