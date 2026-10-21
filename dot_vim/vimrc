@@ -52,7 +52,7 @@ set breakindent                " wrapped lines keep indent
 set confirm                    " prompt to save on :q/:e
 set virtualedit=block,onemore  " select past EOL in block mode
 set title                      " set terminal title
-set noerrorbells visualbell    " no annoying bells
+set noerrorbells novisualbell  " no annoying bells
 
 " folding
 set foldmethod=indent 
