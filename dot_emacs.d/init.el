@@ -1,6 +1,5 @@
 ;; -*- lexical-binding: t; -*-
 
-
 (setq warning-suppress-log-types '((files missing-lexbind-cookie)))
 
 ;; setup package management
@@ -39,6 +38,11 @@
   :config
   (exec-path-from-shell-initialize))
 
+(let ((mise-shims (expand-file-name "~/.local/share/mise/shims")))
+  (when (file-directory-p mise-shims) 
+    (setenv "PATH" (concat mise-shims path-separator (getenv "PATH")))
+    (add-to-list 'exec-path mise-shims)))
+
 ;; start server if not running
 (require 'server)
 (setq server-socket-dir
@@ -60,8 +64,7 @@
 (menu-bar-mode -1)
 (scroll-bar-mode -1)
 
-(setq mode-line-collapse-minor-modes
-      '(anzu-mode eldoc-mode which-key-mode))
+(setq mode-line-collapse-minor-modes nil)
 
 ;; fonts and theme
 (setq default-frame-alist
@@ -97,6 +100,24 @@
 	      (let ((buffer-quit-function (or buffer-quit-function #'ignore)))
 		(funcall orig))))
 
+(defun my/keyboard-quit-dwim ()
+  "Smarter `keyboard-quit'. Stolen from Prot.
+- When the region is active, disable it.
+- When a minibuffer is open, but not focused, close the minibuffer.
+- When the Completions buffer is selected, close it.
+- In every other case use the regular `keyboard-quit'."
+  (interactive)
+  (cond
+   ((region-active-p)
+    (keyboard-quit))
+   ((derived-mode-p 'completion-list-mode)
+    (delete-completion-window))
+   ((> (minibuffer-depth) 0)
+    (abort-recursive-edit))
+   (t
+    (keyboard-quit))))
+(global-set-key [remap keyboard-quit] #'my/keyboard-quit-dwim)
+
 ;; qol settings
 (advice-add #'yes-or-no-p :override #'y-or-n-p)
 (dolist (hook '(prog-mode-hook text-mode-hook conf-mode-hook))
@@ -107,6 +128,11 @@
 (global-auto-revert-mode 1)
 (which-key-mode 1)
 (repeat-mode 1)
+
+(setq dired-create-destination-dirs 'ask
+      dired-create-destination-dirs-on-trailing-dirsep t
+      dired-isearch-filenames 'dwim
+      wdired-allow-to-change-permissions t)
 
 (keymap-global-set "C-x C-b" #'ibuffer)
 (setq ibuffer-saved-filter-groups
@@ -136,9 +162,16 @@
 (dolist (hook '(rust-ts-mode-hook
                 typescript-ts-mode-hook tsx-ts-mode-hook
                 c-mode-hook c-ts-mode-hook c++-mode-hook c++-ts-mode-hook
-                sh-mode-hook bash-ts-mode-hook))
+                sh-mode-hook bash-ts-mode-hook
+		ruby-ts-mode-hook))
   (add-hook hook #'eglot-ensure))
 (setq flymake-show-diagnostics-at-end-of-line 'short)
+
+(global-set-key (kbd "C-c l a") #'eglot-code-actions)
+(global-set-key (kbd "C-c l r") #'eglot-rename)
+(global-set-key (kbd "C-c l h") #'eldoc)
+(global-set-key (kbd "C-c l f") #'eglot-format)
+(global-set-key (kbd "C-c l F") #'eglot-format-buffer)
 
 ;; useful packages
 (use-package vertico
@@ -219,6 +252,15 @@
   :ensure t
   :bind
   (("C-x g" . #'magit)))
+
+(use-package git-gutter
+  :ensure t
+  :config
+  (git-gutter-mode +1)
+  :custom
+  (git-gutter:added-sign "│")
+  (git-gutter:modified-sign "│")
+  (git-gutter:deleted-sign "-"))
 
 (use-package avy
   :ensure t
