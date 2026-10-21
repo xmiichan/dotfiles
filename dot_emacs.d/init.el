@@ -4,6 +4,7 @@
 (setq warning-suppress-log-types '((files missing-lexbind-cookie)))
 
 ;; setup package management
+(package-initialize)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (unless package-archive-contents
   (package-refresh-contents))
@@ -126,6 +127,18 @@
   :ensure t
   :config
   (project-tab-groups-mode 1))
+
+;; treesitter
+(setopt treesit-enabled-modes t)
+(setq treesit-auto-install-grammar 'ask)
+
+;; lsp
+(dolist (hook '(rust-ts-mode-hook
+                typescript-ts-mode-hook tsx-ts-mode-hook
+                c-mode-hook c-ts-mode-hook c++-mode-hook c++-ts-mode-hook
+                sh-mode-hook bash-ts-mode-hook))
+  (add-hook hook #'eglot-ensure))
+(setq flymake-show-diagnostics-at-end-of-line 'short)
 
 ;; useful packages
 (use-package vertico
