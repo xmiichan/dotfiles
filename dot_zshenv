@@ -18,10 +18,6 @@ export EDITOR=vi
 export LYNX_CFG="$XDG_CONFIG_HOME/lynx/lynx.cfg"
 export LYNX_LSS="$XDG_CONFIG_HOME/lynx/lynx.lss"
 export _Z_DATA="$XDG_DATA_HOME/z"
-export FZF_DEFAULT_OPTS=" \
---color=fg:-1,bg:-1,gutter:0,hl:3,fg+:15,bg+:8 \
---color=hl+:3,prompt:3,pointer:1,spinner:3 \
---color=info:5,marker:6,header:7,border:7"
 
 # Sockets
 [[ -S "$XDG_RUNTIME_DIR/ssh-agent.socket" ]] &&

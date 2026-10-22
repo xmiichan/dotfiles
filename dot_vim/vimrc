@@ -104,13 +104,10 @@ set viewoptions-=options
 
 " skip on console ...
 if &term !~# '^linux'
-    " true color
-    set termguicolors
-    let &t_8f = "\e[38;2;%lu;%lu;%lum"
-    let &t_8b = "\e[48;2;%lu;%lu;%lum"
     " undercurl support
     let &t_Cs = "\e[4:3m"
     let &t_Ce = "\e[4:0m"
+    let &t_AU = "\e[58;5;%dm"
     " bar cursor in insert mode
     let &t_SI = "\e[6 q"
     let &t_EI = "\e[2 q"
@@ -262,7 +259,7 @@ nnoremap <leader>sv :vsplit<cr>
 " split style
 set fillchars+=vert:│
 
-silent! colorscheme default
+silent! colorscheme tron-legacy
 set bg=dark
 
 " strip autowrap in diffs
@@ -318,7 +315,8 @@ function! s:HighlightYank()
         endfor
         let l:match = matchaddpos('IncSearch', l:lines)
     endif
-    call timer_start(200, {-> matchdelete(l:match)})
+    let l:win = win_getid()
+    call timer_start(200, {-> matchdelete(l:match, l:win)})
 endfunction
 
 " PLUGINS
@@ -350,17 +348,19 @@ Plug 'tpope/vim-endwise'
 Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-vinegar'
 Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-obsession'
 Plug 'airblade/vim-rooter'
 Plug 'airblade/vim-gitgutter'
 Plug 'whiteinge/diffconflicts'
+Plug 'markonm/traces.vim'
 Plug 'cohama/lexima.vim'
 Plug 'easymotion/vim-easymotion'
-Plug 'mattn/emmet-vim'
+Plug 'alker0/chezmoi.vim'
+Plug 'sheerun/vim-polyglot'
 Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
 Plug 'junegunn/fzf.vim'
 Plug 'junegunn/goyo.vim'
 Plug 'junegunn/limelight.vim'
-Plug 'voldikss/vim-floaterm'
 Plug 'prabirshrestha/vim-lsp'
 Plug 'mattn/vim-lsp-settings'
 Plug 'prabirshrestha/async.vim'
@@ -368,8 +368,6 @@ Plug 'prabirshrestha/asyncomplete.vim'
 Plug 'prabirshrestha/asyncomplete-lsp.vim'
 Plug 'prabirshrestha/asyncomplete-buffer.vim'
 Plug 'prabirshrestha/asyncomplete-file.vim'
-Plug 'alker0/chezmoi.vim'
-Plug 'sheerun/vim-polyglot'
 call plug#end()
 
 augroup plug_install
@@ -383,8 +381,6 @@ augroup END
 " copy and comment at the same time
 nmap yc yygccp
 xmap Y ygvgc`>p
-
-silent! colorscheme gruber
 
 " rooter
 let g:rooter_resolve_links = 1
@@ -446,8 +442,14 @@ let g:fzf_action = {
     \ }
 
 function! s:GitFilesOrFiles() abort
-    call system('git rev-parse --is-inside-work-tree')
-    execute v:shell_error ? 'Files' : 'GFiles'
+    let l:dir = fnamemodify(resolve(expand('%:p')), ':h')
+    let l:root = trim(system('git -C ' . shellescape(l:dir)
+        \ . ' rev-parse --show-toplevel 2>/dev/null'))
+    if v:shell_error
+        Files
+    else
+        call fzf#vim#gitfiles('', fzf#vim#with_preview({'dir': l:root}))
+    endif
 endfunction
 
 nnoremap <silent> <leader>f :call <SID>GitFilesOrFiles()<cr>
@@ -469,10 +471,10 @@ let g:lsp_settings = {
     \ }
 let g:lsp_diagnostics_float_cursor = 1
 let g:lsp_diagnostics_signs_priority = 20
-let g:lsp_diagnostics_signs_error = {'text': 'E'}
-let g:lsp_diagnostics_signs_warning = {'text': 'W'}
-let g:lsp_diagnostics_signs_information = {'text': 'I'}
-let g:lsp_diagnostics_signs_hint = {'text': 'H'}
+let g:lsp_diagnostics_signs_error = {'text': '✖'}
+let g:lsp_diagnostics_signs_warning = {'text': '!'}
+let g:lsp_diagnostics_signs_information = {'text': 'i'}
+let g:lsp_diagnostics_signs_hint = {'text': '›'}
 let g:lsp_document_code_action_signs_priority = 15
 let g:lsp_document_code_action_signs_hint = {'text': 'A'}
 let g:lsp_popup_highlight = 'Normal'
@@ -496,17 +498,6 @@ augroup lsp_maps
     autocmd!
     autocmd User lsp_buffer_enabled call s:LspMaps()
 augroup END
-
-" floaterm
-execute "set <M-o>=\<Esc>o"
-execute "set <M-c>=\<Esc>c"
-execute "set <M-q>=\<Esc>q"
-let g:floaterm_keymap_toggle = '<M-o>'
-let g:floaterm_keymap_new = '<M-c>'
-let g:floaterm_keymap_kill = '<M-q>'
-" vim-rsi maps M-n/M-p as <F32> / <F33>, we can reuse this
-let g:floaterm_keymap_next = '<F32>'
-let g:floaterm_keymap_prev = '<F33>'
 
 " asyncomplete
 if exists('+autocomplete')

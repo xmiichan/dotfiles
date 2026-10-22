@@ -40,7 +40,7 @@ link() {
                 END { exit !ok }'; then 
                 echo "#[fg=blue]WIFI#[default] | "
             else 
-                echo "#[fg=cyan]WIFI#[default] | "
+                echo "#[fg=cyan]ETH#[default] | "
         fi
         ;;
     *)
@@ -49,7 +49,7 @@ link() {
         if [ -d "/sys/class/net/$dev/wireless" ]; then 
             echo "#[fg=blue]WIFI#[default] | "
         else 
-            echo "#[fg=cyan]WIFI#[default] | "
+            echo "#[fg=cyan]ETH#[default] | "
         fi
         ;;
     esac

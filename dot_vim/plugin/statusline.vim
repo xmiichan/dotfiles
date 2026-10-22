@@ -6,9 +6,10 @@ endfunction
 
 let &statusline = '%1*'
     \ . "%(%{&filetype!='help'?'  '.bufnr('%'):''} %)"
-    \ . '%2* ‹‹ %t%r%w%m%* ›› %*'
+    \ . '%2* ‹‹ %t%r%w%m ›› %*  '
     \ . "%{FugitiveStatusline()}"
+    \ . "%{ObsessionStatus()}"
     \ . '%=%{toupper(&ft)}%*'
     \ . "%{&spell?'/SPELL':''}"
     \ . '%{StatuslineLsp()}'
-    \ . '  %1* ‹‹ %2l:%02v :: %2P ›› '
+    \ . '  %3* ‹‹ %2l:%02v :: %2P ›› '
