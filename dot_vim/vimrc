@@ -476,7 +476,7 @@ let g:lsp_diagnostics_signs_warning = {'text': '!'}
 let g:lsp_diagnostics_signs_information = {'text': 'i'}
 let g:lsp_diagnostics_signs_hint = {'text': '›'}
 let g:lsp_document_code_action_signs_priority = 15
-let g:lsp_document_code_action_signs_hint = {'text': 'A'}
+let g:lsp_document_code_action_signs_hint = {'text': '›'}
 let g:lsp_popup_highlight = 'Normal'
 let g:lsp_popup_borderchars = ['─', '│', '─', '│', '╭', '╮', '╯', '╰']
 

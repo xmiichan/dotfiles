@@ -1,9 +1,13 @@
-" tron-legacy theme for Vim 8+
+" tron-legacy theme for Vim 8+ by mii
+" optmized for 256color terms, set notermguicolors
 "
 " based the Emacs theme by ianyepan
 " <https:/github.com/ianyepan/tron-legacy-emacs-theme>
 
 highlight clear
+
+" back out if terminal has no 256color support, so it won't break in the
+" linux console, you just get no colors
 if &t_Co < 256 | finish | endif
 
 if exists("syntax_on")
@@ -13,6 +17,7 @@ endif
 set background=dark
 let g:colors_name = "tron-legacy"
 
+" define colors
 let s:bg0          = 16
 let s:bg2          = 234
 let s:bg3          = 236
@@ -31,15 +36,17 @@ let s:func         = 179
 let s:warning      = 211
 let s:red          = 125
 let s:lightblue    = 153
-let s:mode_bg      = 24
-let s:mode_bg_dark = 234
+let s:stline       = 24
+let s:stline_dark  = 234
 let s:green_bg     = 235
 let s:red_bg       = 234
 let s:blue_bg      = 17
 let s:blue_bghl    = 17
 
+" undercurl if supported, fall back to underline otherwise
 let s:curl = empty(&t_Cs) ? 'underline' : 'undercurl'
 
+" helper function to set everthing b/c i'm lazy
 function! s:hi(group, opts = {}) abort
     let l:ul = has_key(a:opts, "ul") ? " ctermul=" . a:opts.ul : ""
     execute printf("highlight %s ctermfg=%s ctermbg=%s cterm=%s%s",
@@ -52,6 +59,7 @@ endfunction
 
 call s:hi("Normal",     { "fg": s:fg1, "bg": s:bg0 })
 call s:hi("Comment",    { "fg": s:comment, "attr": "italic" })
+call s:hi("Conceal",    { "fg": s:comment })
 call s:hi("Constant",   { "fg": s:const })
 call s:hi("String",     { "fg": s:str })
 call s:hi("Number",     { "fg": s:type })
@@ -87,11 +95,11 @@ call s:hi("Title",        { "fg": s:type, "attr": "bold" })
 call s:hi("ErrorMsg",     { "fg": s:warning })
 call s:hi("WarningMsg",   { "fg": s:func })
 
-call s:hi("StatusLine",   { "fg": s:fg4, "bg": s:mode_bg })
-call s:hi("StatusLineNC", { "fg": s:fg0, "bg": s:mode_bg_dark })
-call s:hi("User1",        { "fg": s:fg4, "bg": s:mode_bg, "attr": "bold" })
-call s:hi("User2",        { "fg": s:fg4, "bg": s:mode_bg_dark, "attr": "bold" })
-call s:hi("User3",        { "fg": s:fg4, "bg": s:mode_bg_dark })
+call s:hi("StatusLine",   { "fg": s:fg4, "bg": s:stline })
+call s:hi("StatusLineNC", { "fg": s:fg0, "bg": s:stline_dark })
+call s:hi("User1",        { "fg": s:fg4, "bg": s:stline, "attr": "bold" })
+call s:hi("User2",        { "fg": s:fg4, "bg": s:stline_dark, "attr": "bold" })
+call s:hi("User3",        { "fg": s:fg4, "bg": s:stline_dark })
 
 call s:hi("TabLine",     { "bg": s:bg2 })
 call s:hi("TabLineFill", { "bg": s:bg2 })
