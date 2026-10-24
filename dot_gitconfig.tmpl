@@ -4,12 +4,16 @@
 [user]
 	email = {{ .gitEmail | quote }}
 	name = {{ .gitName | quote }}
+	signingkey = {{ .gpgKey | quote }}
 
 [core]
 	excludesfile = ~/.gitignore_global
 	attributesFile = ~/.gitattributes
 	abbrev = 4
 	pager = less -FRX
+
+[commit]
+	gpgsign = true
 
 [pretty]
 	log = format:%C(magenta)%h%C(reset) %C(yellow)%ae%C(reset) %C(cyan)%ad%C(reset)%C(auto)%d%C(reset)%n%s
