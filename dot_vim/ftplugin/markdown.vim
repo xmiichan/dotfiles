@@ -2,6 +2,10 @@ setlocal textwidth=80
 setlocal formatoptions+=ta
 setlocal spell
 setlocal complete+=kspell
+setlocal conceallevel=2
+if exists('+autocomplete')
+    setlocal noautocomplete
+endif
 
 " break undo after punctuation
 for ch in ['.', '!', '?', ',', ';', ':']

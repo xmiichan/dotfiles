@@ -12,4 +12,5 @@ let &statusline = '%1*'
     \ . '%=%{toupper(&ft)}%*'
     \ . "%{&spell?'/SPELL':''}"
     \ . '%{StatuslineLsp()}'
+    \ . "%{&l:fo=~#'a'?'/AUTOFMT':''}"
     \ . '  %3* ‹‹ %2l:%02v :: %2P ›› '

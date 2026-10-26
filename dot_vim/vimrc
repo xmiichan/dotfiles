@@ -280,29 +280,13 @@ if exists('##DiffUpdated')
     augroup END
 endif
 
-" filetype settings
-function! s:Prose() abort
-    setlocal textwidth=80 formatoptions+=ta spell complete+=kspell
-    if exists('+autocomplete')
-        setlocal noautocomplete
-    endif
-    for l:ch in ['.', '!', '?', ',', ';', ':']
-        execute 'inoremap <buffer> ' . l:ch . ' ' . l:ch . '<C-g>u'
-    endfor
-endfunction
-augroup filetype_settings
-    autocmd!
-    autocmd FileType markdown,text call s:Prose()
-    autocmd FileType markdown setlocal conceallevel=2
-    autocmd FileType mail setlocal textwidth=72 formatoptions+=w
-        \ formatoptions-=t nojoinspaces
-augroup END
+" text formatting and spelling
+nnoremap <silent> <leader>ts :set spell!<cr>
+nnoremap <silent> <leader>ta <cmd>let &l:fo = &l:fo =~# 'a'
+    \ ? substitute(&l:fo, 'a', '', 'g') : &l:fo . 'a'
+    \ <bar> silent setlocal fo?<cr>
 
 " highlight yanked text
-augroup highlight_yank
-    autocmd!
-    autocmd TextYankPost * call s:HighlightYank()
-augroup END
 function! s:HighlightYank()
     let l:start = getpos("'[")
     let l:end = getpos("']")
@@ -318,6 +302,11 @@ function! s:HighlightYank()
     let l:win = win_getid()
     call timer_start(200, {-> matchdelete(l:match, l:win)})
 endfunction
+
+augroup highlight_yank
+    autocmd!
+    autocmd TextYankPost * call s:HighlightYank()
+augroup END
 
 " PLUGINS
 if exists('g:noplug')
