@@ -74,30 +74,6 @@ augroup foldmethod
     autocmd BufWinEnter * call s:FoldMethod()
 augroup END
 
-" modelinestrict ignores foldlevel in modelines, so apply it from here
-if exists('+modelinestrict')
-    function! s:ModelineFoldLevel() abort
-        if !&modeline || !&modelinestrict || &diff || !empty(&buftype)
-            return
-        endif
-
-        let l:last = line('$')
-        let l:lines = getline(1, &modelines) + getline(max([1, l:last - &modelines + 1]), l:last)
-        for l:text in l:lines
-            let l:level = matchstr(l:text, '\<vim\?:.*\<\%(foldlevel\|fdl\)=\zs\d\+')
-            if l:level !=# ''
-                let &l:foldlevel = str2nr(l:level)
-                return
-            endif
-        endfor
-    endfunction
-
-    augroup modeline_foldlevel
-        autocmd!
-        autocmd BufWinEnter * call s:ModelineFoldLevel()
-    augroup END
-endif
-
 " saving options in session and view files causes more problems than it solves
 set sessionoptions-=options
 set viewoptions-=options
@@ -302,7 +278,6 @@ function! s:HighlightYank()
     let l:win = win_getid()
     call timer_start(200, {-> matchdelete(l:match, l:win)})
 endfunction
-
 augroup highlight_yank
     autocmd!
     autocmd TextYankPost * call s:HighlightYank()

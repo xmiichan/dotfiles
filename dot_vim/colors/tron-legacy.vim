@@ -86,14 +86,21 @@ call s:hi("Search",       { "fg": s:accent, "bg": s:bg4 })
 call s:hi("IncSearch",    { "fg": s:accent, "bg": s:bg4 })
 call s:hi("MatchParen",   { "fg": s:accent, "bg": s:bg4, "attr": "bold" })
 call s:hi("VertSplit",    { "fg": s:fg4 })
-call s:hi("Pmenu",        { "fg": s:fg1 })
-call s:hi("PmenuSel",     { "fg": s:fg1, "bg": s:bg4 })
-call s:hi("PmenuSbar",    { "bg": s:bg2 })
-call s:hi("PmenuThumb",   { "bg": s:bg3 })
 call s:hi("Directory",    { "fg": s:keyword })
 call s:hi("Title",        { "fg": s:type, "attr": "bold" })
 call s:hi("ErrorMsg",     { "fg": s:warning })
 call s:hi("WarningMsg",   { "fg": s:func })
+
+if exists('+pumborder')
+    call s:hi("Pmenu",        { "fg": s:fg1 })
+    call s:hi("PmenuBorder",  { "fg": s:fg1 })
+else
+    call s:hi("Pmenu",        { "fg": s:fg1, "bg": s:bg2 })
+endif
+
+call s:hi("PmenuSel",     { "fg": s:fg1, "bg": s:bg4 })
+call s:hi("PmenuSbar",    { "bg": s:bg2 })
+call s:hi("PmenuThumb",   { "bg": s:bg3 })
 
 call s:hi("StatusLine",   { "fg": s:fg4, "bg": s:stline })
 call s:hi("StatusLineNC", { "fg": s:fg0, "bg": s:stline_dark })
