@@ -6,8 +6,6 @@ firefox/
 LICENSE
 README
 
-key.txt.age
-
 {{ if ne .chezmoi.os "linux" }}
 .config/systemd
 {{ end -}}

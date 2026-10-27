@@ -4,13 +4,12 @@
 {{- $gitName := promptStringOnce . "gitName" "Name used for git" -}}
 {{- $gpgKey := promptStringOnce . "gpgKey" "Key to sign commits" -}}
 
-encryption = "age"
+encryption = "gpg"
 sourceDir = "~/.dotfiles"
 mode = "symlink"
 
-[age]
-    identity = "~/.config/chezmoi/key.txt"
-    recipient = "age1ta5haf4t3nm3xhve5eq5x7uxzjkr7q88w7andnx6etwlmaa7xeqqzf6nqg"
+[gpg]
+    recipient = "9D96A129E9A8E96586B931367E3332CF59441A8E"
 
 [data]
     personal = {{ $personal }}
