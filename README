@@ -1,0 +1,29 @@
+
+                                           ▄
+                             ▄▄   ▄▄ ▄▄ ▄▄ ▀ ▄▄▄▄
+                             ██▀▄▀██ ██ ██  ███▄▄
+                             ██   ██ ██ ██  ▄▄██▀
+                    ▗▄▄▄  ▗▄▖▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖   ▗▄▄▄▖ ▗▄▄▖
+                    ▐▌  █▐▌ ▐▌ █  ▐▌     █  ▐▌   ▐▌   ▐▌
+                    ▐▌  █▐▌ ▐▌ █  ▐▛▀▀▘  █  ▐▌   ▐▛▀▀▘ ▝▀▚▖
+                    ▐▙▄▄▀▝▚▄▞▘ █  ▐▌   ▗▄█▄▖▐▙▄▄▖▐▙▄▄▖▗▄▄▞▘
+
+
+This repo is managed using GNU Stow which allows me to automatically symlink
+everything into place.
+
+If you want to use these files, you have to clone it into ~/.dotfiles, cd into
+there, and then run  stow common linux  if you're on Linux, or  stow common
+macos  if you're on Mac from the folder. After that, .stowrc will be set up for
+you and you can just use  stow  from anywhere and it will use the correct flags.
+
+The options I use are --dotfiles, which will link a filename beginning with dot-
+into an actual dotfile, and --no-folding, which won't link entire folders (so
+files added later to those folders don't end up accidentally in the repo). The
+target is also automatically set to ~, so if you want to stow it to somewhere
+else, you need to specify -t. Similar, if you clone to anywhere other than
+~/.dotfiles, you need to specify -d, or edit common/dot-stowrc.
+
+All files and script are licensed under CC0 / Kopimi <https://kopimi.com/>, so I
+encourage everyone to fork, copy, share, remix, enjoy and have fun with
+everything you see.
