@@ -3,29 +3,54 @@ live_config_reload = true
 
 [colors.primary]
 background = "#000000"
+foreground = "#a8b8c0"
+
+[colors.cursor]
+cursor = "#00f6ff"
+text = "#000000"
+
+[colors.selection]
+background = "#303030"
+text = "#d8d8d8"
+
+[colors.normal]
+black = "#000000"
+red = "#ff7b72"
+green = "#56d6a8"
+yellow = "#ffb365"
+blue = "#7dbefd"
+magenta = "#b39cf5"
+cyan = "#22dde1"
+white = "#a8b8c0"
+
+[colors.bright]
+black = "#41565f"
+red = "#ffa198"
+green = "#7ce6c0"
+yellow = "#ffcb8f"
+blue = "#a5d3ff"
+magenta = "#c9b6ff"
+cyan = "#6ff0f3"
+white = "#d8e4e8"
 
 [window]
 dimensions = { columns = 100, lines = 32 }
-padding = { x = 5, y = 5 }
-decorations = "Full"
+padding = { x = 3, bottom = 2, top = 30 }
+dynamic_padding = true
+decorations = "Transparent"
 decorations_theme_variant = "Dark"
 option_as_alt = "OnlyLeft"
 
 [font]
-normal = { family = "UDEV Gothic NFLG", style = "Regular" }
+normal = { family = "Sarasa Term J", style = "Regular" }
 size = 16
 
 [[hints.enabled]]
 hyperlinks = true
 regex = '''(https?://|ssh://|ftp://|ftps://|mailto:|magnet:|gemini://|gopher://)\S+'''
 command = { program = "open", args = [] }
-binding = { mods = "Command", key = "Period" }
-mouse = { enabled = true, mods = "Command" }
-
-[keyboard]
-bindings = [
-    { key = "W", mods = "Command", chars = "\u0004" },
-]
+binding = { mods = "Control", key = "Period" }
+mouse = { enabled = true, mods = "Shift" }
 
 [mouse]
 hide_when_typing = true
