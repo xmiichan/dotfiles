@@ -1,0 +1,151 @@
+" vim: filetype=vifm :
+
+if executable('vim')
+    set vicmd=vim
+    command! diff vim -d %f %F
+endif
+
+set syscalls
+set trash
+set vifminfo=dhistory,savedirs,chistory,state,tui,tabs,shistory,ehistory,
+            \phistory,fhistory,dirstack,registers,bookmarks,bmarks,mchistory
+set history=100
+set nofollowlinks
+set sortnumbers
+set undolevels=100
+set vimhelp
+set norunexec
+set timefmt='%Y/%m/%d %H:%M'
+set wildmenu
+set wildstyle=popup
+set suggestoptions=normal,visual,view,otherpane,keys,marks,registers
+set ignorecase
+set smartcase
+set nohlsearch
+set incsearch
+set scrolloff=4
+set slowfs=curlftpfs
+set statusline="  Hint: %z%= %A %10u:%-7g %15s %20d  "
+set fillchars=vborder:│
+
+if system("find --version | grep -c 'GNU findutils'") != 0
+    set findprg='find %s %a -print ,
+                \ -type d \( ! -readable -o ! -executable \) -prune'
+endif
+
+set grepprg="grep -n -H -I -r -s %i %a %s"
+
+colorscheme tron-legacy
+
+mark b ~/bin/
+mark h ~/
+
+command! df df -h %m 2> /dev/null
+command! zip zip -r %c.zip %f
+command! run !! ./%f
+command! make !!make %a
+command! mkcd :mkdir %a | cd %a
+command! reload :write | restart full
+
+filetype {*.pdf},<application/pdf> xdg-open, open
+fileviewer {*.pdf},<application/pdf> pdftotext -nopgbrk %c -
+
+filetype {*.ps,*.eps,*.ps.gz},<application/postscript> xdg-open, open
+
+filetype {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
+         \*.aac,*.mpga},<audio/*> xdg-open, open
+fileviewer {*.wav,*.mp3,*.flac,*.m4a,*.wma,*.ape,*.ac3,*.og[agx],*.spx,*.opus,
+           \*.aac,*.mpga},<audio/*> ffprobe -hide_banner -pretty %c 2>&1
+
+filetype {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
+         \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
+         \*.as[fx],*.unknown_video},<video/*> xdg-open, open
+fileviewer {*.avi,*.mp4,*.wmv,*.dat,*.3gp,*.ogv,*.mkv,*.mpg,*.mpeg,*.vob,
+           \*.fl[icv],*.m2v,*.mov,*.webm,*.mts,*.m4v,*.r[am],*.qt,*.divx,
+           \*.as[fx],*.unknown_video},<video/*>
+         \ ffprobe -hide_banner -pretty %c 2>&1
+
+filetype {*.xhtml,*.html,*.htm},<text/html> xdg-open, open
+
+filetype {*.o},<application/x-object> nm %f | less
+
+filetype {*.[1-8]},<text/troff> man ./%c
+fileviewer {*.[1-8]},<text/troff> man ./%c | col -b
+
+filetype {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm},<image/*> xdg-open, open
+if $TMUX == '' && $TERM == 'xterm-kitty'
+    fileviewer {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm},<image/*>
+             \ chafa -f kitty --animate off -s %pwx%ph %c %pd
+             \ %pc
+             \ printf '\033_Ga=d\033\134' >/dev/tty %N
+elseif $TMUX != ''
+     \ && system("tmux display -p '#{client_termname}'") == 'xterm-kitty'
+    fileviewer {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm},<image/*>
+             \ chafa -f kitty --passthrough tmux --animate off
+             \ -s %pwx%ph %c %pd
+             \ %pc
+             \ printf '\033Ptmux;\033\033_Ga=d\033\033\134\033\134'
+             \ >/dev/tty %N
+else
+    fileviewer {*.bmp,*.jpg,*.jpeg,*.png,*.gif,*.xpm},<image/*>
+             \ chafa -f sixels --passthrough none --probe off --animate off
+             \ -s %pwx%ph %c %pd %N
+endif
+
+filetype *.md5 {Check MD5 hash sum} md5sum -c %f %S
+filetype *.sha1 {Check SHA1 hash sum} shasum -c %f %S
+filetype *.sha256 {Check SHA256 hash sum} shasum -a 256 -c %f %S
+filetype *.sha512 {Check SHA512 hash sum} shasum -a 512 -c %f %S
+
+filetype {*.zip},<application/zip,application/java-archive> unzip %f -d %f:r
+fileviewer {*.zip,*.jar,*.war,*.ear},<application/zip,application/java-archive>
+         \ unzip -Z1 %f
+
+filetype {*.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz,*.tar.zst,
+         \*.tzst},<application/x-tar> tar -vxf %f
+fileviewer {*.tar,*.tar.bz2,*.tbz2,*.tgz,*.tar.gz,*.tar.xz,*.txz,*.tar.zst,
+           \*.tzst},<application/x-tar> tar -tf %f
+
+filetype *.bz2 bzip2 -d %f
+filetype *.gz gunzip %f
+
+filetype *.dmg open
+filetype *.img open
+filetype *.pkg open
+
+nnoremap s :shell<cr>
+nnoremap S :sort<cr>
+
+nnoremap w :view<cr>
+vnoremap w :view<cr>gv
+
+if executable('xdg-open')
+    nnoremap gb :!xdg-open %f &<cr>
+else
+    nnoremap gb :!open -g %f<cr>
+endif
+
+nnoremap yd :!printf %d | pbcopy<cr>
+nnoremap yf :!printf %f:p:gs? ?\\ ? | pbcopy<cr>
+
+nnoremap <space> :!qlmanage -p %f > /dev/null 2>&1<cr>
+
+nnoremap I cw<c-a>
+nnoremap cc cw<c-u>
+nnoremap A cw
+
+nnoremap ,c :write | edit $MYVIFMRC | restart full<cr>
+nnoremap ,w :set wrap!<cr>
+
+nnoremap <f3> :!less %f<cr>
+nnoremap <f4> :edit<cr>
+nnoremap <f5> :copy<cr>
+nnoremap <f6> :move<cr>
+nnoremap <f7> :mkdir<space>
+nnoremap <f8> :delete<cr>
+
+nnoremap <a-i> :sync<cr>
+nnoremap <a-o> :sync %c<cr>
+nnoremap <c-u> <c-w>x
+
+source $VIFM/favicons.vifm

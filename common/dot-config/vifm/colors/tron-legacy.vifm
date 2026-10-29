@@ -1,0 +1,26 @@
+highlight clear
+
+highlight Win        cterm=none ctermfg=152     ctermbg=default
+highlight Directory  cterm=none ctermfg=117     ctermbg=default
+highlight Link       cterm=none ctermfg=159     ctermbg=default
+highlight BrokenLink cterm=bold ctermfg=211     ctermbg=default
+highlight Executable cterm=none ctermfg=179     ctermbg=default
+highlight Socket     cterm=none ctermfg=73      ctermbg=default
+highlight Device     cterm=none ctermfg=67      ctermbg=default
+highlight Fifo       cterm=none ctermfg=153     ctermbg=default
+highlight Selected   cterm=bold ctermfg=231     ctermbg=238
+highlight CurrLine   cterm=none ctermfg=default ctermbg=235
+highlight OtherLine  cterm=none ctermfg=default ctermbg=234
+highlight LineNr     cterm=none ctermfg=60      ctermbg=default
+highlight Border     cterm=none ctermfg=195     ctermbg=default
+highlight TopLine    cterm=none ctermfg=109     ctermbg=234
+highlight TopLineSel cterm=bold ctermfg=195     ctermbg=24
+highlight TabLine    cterm=none ctermfg=152     ctermbg=234
+highlight TabLineSel cterm=bold ctermfg=152     ctermbg=238
+highlight StatusLine cterm=none ctermfg=195     ctermbg=24
+highlight CmdLine    cterm=none ctermfg=default ctermbg=default
+highlight ErrorMsg   cterm=none ctermfg=211     ctermbg=default
+highlight WildBox    cterm=none ctermfg=152     ctermbg=234
+highlight WildMenu   cterm=none ctermfg=152     ctermbg=238
+highlight SuggestBox cterm=none ctermfg=152     ctermbg=234
+highlight JobLine    cterm=none ctermfg=179     ctermbg=234

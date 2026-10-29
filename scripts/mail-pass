@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+security find-generic-password -s mail-sync -w 2>/dev/null ||
+    gpg -dq --no-tty "$HOME/.dotfiles/secrets/smtp-pass.gpg"

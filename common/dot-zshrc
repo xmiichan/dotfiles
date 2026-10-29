@@ -1,0 +1,248 @@
+#!/usr/bin/env zsh
+
+# Basics
+bindkey -e
+
+# Utility functions
+_have() { type "$1" &>/dev/null; }
+_source_if() { [[ -r "$1" ]] && source "$1" || return 0; }
+
+# Fix an issue with gpg signing
+export GPG_TTY="$TTY"
+
+# Save mail gpg key to keychain
+_have keychain && keychain --quiet add "gpge:$("$DOTFILES"/scripts/mail-user)"
+
+# When using macOS (brew) add the right paths so completion works as expected
+if _have brew; then
+    export fpath=(
+        ${HOMEBREW_PREFIX}/share/zsh/site-functions
+        ${HOMEBREW_PREFIX}/share/zsh-completions
+        ${XDG_DATA_HOME}/zsh/completions
+        $fpath
+    )
+    export SHELL_COMPLETIONS_DIR="${HOMEBREW_PREFIX}/share/zsh-completions"
+fi
+
+# Plugins
+Z_PLUGIN_DIR="$HOME/.local/share/zsh"
+
+## User completions
+fpath+=("${Z_PLUGIN_DIR}/user-completions")
+
+if [[ ! -e "$Z_PLUGIN_DIR/zsh-completions" ]]; then
+    git clone https://github.com/zsh-users/zsh-completions \
+        "$Z_PLUGIN_DIR/zsh-completions"
+fi
+
+if [[ ! -e "$Z_PLUGIN_DIR/zsh-autosuggestions" ]]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions \
+        "$Z_PLUGIN_DIR/zsh-autosuggestions"
+fi
+
+if [[ ! -e "$Z_PLUGIN_DIR/z.d" ]]; then
+    git clone https://github.com/rupa/z \
+        "$Z_PLUGIN_DIR/z.d"
+fi
+source "$Z_PLUGIN_DIR/z.d/z.sh"
+
+# Modules and autoloads
+zmodload -i zsh/complist
+autoload -Uz vcs_info
+autoload -Uz add-zsh-hook
+autoload -U select-word-style
+autoload -z edit-command-line
+## quick command editing
+zle -N edit-command-line
+bindkey "^X^E" edit-command-line
+## M-? to run-help on current line
+bindkey '^[?' run-help
+autoload -Uz url-quote-magic bracketed-paste-magic
+## auto-escape stuff in URLs
+zle -N self-insert url-quote-magic
+zle -N bracketed-paste bracketed-paste-magic
+## incremental history search
+history-incremental-search-{back,for}ward() zle .$WIDGET -- $BUFFER
+zle -N history-incremental-search-backward
+zle -N history-incremental-search-forward
+bindkey "^R" history-incremental-pattern-search-backward
+bindkey '^[r' history-incremental-pattern-search-forward
+
+select-word-style bash
+
+# help
+unalias run-help 2>/dev/null
+autoload -Uz run-help
+
+typeset -ga HELPDIR_CANDIDATES=(
+    "/usr/share/zsh/$ZSH_VERSION/help"
+    "/usr/share/zsh/help"
+    "/usr/local/share/zsh/help"
+    "/opt/homebrew/share/zsh/help"
+    "/opt/local/share/zsh/help"
+    "${HOMEBREW_PREFIX:+$HOMEBREW_PREFIX/share/zsh/help}"
+)
+for d in $HELPDIR_CANDIDATES; do
+    [[ -n "$d" && -d "$d" ]] && { HELPDIR=$d; break; }
+done
+unset HELPDIR_CANDIDATES
+
+alias help=run-help
+
+# Don't eat space after TAB followed by & or |
+ZLE_SPACE_SUFFIX_CHARS=$'&|'
+
+# Eat space after TAB followed by ), etc.
+ZLE_REMOVE_SUFFIX_CHARS=$' \t\n;)'
+
+# History config
+histsize=100000
+histfile=~/.cache/zsh/history
+savehist=100000
+setopt sharehistory
+setopt hist_ignore_space
+setopt hist_ignore_all_dups
+setopt hist_find_no_dups
+
+# Options
+unsetopt listbeep
+setopt extended_glob
+setopt prompt_subst
+setopt transient_rprompt
+setopt auto_pushd
+setopt interactive_comments
+setopt correct
+setopt noclobber
+
+add-zsh-hook precmd vcs_info
+
+# cache
+export ZSH_CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+ZSH_COMPDUMP="$ZSH_CACHE_DIR/zcompdump-${ZSH_VERSION}"
+
+autoload -Uz compinit
+_comp_files=($ZSH_COMPDUMP(N.mh-24))
+if (( $#_comp_files )); then
+    compinit -C -d "$ZSH_COMPDUMP"
+else
+    compinit -u -d "$ZSH_COMPDUMP"
+fi
+
+# completions
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path "$ZSH_CACHE_DIR/zcompcache"
+## disable sort when completing `git checkout`
+zstyle ':completion:*:git-checkout:*' sort false
+## set descriptions format to enable group support
+zstyle ':completion:*:descriptions' format '[%d]'
+## enable tab completion menus
+zstyle ':completion:*' menu select
+## enable ls colors in completion
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+## fuzzy completion
+zstyle ':completion:*' matcher-list '' \
+    'm:{a-z\-}={A-Z\_}' \
+    'r:[[:ascii:]]||[[:ascii:]]=** r:|=* m:{a-z\-}={A-Z\_}' \
+    'r:|?=** m:{a-z\-}={A-Z\_}'
+
+# Set style options
+## version control info
+zstyle ':vcs_info:*' enable git
+zstyle ':vcs_info:*' check-for-changes true
+zstyle ':vcs_info:*' unstagedstr '*'
+zstyle ':vcs_info:*' stagedstr '+'
+zstyle ':vcs_info:git:*' formats '%F{green}@%b%F{red}%c%u%f'
+zstyle ':vcs_info:git:*' actionformats '%B%F{yellow}(%a)%f %B%F{green}@%b%F{red}%c%u%f'
+
+# Prompt
+PROMPT="%F{blue}%(4~|.../%2~|%~) %B%(#.%F{red}root%(?.%F{green}.%F{red})#.%(?.%F{green}.%F{red})$)%f%b "
+RPROMPT="\${vcs_info_msg_0_}"
+
+# Set terminal title to cwd or running command
+_set_title_cwd() { echo -ne "\033]2;${PWD/#$HOME/~}\007" }
+_set_title_cmd() { echo -ne "\033]2;${1%% *}\007" }
+precmd_functions+=(_set_title_cwd)
+preexec_functions+=(_set_title_cmd)
+
+# Aliases
+alias myip="curl http://ipecho.net/plain; echo"
+alias weather='curl wttr.in/\?format=3'
+alias reload="exec zsh"
+alias clean="stty sane"
+alias ls="ls --color -F"
+alias la="ls -a"
+alias ll="ls -hla"
+alias ducks="du -cksh *"
+alias untar='tar -xvf'
+alias h="history"
+
+_have xclip && alias xc="xclip -selection c" && alias xp="xclip -o"
+_have wl-copy && alias xc=wl-copy && alias xp=wl-paste
+_have pbcopy && alias xc=pbcopy && alias xp=pbpaste
+
+_have xdg-open && alias open="xdg-open"
+_have fdfind && alias fd=fdfind
+_have tmux && alias ta="tmux attach"
+_have vim && alias vi=vim
+_have jaq && alias jq=jaq
+
+alias e="$EDITOR"
+alias se="sudo $EDITOR"
+
+# have make find makefiles up the tree
+_have make && make() {
+    local dir="$PWD"
+    until [[ -f $dir/GNUmakefile || -f $dir/makefile || -f $dir/Makefile ]]; do
+        if [[ $dir == / ]]; then
+            command make "$@"
+            return
+        fi
+        dir="$(dirname "$dir")"
+    done
+    command make -C "$dir" "$@"
+}
+
+_have fzf && FZF_ALT_C_COMMAND= eval "$(fzf --zsh)"
+_have fzf && fzf-git-files() {
+    local files
+    files=$(git diff --name-only --relative 2>/dev/null)
+    [[ -z "$files" ]] && files=$(git status --porcelain --untracked-files=all | awk '{print $NF}')
+    [[ -z "$files" ]] && return
+    LBUFFER+=$(echo "$files" | fzf --multi | paste -sd' ' -)
+    zle reset-prompt
+}
+
+_have fzf && zle -N fzf-git-files
+_have fzf && bindkey '^X^F' fzf-git-files
+
+_have newsraft && alias newsraft="command newsraft -f <(gpg -dq "$DOTFILES"/secrets/newsraft-feeds.asc)"
+
+_have mise && eval "$(mise activate zsh)" && export MISE_ENV_FILE=.env
+
+_source_if "$EAT_SHELL_INTEGRATION_DIR/zsh"
+
+# Source plugins
+_source_if "$Z_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
+export ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=8'
+
+# New mail notice, mail(1)-style
+_mail_notice() {
+    local maildir="${XDG_DATA_HOME:-$HOME/.local/share}/mail"
+    local skip='^(Sent|Drafts|Trash|Archive)'
+    local -a unread
+    local plural=''
+    # mbsync files unseen mail into cur/ without the S flag, not into new/
+    unread=(
+        $maildir/${~skip}/new/*(N.)
+        $maildir/${~skip}/cur/*:2,^*S*(N.)
+    )
+    if (( $#unread )); then
+        [ $#unread -gt 1 ] && plural='s'
+        print -P "%F{yellow}You have $#unread new mail$plural%f"
+    fi
+}
+_have aerc && _mail_notice
+_have aerc && alias aerc="command aerc -A <(gpg -dq "$DOTFILES"/secrets/aerc-accounts.conf.gpg)"
+_have aerc && alias mail=aerc
+
+# vim: set filetype=zsh:

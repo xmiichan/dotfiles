@@ -51,3 +51,5 @@ cat << EOF
  ${boldon}${bryellowf}███████▄      ${brredf}████████████  ${brgreenf}████████████  ${brbluef}████████████  ${brpurplef}████████████  ${brcyanf}████████████${reset}
  ${boldon}${bryellowf}▀█████████▄▄  ${brredf}██▀██▀▀██▀██  ${brgreenf}██▀██▀▀██▀██  ${brbluef}██▀██▀▀██▀██  ${brpurplef}██▀██▀▀██▀██  ${brcyanf}██▀██▀▀██▀██${reset}
  ${boldon}${bryellowf}  ▀███████▀   ${brredf}▀   ▀  ▀   ▀  ${brgreenf}▀   ▀  ▀   ▀  ${brbluef}▀   ▀  ▀   ▀  ${brpurplef}▀   ▀  ▀   ▀  ${brcyanf}▀   ▀  ▀   ▀${reset}
+
+EOF

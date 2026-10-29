@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+[ -n "$1" ] && printf '%s ' "$1"
+
+security find-generic-password -s mail-sync 2>/dev/null |
+    sed -n 's/^ *"acct"<blob>="\(.*\)"$/\1/p' | grep . ||
+    gpg -dq --no-tty "$HOME/.dotfiles/secrets/smtp-user.gpg"

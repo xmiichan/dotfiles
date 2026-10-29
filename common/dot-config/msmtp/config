@@ -1,0 +1,12 @@
+account default
+host posteo.de
+port 465
+auth on
+tls on
+tls_starttls off
+tls_certcheck off
+eval "$HOME/.dotfiles/scripts/mail-user user"
+passwordeval "$HOME/.dotfiles/scripts/mail-pass"
+logfile "~/.cache/msmtp/msmtp.log"
+
+# vim: set filetype=conf:

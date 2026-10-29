@@ -1,0 +1,479 @@
+" BASIC CONFIG
+if &compatible
+    set nocompatible
+endif
+
+set backspace=2                " backspace in insert mode works like normal editor
+filetype plugin indent on      " filetype plugins and indenting
+syntax on                      " syntax highlighting
+set autoindent                 " auto indenting
+set smartindent                " smart indenting
+set ignorecase                 " case-insensitive search
+set smartcase                  " ... unless you're explicit
+set smarttab                   " smart tabbing and deleting indentation
+set wrap                       " line wrap
+set showbreak=↪\               " ... with a little indicator
+set hidden                     " allow hiding unsaved buffers
+set number                     " line numbers
+set nobackup                   " get rid of anoying ~files
+set autoread                   " automatically reload files that have been changed
+if !&hlsearch
+    set hlsearch               " highlight search results
+endif
+set incsearch                  " ... while typing
+set nowrapscan                 " don't wrap around when searching
+set ruler                      " show current position
+set showmatch                  " show matching parens etc.
+set encoding=utf8              " set unicode as standard encoding
+set autochdir                  " cwd follows file
+set shiftwidth=4               " indent by 4 spaces
+set tabstop=4                  " tab = 4 spaces
+set laststatus=2               " mode line
+set colorcolumn=80             " line at 80 ch width
+set splitbelow                 " new split obens below
+set splitright                 " new split obens right
+set cursorline                 " cursor line
+set nojoinspaces               " only one space when joining lines
+set wildmenu                   " menu autocomplete
+set mouse=a                    " mouse support
+set relativenumber             " relative line numbers
+set re=0                       " don't use old regex engine
+set scrolloff=8                " keep 8 lines while scrolling
+set updatetime=100             " update every 100ms
+set ttimeoutlen=50             " quicker exit insert mode with esc
+set expandtab                  " tab expands into spaces
+set wildmode=longest:full,full " command-line completion
+set pumheight=12               " max popup menu height
+if exists('+pumborder')
+    set pumborder=round        " nicer borders
+endif
+set linebreak                  " wrap at word boundaries
+set breakindent                " wrapped lines keep indent
+set confirm                    " prompt to save on :q/:e
+set virtualedit=block,onemore  " select past EOL in block mode
+set title                      " set terminal title
+set noerrorbells novisualbell  " no annoying bells
+
+" folding
+set foldmethod=indent 
+set foldlevelstart=99
+set foldminlines=0
+let &fillchars .= ",fold: "
+silent! set fillchars+=eob:\ ,foldsep:\ ,foldopen:,foldclose:
+silent! let &fillchars .= ",foldinner: "
+nnoremap + za
+
+" marker folds where a file has markers, indent folds elsewhere
+function! s:FoldMethod() abort
+    if !&diff && empty(&buftype)
+        let &l:foldmethod = search('{\{3}', 'nw') ? 'marker' : 'indent'
+    endif
+endfunction
+augroup foldmethod
+    autocmd!
+    autocmd BufWinEnter * call s:FoldMethod()
+augroup END
+
+" saving options in session and view files causes more problems than it solves
+set sessionoptions-=options
+set viewoptions-=options
+
+" skip on console ...
+if &term !~# '^linux'
+    " undercurl support
+    let &t_Cs = "\e[4:3m"
+    let &t_Ce = "\e[4:0m"
+    let &t_AU = "\e[58;5;%dm"
+    " bar cursor in insert mode
+    let &t_SI = "\e[6 q"
+    let &t_EI = "\e[2 q"
+    " italics
+    let &t_ZH = "\e[3m"
+    let &t_ZR = "\e[23m"
+endif
+
+" undo
+if has('persistent_undo')
+    set undofile undodir=$HOME/.cache/vim/undo
+    call mkdir(&undodir, "p", 0700)
+    set undolevels=1000
+    set undoreload=10000
+endif
+
+" swap
+set swapfile directory=$HOME/.cache/vim/swapfiles//
+call mkdir(&directory, "p", 0700)
+
+" use space as leader
+let mapleader = " "
+let maplocalleader = ","
+
+" use ripgrep instead of grep if available
+if executable('rg')
+    set grepprg=rg\ --vimgrep\ --smart-case\ --no-heading
+    set grepformat=%f:%l:%c:%m
+endif
+
+" remember last cursor pos in file
+augroup rememberfilepos
+    autocmd!
+    autocmd BufReadPost * silent! normal! g`"zv'
+augroup END
+
+" reload buffers changed outside of vim
+augroup autoread_check
+    autocmd!
+    autocmd FocusGained,BufEnter,CursorHold * silent! checktime
+augroup END
+
+" make directory on write if it does not exist
+function! s:MkdirOnWrite(dir) abort
+    if !isdirectory(a:dir)
+        call mkdir(a:dir, 'p')
+    endif
+endfunction
+augroup mkdironwrite
+    autocmd!
+    autocmd BufWritePre * call s:MkdirOnWrite(expand('<afile>:p:h'))
+augroup END
+
+" tab completion
+set omnifunc=syntaxcomplete#Complete
+set completeopt+=menuone,noinsert
+silent! set completeopt+=fuzzy
+
+set wildcharm=<C-z>
+cnoremap <expr><Tab>   getcmdtype() =~ '[\/?]' ? "<C-g>" : "<C-z>"
+cnoremap <expr><S-Tab> getcmdtype() =~ '[\/?]' ? "<C-t>" : "<S-Tab>"
+
+inoremap <expr><Tab> pumvisible() ? "\<C-n>" : "\<Tab>"
+inoremap <silent><expr> <C-p> pumvisible() ? "\<C-p>" : "\<Up>"
+inoremap <silent><expr> <C-n> pumvisible() ? "\<C-n>" : "\<Down>"
+
+" as-you-type completion
+if exists('+autocomplete')
+    set complete=.,o
+    set completeopt=fuzzy,menuone,noselect
+    set autocomplete
+endif
+
+" file exploration menu settings
+let g:netrw_banner = 0        " remove directions at top of file listing
+let g:netrw_liststyle = 3     " tree style listing
+let g:netrw_browse_split = 3  " split horizontal
+let g:netrw_preview = 1       " preview in vertical split
+
+" -- keymaps ---
+" C-l clears search highlight
+nnoremap <C-l> :noh<cr><C-l>
+" ... and in insert mode it opens spellcheck
+inoremap <C-l> <C-x>s
+
+" x does not yank
+noremap x "_x
+noremap X "_X
+
+" Y works like C/D
+noremap Y y$
+
+" yank/paste from system clipboard
+nnoremap <leader>y "+y
+nmap <leader>Y "+Y
+nnoremap <leader>p "+p
+nnoremap <leader>P "+P
+xnoremap <leader>y "+y
+xmap <leader>Y "+Y
+xnoremap <leader>p "+p
+xnoremap <leader>P "+P
+
+" re-source vimrc
+nnoremap <leader>x <cmd>update <bar> source $MYVIMRC<cr>
+
+" quick bol/eol
+noremap H ^
+noremap L $
+
+" wrap current paragraph
+nnoremap <silent> <C-q> mzgqip`z
+
+" netrw
+nnoremap <silent> - :Ex<cr>
+
+" quick-edit all like this (budget multicursor)
+nnoremap <C-s> :%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<left><left><left>
+
+" quick macro
+let g:reg_recorded = ''
+function! s:StopRecording() abort
+    let g:reg_recorded = reg_recording()
+    return 'q'
+endfunction
+
+nnoremap <expr> q empty(reg_recording()) ? 'q' : <SID>StopRecording()
+xnoremap <expr> q empty(reg_recording()) ? 'q' : <SID>StopRecording()
+nnoremap <expr> Q empty(g:reg_recorded) ? '' : '@' . g:reg_recorded
+xnoremap <expr> Q empty(g:reg_recorded) ? '' : ':normal @' . g:reg_recorded . "\<cr>"
+
+" dot repeat on a visually select lines
+xmap . :norm .<cr>
+
+" move lines in visual
+xnoremap <C-n> :m '>+1<cr>gv=gv
+xnoremap <C-p> :m '<-2<cr>gv=gv
+
+" preserve cursor position when joining lines
+nnoremap J mzJ`z
+nnoremap gJ mzkJ`z
+
+" quick buffer switching
+noremap <silent> <leader><leader> :b#<cr>
+
+" quick splits
+nnoremap <leader>ss :split<cr>
+nnoremap <leader>sv :vsplit<cr>
+
+" split style
+set fillchars+=vert:│
+
+silent! colorscheme tron-legacy
+set bg=dark
+
+" strip autowrap in diffs
+function! s:DiffNoAutoformat() abort
+    for l:win in range(1, winnr('$'))
+        if getwinvar(l:win, '&diff')
+            let l:buf = winbufnr(l:win)
+            let l:fo = getbufvar(l:buf, '&formatoptions')
+            call setbufvar(l:buf, '&formatoptions',
+                \ substitute(l:fo, '[at]', '', 'g'))
+        endif
+    endfor
+endfunction
+if exists('##DiffUpdated')
+    augroup diff_no_autoformat
+        autocmd!
+        autocmd DiffUpdated * call s:DiffNoAutoformat()
+    augroup END
+endif
+
+" text formatting and spelling
+nnoremap <silent> <leader>ts :set spell!<cr>
+nnoremap <silent> <leader>ta <cmd>let &l:fo = &l:fo =~# 'a'
+    \ ? substitute(&l:fo, 'a', '', 'g') : &l:fo . 'a'
+    \ <bar> silent setlocal fo?<cr>
+
+" highlight yanked text
+function! s:HighlightYank()
+    let l:start = getpos("'[")
+    let l:end = getpos("']")
+    if l:start[1] == l:end[1]
+        let l:match = matchaddpos('IncSearch', [[l:start[1], l:start[2], l:end[2] - l:start[2] + 1]])
+    else
+        let l:lines = []
+        for l:lnum in range(l:start[1], l:end[1])
+            call add(l:lines, [l:lnum])
+        endfor
+        let l:match = matchaddpos('IncSearch', l:lines)
+    endif
+    let l:win = win_getid()
+    call timer_start(200, {-> matchdelete(l:match, l:win)})
+endfunction
+augroup highlight_yank
+    autocmd!
+    autocmd TextYankPost * call s:HighlightYank()
+augroup END
+
+" PLUGINS
+if exists('g:noplug')
+    finish
+endif
+
+let s:plug = expand('~/.vim/autoload/plug.vim')
+if empty(glob(s:plug))
+    silent execute '!curl -fLo ' . s:plug . ' --create-dirs'
+        \ . ' https://raw.githubusercontent.com/junegunn/vim-plug'
+        \ . '/master/plug.vim'
+    if v:shell_error
+        finish
+    endif
+endif
+
+call plug#begin()
+Plug 'tpope/vim-rsi'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
+Plug 'tpope/vim-eunuch'
+Plug 'tpope/vim-speeddating'
+Plug 'tpope/vim-endwise'
+Plug 'tpope/vim-fugitive'
+Plug 'tpope/vim-vinegar'
+Plug 'tpope/vim-unimpaired'
+Plug 'tpope/vim-obsession'
+Plug 'airblade/vim-rooter'
+Plug 'airblade/vim-gitgutter'
+Plug 'whiteinge/diffconflicts'
+Plug 'markonm/traces.vim'
+Plug 'cohama/lexima.vim'
+Plug 'easymotion/vim-easymotion'
+Plug 'sheerun/vim-polyglot'
+Plug 'junegunn/fzf', { 'do': { -> fzf#install() } }
+Plug 'junegunn/fzf.vim'
+Plug 'junegunn/goyo.vim'
+Plug 'junegunn/limelight.vim'
+Plug 'prabirshrestha/vim-lsp'
+Plug 'mattn/vim-lsp-settings'
+Plug 'prabirshrestha/async.vim'
+Plug 'prabirshrestha/asyncomplete.vim'
+Plug 'prabirshrestha/asyncomplete-lsp.vim'
+Plug 'prabirshrestha/asyncomplete-buffer.vim'
+Plug 'prabirshrestha/asyncomplete-file.vim'
+call plug#end()
+
+augroup plug_install
+    autocmd!
+    autocmd VimEnter *
+        \ if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+        \ | PlugInstall --sync | source $MYVIMRC
+        \ | endif
+augroup END
+
+" copy and comment at the same time
+nmap yc yygccp
+xmap Y ygvgc`>p
+
+" rooter
+let g:rooter_resolve_links = 1
+
+" easymotion
+let g:EasyMotion_do_mapping = 0
+let g:EasyMotion_smartcase = 1
+map s <Plug>(easymotion-sn)
+
+" gitgutter
+let g:gitgutter_sign_added = '┃'
+let g:gitgutter_sign_modified = '┃'
+let g:gitgutter_sign_removed = '▁'
+let g:gitgutter_sign_removed_first_line = '▔'
+let g:gitgutter_sign_removed_above_and_below = '▔▁'
+let g:gitgutter_sign_modified_removed = '┃-'
+
+" goyo/limelight
+let g:limelight_conceal_ctermfg = 'grey'
+let g:limelight_conceal_guifg = 'grey'
+augroup goyo_limelight
+    autocmd!
+    autocmd User GoyoEnter Limelight
+    autocmd User GoyoLeave Limelight!
+augroup END
+nnoremap <leader>G :Goyo<cr>
+
+" fugitive
+function! s:FugitiveResolve() abort
+    let l:dir = fnamemodify(resolve(expand('%:p')), ':h')
+    let l:git_dir = trim(system('git -C ' . shellescape(l:dir)
+        \ . ' rev-parse --absolute-git-dir 2>/dev/null'))
+    if !v:shell_error && !empty(l:git_dir)
+        let b:git_dir = l:git_dir
+    endif
+endfunction
+nnoremap <silent> <leader>gg :call <SID>FugitiveResolve()<bar>Git<cr>
+nnoremap <silent> <leader>gb :call <SID>FugitiveResolve()<bar>Git blame<cr>
+nnoremap <silent> co :diffget //2<cr>
+nnoremap <silent> ct :diffget //3<cr>
+
+" fzf
+let g:fzf_layout = { 'window': { 'width': 0.9, 'height': 0.6 } }
+let g:fzf_vim = {}
+let g:fzf_vim.preview_window = ['right,50%,<50(up,50%)', 'ctrl-/']
+let g:fzf_vim.options = '--bind alt-a:select-all,alt-d:deselect-all'
+
+function! s:BuildQuickfixList(lines) abort
+    call setqflist(map(copy(a:lines), '{"filename": v:val, "lnum": 1}'))
+    copen
+    cc
+endfunction
+
+let g:fzf_action = {
+    \ 'ctrl-q': function('s:BuildQuickfixList'),
+    \ 'ctrl-t': 'tab split',
+    \ 'ctrl-x': 'split',
+    \ 'ctrl-v': 'vsplit',
+    \ }
+
+function! s:GitFilesOrFiles() abort
+    let l:dir = fnamemodify(resolve(expand('%:p')), ':h')
+    let l:root = trim(system('git -C ' . shellescape(l:dir)
+        \ . ' rev-parse --show-toplevel 2>/dev/null'))
+    if v:shell_error
+        Files
+    else
+        call fzf#vim#gitfiles('', fzf#vim#with_preview({'dir': l:root}))
+    endif
+endfunction
+
+nnoremap <silent> <leader>f :call <SID>GitFilesOrFiles()<cr>
+nnoremap <silent> <leader>F :Files<cr>
+nnoremap <silent> <leader>b :Buffers<cr>
+nnoremap <silent> <leader>m :Marks<cr>
+nnoremap <silent> <leader>J :Jumps<cr>
+nnoremap <silent> <leader>/ :BLines<cr>
+nnoremap <silent> <leader>; :RG<cr>
+xnoremap <silent> <leader>; "zy:execute 'RG' @z<cr>
+nnoremap <silent> <leader>gc :Commits<cr>
+nnoremap <silent> <leader>gC :BCommits<cr>
+nnoremap <silent> <leader>gf :GFiles?<cr>
+
+" lsp
+let g:lsp_settings_filetype_ruby = ['ruby-lsp', 'rubocop-lsp-mode']
+let g:lsp_settings = {
+    \ 'bash-language-server': {'allowlist': ['sh', 'bash', 'zsh']},
+    \ }
+let g:lsp_diagnostics_float_cursor = 1
+let g:lsp_diagnostics_signs_priority = 20
+let g:lsp_diagnostics_signs_error = {'text': '✖'}
+let g:lsp_diagnostics_signs_warning = {'text': '!'}
+let g:lsp_diagnostics_signs_information = {'text': 'i'}
+let g:lsp_diagnostics_signs_hint = {'text': '›'}
+let g:lsp_document_code_action_signs_priority = 15
+let g:lsp_document_code_action_signs_hint = {'text': '›'}
+let g:lsp_popup_highlight = 'Normal'
+let g:lsp_popup_borderchars = ['─', '│', '─', '│', '╭', '╮', '╯', '╰']
+
+function! s:LspMaps() abort
+    nmap <buffer> K <plug>(lsp-hover)
+    nmap <buffer> grn <plug>(lsp-rename)
+    nmap <buffer> gra <plug>(lsp-code-action)
+    nmap <buffer> grr <plug>(lsp-references)
+    nmap <buffer> gri <plug>(lsp-implementation)
+    nmap <buffer> grt <plug>(lsp-type-definition)
+    nmap <buffer> gO <plug>(lsp-document-symbol)
+    nmap <buffer> gr= <plug>(lsp-document-format)
+    nmap <buffer> ]d <plug>(lsp-next-diagnostic)
+    nmap <buffer> [d <plug>(lsp-previous-diagnostic)
+    nmap <buffer> <leader>e <plug>(lsp-document-diagnostics)
+endfunction
+
+augroup lsp_maps
+    autocmd!
+    autocmd User lsp_buffer_enabled call s:LspMaps()
+augroup END
+
+" asyncomplete
+if exists('+autocomplete')
+    set noautocomplete
+endif
+
+function! s:AsyncompleteSetup() abort
+    call asyncomplete#register_source(
+        \ asyncomplete#sources#buffer#get_source_options({
+        \ 'name': 'buffer',
+        \ 'allowlist': ['*'],
+        \ 'completor': function('asyncomplete#sources#buffer#completor'),
+        \ }))
+endfunction
+
+augroup asyncomplete_config
+    autocmd!
+    autocmd User asyncomplete_setup call s:AsyncompleteSetup()
+    autocmd FileType markdown,text let b:asyncomplete_enable = 0
+augroup END

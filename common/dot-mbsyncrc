@@ -1,0 +1,25 @@
+IMAPAccount posteo
+Host posteo.de
+Port 993
+TLSType IMAPS
+UserCmd "$HOME/.dotfiles/scripts/mail-user"
+PassCmd "$HOME/.dotfiles/scripts/mail-pass"
+CertificateFile /etc/ssl/cert.pem
+
+IMAPStore posteo-remote
+Account posteo
+
+MaildirStore posteo-local
+Path ~/.local/share/mail/
+Inbox ~/.local/share/mail/INBOX
+SubFolders Verbatim
+
+Channel posteo
+Far :posteo-remote:
+Near :posteo-local:
+Patterns *
+Create Both
+Expunge Both
+SyncState *
+
+# vim: set filetype=conf:
