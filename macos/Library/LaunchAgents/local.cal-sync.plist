@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.mii.cal-sync</string>
+    <string>local.cal-sync</string>
     <key>ProgramArguments</key>
     <array>
         <string>/bin/sh</string>
