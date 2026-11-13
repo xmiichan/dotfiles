@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+pandoc -f markdown-smart -t plain --wrap=none "$1" |
+sed -E 's/^[^ -].*/    &/; s/([.!?]["'"'"')]*) ([A-Z"])/\1  \2/g; s/(^|[^[:alpha:]])(Mr|Mrs|Ms|Dr|St)\.  /\1\2. /g' |
+fold -s -w 72 |
+sed -E 's/ +$//; s/^ ([^ ])/\1/' > "${1%.*}.txt"
