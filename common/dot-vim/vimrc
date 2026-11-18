@@ -475,5 +475,4 @@ endfunction
 augroup asyncomplete_config
     autocmd!
     autocmd User asyncomplete_setup call s:AsyncompleteSetup()
-    autocmd FileType markdown,text let b:asyncomplete_enable = 0
 augroup END

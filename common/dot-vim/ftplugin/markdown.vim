@@ -6,6 +6,7 @@ setlocal conceallevel=2
 if exists('+autocomplete')
     setlocal noautocomplete
 endif
+let b:asyncomplete_enable = 0
 
 " break undo after punctuation
 for ch in ['.', '!', '?', ',', ';', ':']
