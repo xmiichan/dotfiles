@@ -90,6 +90,9 @@ if &term !~# '^linux'
     " italics
     let &t_ZH = "\e[3m"
     let &t_ZR = "\e[23m"
+    " strike-through
+    let &t_Ts = "\e[9m"
+    let &t_Te = "\e[29m"
 endif
 
 " undo

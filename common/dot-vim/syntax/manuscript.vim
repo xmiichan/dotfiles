@@ -2,18 +2,26 @@ if exists('b:current_syntax')
     finish
 endif
 
-syn cluster manuscriptInline
-    \ contains=manuscriptItalic,manuscriptBold,@Spell
+syn cluster msInline
+    \ contains=msItalic,msBold,msUnderline,msStrikethrough,@Spell
 
-syn region manuscriptItalic matchgroup=manuscriptDelimiter
-    \ start="\w\@<!_\S\@=" end="\S\@<=_\w\@!" skip="\\_"
-    \ concealends contains=@manuscriptInline
-syn region manuscriptBold matchgroup=manuscriptDelimiter
-    \ start="\w\@<!\*\S\@=" end="\S\@<=\*\w\@!" skip="\\\*"
-    \ concealends contains=@manuscriptInline
+syn region msItalic matchgroup=msDelimiter
+    \ start="\w\@<!\S\@=" end="\S\@<=\w\@!" skip="\\"
+    \ concealends contains=@msInline
+syn region msBold matchgroup=msDelimiter
+    \ start="\w\@<!\\S\@=" end="\S\@<=\\w\@!" skip="\\"
+    \ concealends contains=@msInline
+syn region msUnderline matchgroup=msDelimiter
+    \ start="\w\@<!\\S\@=" end="\S\@<=\\w\@!" skip="\\"
+    \ concealends contains=@msInline
+syn region msStrikethrough matchgroup=msDelimiter
+    \ start="\w\@<!\\S\@=" end="\S\@<=\\w\@!" skip="\\"
+    \ concealends contains=@msInline
 
-hi def manuscriptItalic term=italic cterm=italic gui=italic
-hi def manuscriptBold term=bold cterm=bold gui=bold
+hi def msItalic term=italic cterm=italic gui=italic
+hi def msBold term=bold cterm=bold gui=bold
+hi def msUnderline term=underline cterm=underline gui=underline
+hi def msStrikethrough term=strikethrough cterm=strikethrough gui=strikethrough
 
 syn spell toplevel
-let b:current_syntax = 'manuscript'
+let b:current_syntax = 'ms'

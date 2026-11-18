@@ -66,6 +66,24 @@ function! s:ConcealedCount(lnum, len) abort
     return l:count
 endfunction
 
+function! s:ConcealedWidth(lnum, text) abort
+    if &conceallevel == 0
+        return 0
+    endif
+    let l:width = 0
+    let l:col = 1
+    for l:ch in split(a:text, '\zs')
+        let l:info = synconcealed(a:lnum, l:col)
+        if l:info[0]
+            let l:shown = &conceallevel == 3 ? 0
+                \ : &conceallevel == 1 || l:info[1] !=# '' ? 1 : 0
+            let l:width += strdisplaywidth(l:ch) - l:shown
+        endif
+        let l:col += strlen(l:ch)
+    endfor
+    return l:width
+endfunction
+
 function! s:JustifyLine(lnum) abort
     let l:line = getline(a:lnum)
     if l:line !~# '\S\s* $'
@@ -73,7 +91,7 @@ function! s:JustifyLine(lnum) abort
     endif
     let l:text = substitute(l:line, '\s\+$', '', '')
     let l:pad = &textwidth - strdisplaywidth(l:text)
-        \ + s:ConcealedCount(a:lnum, strlen(l:text))
+        \ + s:ConcealedWidth(a:lnum, l:text)
     let l:cols = []
     let l:start = matchend(l:text, '^ *')
     while 1
