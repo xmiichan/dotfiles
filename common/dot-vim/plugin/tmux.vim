@@ -83,6 +83,10 @@ nnoremap <silent> <F26> :call <SID>Swap('j', '{down-of}')<cr>
 nnoremap <silent> <F27> :call <SID>Swap('k', '{up-of}')<cr>
 nnoremap <silent> <F28> :call <SID>Swap('l', '{right-of}')<cr>
 
+for s:key in ['h', 'j', 'k', 'l', 'H', 'J', 'K', 'L']
+    execute 'inoremap <M-' . s:key . '> <Esc>' . s:key
+endfor
+
 if has('terminal')
     tnoremap <silent> <M-h> <C-w>:call <SID>Move('h', '-L')<cr>
     tnoremap <silent> <M-j> <C-w>:call <SID>Move('j', '-D')<cr>
