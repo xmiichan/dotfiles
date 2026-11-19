@@ -42,7 +42,8 @@ decorations_theme_variant = "Dark"
 option_as_alt = "OnlyLeft"
 
 [font]
-normal = { family = "Sarasa Term J", style = "Regular" }
+# normal = { family = "Sarasa Term J", style = "Regular" }
+normal = { family = "PlemolJP Console", style = "Regular" }
 size = 16
 
 [[hints.enabled]]
