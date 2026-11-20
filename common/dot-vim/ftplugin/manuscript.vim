@@ -2,6 +2,7 @@ setlocal textwidth=72
 setlocal formatoptions=tqaw2
 setlocal noautoindent nosmartindent
 setlocal expandtab
+setlocal nowrap
 setlocal spell
 setlocal complete+=kspell
 if exists('+autocomplete')
@@ -27,6 +28,7 @@ command! -buffer -range Center <line1>,<line2>center
 function! s:YankJoined() abort
     let l:text = ''
     for l:line in v:event.regcontents
+        let l:line = substitute(l:line, '[\x02\x15\x18\x19]', '', 'g')
         let l:text .= trim(l:line) . (l:line =~# ' $' ? ' ' : "\n")
     endfor
     let l:text = trim(l:text, " \n", 2)
@@ -42,6 +44,32 @@ augroup yank_joined_buf
         \ | endif
 augroup END
 
+function! ManuscriptRuler() abort
+    return printf('%d words ', get(t:, 'manuscript_words', 0))
+endfunction
+
+function! s:UpdateRuler() abort
+    if &ruler && &laststatus == 0
+        let t:manuscript_words = wordcount().words
+        redrawstatus!
+    endif
+endfunction
+
+augroup manuscript_goyo
+    autocmd!
+    autocmd User GoyoEnter if &filetype ==# 'manuscript'
+        \ | set ruler rulerformat=%20(%=%{ManuscriptRuler()}%)
+        \ | call s:UpdateRuler()
+        \ | endif
+    autocmd User GoyoLeave set rulerformat&
+augroup END
+
+augroup manuscript_ruler
+    autocmd! * <buffer>
+    autocmd CursorMoved,CursorMovedI,TextChanged,TextChangedI <buffer>
+        \ call s:UpdateRuler()
+augroup END
+
 " justify for vim 9+ like in wordstar
 if !has('textprop') || !has('patch-9.0.0067')
     finish
@@ -52,19 +80,6 @@ let s:prop = 'manuscript_pad'
 if empty(prop_type_get(s:prop, {'bufnr': bufnr()}))
     call prop_type_add(s:prop, {'bufnr': bufnr()})
 endif
-
-function! s:ConcealedCount(lnum, len) abort
-    if &conceallevel == 0
-        return 0
-    endif
-    let l:count = 0
-    for l:col in range(1, a:len)
-        if synconcealed(a:lnum, l:col)[0]
-            let l:count += 1
-        endif
-    endfor
-    return l:count
-endfunction
 
 function! s:ConcealedWidth(lnum, text) abort
     if &conceallevel == 0

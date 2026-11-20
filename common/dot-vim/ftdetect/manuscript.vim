@@ -1,1 +1,1 @@
-autocmd BufRead,BufNewFile *.ms set filetype=manuscript
+autocmd BufRead,BufNewFile *.ws set filetype=manuscript
