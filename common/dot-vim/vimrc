@@ -368,7 +368,9 @@ augroup goyo_limelight
     autocmd User GoyoEnter Limelight
     autocmd User GoyoLeave Limelight!
 augroup END
-nnoremap <leader>G :Goyo<cr>
+nnoremap <silent> <leader>G
+    \ :execute exists('#goyo') ? 'Goyo!'
+    \ : &textwidth ? 'Goyo ' . &textwidth : 'Goyo'<cr>
 
 " fugitive
 function! s:FugitiveResolve() abort

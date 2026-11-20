@@ -9,7 +9,7 @@ endfunction
 
 " move focus to other window or hand over to tmux
 function! s:Move(dir, tmux_flag) abort
-    if winnr(a:dir) == winnr()
+    if exists('#goyo') || winnr(a:dir) == winnr()
         call s:Tmux('select-pane -Z ' . a:tmux_flag)
     else
         execute 'wincmd' a:dir
@@ -27,7 +27,9 @@ function! s:Resize(dir, tmux_flag) abort
     let l:backward = l:horizontal ? 'h' : 'k'
     " if forward, we grow the window, otherwise we shrink it
     let l:grow = a:dir ==# l:forward
-    if winnr(l:forward) != winnr()
+    if exists('#goyo')
+        call s:Tmux(s:no_float . "'resize-pane " . a:tmux_flag . " 5'")
+    elseif winnr(l:forward) != winnr()
         execute l:resize . (l:grow ? '+' : '-') . l:step
     elseif winnr(l:backward) != winnr()
         execute l:resize . (l:grow ? '-' : '+') . l:step
@@ -39,7 +41,7 @@ endfunction
 " swap two windows or hand over to tmux
 function! s:Swap(dir, tmux_pane) abort
     let l:target = winnr(a:dir)
-    if l:target == winnr()
+    if exists('#goyo') || l:target == winnr()
         call s:Tmux(s:no_float . "'swap-pane -s \"" . a:tmux_pane . "\"'")
         return
     endif
